@@ -1,3 +1,4 @@
+import 'package:echodate/app/modules/home/views/home_screen.dart';
 import 'package:echodate/app/modules/splash/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
