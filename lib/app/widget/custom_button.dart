@@ -1,4 +1,4 @@
-import 'package:echodate/resources/colors.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -43,7 +43,7 @@ class CustomButton extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors().primaryColor,
+                    AppColors.primaryColor,
                     Color(0xffC18618),
                   ],
                 )
