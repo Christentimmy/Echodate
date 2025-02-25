@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:echodate/app/modules/gender/views/gender_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/utils/image_picker.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +15,14 @@ class ProfileDetailsScreen extends StatelessWidget {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final Rxn<DateTime> _selectedTime = Rxn<DateTime>();
+  final Rxn<File> _selectedPicture = Rxn<File>();
+
+  void selectImage() async {
+    File? image = await pickImage();
+    if (image != null) {
+      _selectedPicture.value = image;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,35 +69,48 @@ class ProfileDetailsScreen extends StatelessWidget {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Container(
-                      height: Get.height * 0.1,
-                      width: Get.width * 0.2,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        image: const DecorationImage(
-                          image: AssetImage("assets/images/pp.jpg"),
-                          fit: BoxFit.cover,
-                          alignment: Alignment.topCenter,
+                    Obx(
+                      () => Container(
+                        height: Get.height * 0.15,
+                        width: Get.width * 0.3,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 2,
+                            color: AppColors.primaryColor,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                          image: DecorationImage(
+                            image: _selectedPicture.value != null
+                                ? FileImage(_selectedPicture.value!)
+                                : const AssetImage("assets/images/pp.jpg"),
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                          ),
                         ),
                       ),
                     ),
                     Positioned(
                       bottom: -5,
                       right: -5,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 2,
-                            color: Colors.white,
+                      child: InkWell(
+                        onTap: () {
+                          selectImage();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 2,
+                              color: Colors.white,
+                            ),
+                            color: AppColors.primaryColor,
+                            shape: BoxShape.circle,
                           ),
-                          color: AppColors.primaryColor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 18,
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
@@ -156,7 +181,9 @@ class ProfileDetailsScreen extends StatelessWidget {
 
               // Confirm Button
               CustomButton(
-                ontap: () {},
+                ontap: () {
+                  Get.to(() => const GenderSelectionScreen());
+                },
                 child: const Text(
                   "Confirm",
                   style: TextStyle(fontSize: 16, color: Colors.white),

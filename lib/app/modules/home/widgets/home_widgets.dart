@@ -246,7 +246,8 @@ class TinderCardDetails extends StatelessWidget {
                   ),
                   Positioned(
                     bottom: Get.height * 0.02,
-                    child: SizedBox(
+                    child: Container(
+                      padding: const EdgeInsets.only(right: 10),
                       height: 50,
                       width: Get.width,
                       child: Row(

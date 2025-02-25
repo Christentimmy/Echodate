@@ -70,7 +70,7 @@ class CustomTextField extends StatelessWidget {
         style: textStyle,
         decoration: InputDecoration(
           fillColor: bgColor,
-          filled: true,
+          filled:  bgColor != null ? true : false,
           counterText: maxLength != null ? "" : null,
           hintText: hintText,
           hintStyle: hintStyle ?? TextStyle(

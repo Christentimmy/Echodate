@@ -1,4 +1,5 @@
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
+import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -116,7 +117,13 @@ class _PickInterestScreenState extends State<PickInterestScreen> {
               ),
               const Spacer(),
               CustomButton(
-                ontap: () {},
+                ontap: () {
+                  if (selectedInterests.length >= 5) {
+                    Get.to(()=> BottomNavigationScreen());
+                  }else{
+                    Get.snackbar("Error", "pick 5 interest cards");
+                  }
+                },
                 child: const Text(
                   "Next",
                   style: TextStyle(

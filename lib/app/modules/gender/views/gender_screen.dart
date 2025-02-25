@@ -1,3 +1,4 @@
+import 'package:echodate/app/modules/Interest/views/pick_interest_screen.dart';
 import 'package:echodate/app/modules/gender/widgets/gender_widget.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
@@ -86,7 +87,9 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
               ),
               const Spacer(),
               CustomButton(
-                ontap: () {},
+                ontap: () {
+                  Get.to(()=> const PickInterestScreen());
+                },
                 child: const Text(
                   "Continue",
                   style: TextStyle(

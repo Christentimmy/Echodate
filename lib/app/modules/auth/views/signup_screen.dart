@@ -2,6 +2,7 @@ import 'package:echodate/app/modules/Interest/views/pick_interest_screen.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
+import 'package:echodate/app/modules/profile/views/profile_details_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 
@@ -78,7 +79,7 @@ class RegisterScreen extends StatelessWidget {
                   Get.to(
                     () => OTPVerificationScreen(
                       onVerifiedCallBack: () {
-                        Get.to(() => PickInterestScreen());
+                        Get.to(() => ProfileDetailsScreen());
                       },
                     ),
                   );

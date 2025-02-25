@@ -1,4 +1,4 @@
-import 'package:echodate/app/modules/profile/views/profile_screen.dart';
+import 'package:echodate/app/modules/splash/views/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,8 +16,11 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         textTheme: GoogleFonts.montserratTextTheme(),
+        splashColor: Colors.transparent,
+        splashFactory: NoSplash.splashFactory,
+        scaffoldBackgroundColor: Colors.white,
       ),
-      home: ProfileScreen(),
+      home: const SplashScreen1(),
     );
   }
 }

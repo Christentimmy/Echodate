@@ -1,4 +1,5 @@
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
+import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
@@ -75,7 +76,9 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: Get.height * 0.05),
               CustomButton(
-                ontap: () {},
+                ontap: () {
+                  Get.to(() => BottomNavigationScreen());
+                },
                 child: const Text(
                   "Login",
                   style: TextStyle(
