@@ -1,3 +1,4 @@
+import 'package:echodate/app/modules/gender/widgets/gender_widget.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class GenderSelectionScreen extends StatefulWidget {
 }
 
 class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
-  String selectedGender = "Man"; // Default selected gender
+  RxString selectedGender = "Man".obs;
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +75,15 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
               const SizedBox(height: 30),
 
               // Gender Selection Cards
-              _buildGenderOption("Woman"),
+              buildGenderOption("Woman", selectedGender),
               const SizedBox(height: 10),
-              _buildGenderOption("Man"),
+              buildGenderOption("Man", selectedGender),
               const SizedBox(height: 10),
-              _buildGenderOption("Choose another", showCheck: false),
+              buildGenderOption(
+                "Choose another",
+                selectedGender,
+                showCheck: false,
+              ),
               const Spacer(),
               CustomButton(
                 ontap: () {},
@@ -93,50 +98,6 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
               )
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  // Gender Option Widget
-  Widget _buildGenderOption(String gender, {bool showCheck = true}) {
-    bool isSelected = selectedGender == gender;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedGender = gender;
-        });
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          vertical: 15,
-          horizontal: 20,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isSelected ? AppColors.primaryColor : Colors.grey.shade300,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              gender,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : Colors.black,
-              ),
-            ),
-            if (isSelected && showCheck)
-              const Icon(Icons.check, color: Colors.white),
-            if (!isSelected && !showCheck)
-              const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-          ],
         ),
       ),
     );
