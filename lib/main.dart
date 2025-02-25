@@ -1,6 +1,4 @@
-import 'package:echodate/app/modules/Interest/views/pick_interest_screen.dart';
-import 'package:echodate/app/modules/gender/views/gender_screen.dart';
-import 'package:echodate/app/modules/profile/views/profile_details_screen.dart';
+import 'package:echodate/app/modules/home/views/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +17,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: GoogleFonts.montserratTextTheme(),
       ),
-      home: GenderSelectionScreen(),
+      home: HomeScreen(),
     );
   }
 }
