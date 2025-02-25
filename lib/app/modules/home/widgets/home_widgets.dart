@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 Widget actionButton(
   IconData icon,
@@ -178,6 +179,266 @@ class TinderCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class TinderCardDetails extends StatelessWidget {
+  const TinderCardDetails({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: Get.height * 0.6,
+              width: Get.width,
+              child: Stack(
+                children: [
+                  Image.asset(
+                    "assets/images/pp.jpg",
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                    height: Get.height * 0.6,
+                    width: Get.width,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: Get.height * 0.08,
+                    ),
+                    child: Row(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Get.back();
+                          },
+                          child: CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Colors.grey.withOpacity(0.8),
+                            child: const Icon(
+                              FontAwesomeIcons.x,
+                              size: 15,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          height: 45,
+                          width: 45,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: AppColors.primaryColor,
+                          ),
+                          child: const Icon(
+                            FontAwesomeIcons.wallet,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    bottom: Get.height * 0.02,
+                    child: SizedBox(
+                      height: 50,
+                      width: Get.width,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          AnimatedSmoothIndicator(
+                            activeIndex: 0,
+                            count: 4,
+                            effect: ExpandingDotsEffect(
+                              dotWidth: 10,
+                              dotHeight: 10,
+                              activeDotColor: AppColors.primaryColor,
+                            ),
+                          ),
+                          SizedBox(width: Get.width / 4.8),
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.white.withOpacity(0.8),
+                            child: Icon(
+                              Icons.chat,
+                              color: AppColors.primaryColor,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 25,
+                  vertical: 5,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                ),
+                child: const Text(
+                  "70% match",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Column(
+                        children: [
+                          Text(
+                            "Sara Willaims (27)",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text("Califonia, USA ( 54Km )"),
+                        ],
+                      ),
+                      const Spacer(),
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.blueGrey.withOpacity(0.3),
+                        child: const Icon(Icons.more_vert_sharp),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "About",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nisi,etium maecenas sed urna lorem ipsum dolor sit amet, consectetur adipiscing elit...",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  Text(
+                    "Show more",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Basic Information",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _buildBasicInfoTile(
+                    leading: "Gender: ",
+                    title: "Male",
+                  ),
+                  _buildBasicInfoTile(
+                    leading: "Age: ",
+                    title: "27 Years Old",
+                  ),
+                  _buildBasicInfoTile(
+                    leading: "Interests: ",
+                    title: "Football, Clubbing, Swimming, Cooking",
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+            Container(
+              color: AppColors.primaryColor,
+              width: Get.width,
+              height: Get.height * 0.1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  actionButton(
+                    FontAwesomeIcons.xmark,
+                    Colors.white,
+                    false,
+                  ),
+                  const SizedBox(width: 20),
+                  actionButton(
+                    FontAwesomeIcons.solidHeart,
+                    Colors.orange,
+                    true,
+                  ),
+                  const SizedBox(width: 20),
+                  actionButton(
+                    Icons.star_border,
+                    Colors.white,
+                    false,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBasicInfoTile({
+    required String title,
+    required String leading,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Text(
+          leading,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: Colors.blueGrey,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
           ),
         ),
       ],

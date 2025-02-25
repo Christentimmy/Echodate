@@ -95,15 +95,18 @@ class HomeScreen extends StatelessWidget {
                       horizontalOffsetPercentage,
                       verticalOffsetPercentage,
                     ) {
-                      return TinderCard(
-                        profile: profiles[index],
+                      return InkWell(
+                        onTap: () {
+                          Get.to(() => const TinderCardDetails());
+                        },
+                        child: TinderCard(profile: profiles[index]),
                       );
                     },
                     cardsCount: profiles.length,
                   ),
 
                   Positioned(
-                    bottom: Get.height* 0.05,
+                    bottom: Get.height * 0.05,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
