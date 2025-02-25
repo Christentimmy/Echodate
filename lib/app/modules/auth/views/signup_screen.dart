@@ -2,7 +2,6 @@ import 'package:echodate/app/modules/Interest/views/pick_interest_screen.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
-import 'package:echodate/app/modules/home/views/home_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 

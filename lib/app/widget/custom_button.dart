@@ -35,6 +35,14 @@ class CustomButton extends StatelessWidget {
         alignment: Alignment.center,
         width: width ?? Get.width,
         decoration: BoxDecoration(
+          boxShadow:  [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 2,
+              spreadRadius: 1,
+              offset: const Offset(0, 1.4),
+            ),
+          ],
           border: border,
           borderRadius: borderRadius ?? BorderRadius.circular(15),
           color: bgColor,
@@ -44,7 +52,7 @@ class CustomButton extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     AppColors.primaryColor,
-                    Color(0xffC18618),
+                    const Color.fromARGB(255, 236, 167, 37),
                   ],
                 )
               : null,
