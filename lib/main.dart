@@ -1,3 +1,4 @@
+import 'package:echodate/app/modules/Interest/views/pick_interest_screen.dart';
 import 'package:echodate/app/modules/home/views/home_screen.dart';
 import 'package:echodate/app/modules/splash/views/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: GoogleFonts.robotoTextTheme(),
       ),
-      home: const SplashScreen1(),
+      home: const PickInterestScreen(),
     );
   }
 }
