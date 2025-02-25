@@ -1,4 +1,5 @@
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
+import 'package:echodate/app/modules/live/views/watch_live_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -57,11 +58,22 @@ class HomeScreen extends StatelessWidget {
                     height: 30,
                     fit: BoxFit.fitWidth,
                   ),
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.notifications, color: Colors.black),
-                      SizedBox(width: 10),
-                      Icon(Icons.chat, color: Colors.black),
+                      InkWell(
+                        onTap: () {
+                          Get.to(() => WatchLiveScreen());
+                        },
+                        child: const Icon(
+                          FontAwesomeIcons.hive,
+                          color: Colors.black,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Icon(Icons.notifications, color: Colors.black),
+                      const SizedBox(width: 10),
+                      const Icon(Icons.menu_rounded, color: Colors.black),
                     ],
                   )
                 ],
@@ -80,9 +92,7 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
             ),
-            const SizedBox(height: 10),
-            const AnimatedSwitcherWidget(),
-            const SizedBox(height: 5),
+            const SizedBox(height: 15),
             Expanded(
               child: Stack(
                 alignment: Alignment.center,

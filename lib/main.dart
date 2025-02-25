@@ -1,3 +1,4 @@
+import 'package:echodate/app/modules/favourtie/views/favourite_screen.dart';
 import 'package:echodate/app/modules/home/views/home_screen.dart';
 import 'package:echodate/app/modules/live/views/watch_live_screen.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: GoogleFonts.montserratTextTheme(),
       ),
-      home: WatchLiveScreen(),
+      home: FavouriteScreen(),
     );
   }
 }
