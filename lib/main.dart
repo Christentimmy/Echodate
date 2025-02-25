@@ -1,6 +1,4 @@
-import 'package:echodate/app/modules/favourtie/views/favourite_screen.dart';
-import 'package:echodate/app/modules/home/views/home_screen.dart';
-import 'package:echodate/app/modules/live/views/watch_live_screen.dart';
+import 'package:echodate/app/modules/profile/views/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +17,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: GoogleFonts.montserratTextTheme(),
       ),
-      home: FavouriteScreen(),
+      home: ProfileScreen(),
     );
   }
 }

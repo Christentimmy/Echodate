@@ -365,15 +365,15 @@ class TinderCardDetails extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  _buildBasicInfoTile(
+                  buildBasicInfoTile(
                     leading: "Gender: ",
                     title: "Male",
                   ),
-                  _buildBasicInfoTile(
+                  buildBasicInfoTile(
                     leading: "Age: ",
                     title: "27 Years Old",
                   ),
-                  _buildBasicInfoTile(
+                  buildBasicInfoTile(
                     leading: "Interests: ",
                     title: "Football, Clubbing, Swimming, Cooking",
                   ),
@@ -413,37 +413,37 @@ class TinderCardDetails extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildBasicInfoTile({
-    required String title,
-    required String leading,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text(
-          leading,
+Widget buildBasicInfoTile({
+  required String title,
+  required String leading,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: [
+      Text(
+        leading,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: Colors.blueGrey,
+        ),
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: Text(
+          title,
           style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: Colors.blueGrey,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
           ),
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }
 
 class StoryCard extends StatelessWidget {
