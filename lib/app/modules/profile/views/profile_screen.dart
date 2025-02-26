@@ -1,5 +1,6 @@
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
+import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -144,7 +145,9 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 _buildProfileSettingTiles(
                   title: "EchoDate Premium",
-                  onTap: () {},
+                  onTap: () {
+                    Get.to(()=> SubscriptionScreen());
+                  },
                   bgColor: AppColors.primaryColor,
                   iconColor: Colors.white,
                   icon: FontAwesomeIcons.crown,

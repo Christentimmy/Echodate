@@ -1,4 +1,3 @@
-import 'package:echodate/app/modules/Interest/views/pick_interest_screen.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
