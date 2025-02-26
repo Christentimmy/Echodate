@@ -113,9 +113,56 @@ class ChatScreen extends StatelessWidget {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.emoji_emotions_outlined,
-                      color: Colors.orange),
-                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.attach_file_rounded,
+                    color: Colors.orange,
+                  ),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildProfileSettingTiles(
+                                title: "Send Image",
+                                onTap: () {},
+                                bgColor: Colors.orange,
+                                iconColor: Colors.white,
+                                icon: Icons.image,
+                              ),
+                              const SizedBox(height: 10),
+                              _buildProfileSettingTiles(
+                                title: "Send Video",
+                                onTap: () {},
+                                bgColor: Colors.green,
+                                iconColor: Colors.white,
+                                icon: Icons.video_camera_back_sharp,
+                              ),
+                              const SizedBox(height: 10),
+                              _buildProfileSettingTiles(
+                                title: "Send Audio",
+                                onTap: () {},
+                                bgColor: Colors.deepPurpleAccent,
+                                iconColor: Colors.white,
+                                icon: Icons.audiotrack_sharp,
+                              ),
+                              const SizedBox(height: 10),
+                              _buildProfileSettingTiles(
+                                title: "Send Document",
+                                onTap: () {},
+                                bgColor: Colors.lightBlueAccent,
+                                iconColor: Colors.white,
+                                icon: Icons.document_scanner,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
                 Expanded(
                   child: TextField(
@@ -138,8 +185,43 @@ class ChatScreen extends StatelessWidget {
     );
   }
 
+  ListTile _buildProfileSettingTiles({
+    required String title,
+    required VoidCallback onTap,
+    required Color bgColor,
+    required Color iconColor,
+    required IconData icon,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: EdgeInsets.zero,
+      minTileHeight: 20,
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      leading: Container(
+        height: 40,
+        width: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: bgColor,
+        ),
+        child: Icon(
+          icon,
+          color: iconColor,
+          size: 20,
+        ),
+      ),
+    );
+  }
+
   // Chat Bubble Widget
-  Widget chatBubble({
+  static Widget chatBubble({
     required String text,
     required bool isSender,
     required String time,

@@ -146,7 +146,7 @@ class ProfileScreen extends StatelessWidget {
                 _buildProfileSettingTiles(
                   title: "EchoDate Premium",
                   onTap: () {
-                    Get.to(()=> SubscriptionScreen());
+                    Get.to(()=> const SubscriptionScreen());
                   },
                   bgColor: AppColors.primaryColor,
                   iconColor: Colors.white,
