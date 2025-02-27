@@ -1,4 +1,3 @@
-import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
 import 'package:echodate/app/modules/splash/views/splash_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +22,7 @@ class MainApp extends StatelessWidget {
         splashFactory: NoSplash.splashFactory,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: PreferenceSettingScreen(),
+      home: SplashScreen1(),
     );
   }
 }

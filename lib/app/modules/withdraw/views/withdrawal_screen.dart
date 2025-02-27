@@ -1,3 +1,4 @@
+import 'package:echodate/app/modules/withdraw/views/add_bank_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -142,9 +143,9 @@ class WithdrawalScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Text(
+                    const Text(
                       "Choose bank account",
                       style: TextStyle(
                         fontSize: 17,
@@ -152,11 +153,16 @@ class WithdrawalScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Spacer(),
-                    Text(
-                      "Add new",
-                      style: TextStyle(
-                        color: Colors.blue,
+                    const Spacer(),
+                    InkWell(
+                      onTap: () {
+                        Get.to(() => const AddBankScreen());
+                      },
+                      child: const Text(
+                        "Add new",
+                        style: TextStyle(
+                          color: Colors.blue,
+                        ),
                       ),
                     ),
                   ],

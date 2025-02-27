@@ -1,5 +1,6 @@
 import 'package:echodate/app/modules/auth/views/change_password_screen.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
+import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -76,7 +77,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               ListTile(
                 onTap: () {
-                  Get.to(() => ChangePasswordScreen());
+                  Get.to(() => const ChangePasswordScreen());
                 },
                 minTileHeight: 30,
                 contentPadding: const EdgeInsets.all(5),
@@ -89,29 +90,32 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 trailing: const Icon(Icons.keyboard_arrow_right_rounded),
               ),
-              const ListTile(
+              // const ListTile(
+              //   minTileHeight: 30,
+              //   contentPadding: EdgeInsets.all(5),
+              //   leading: Text(
+              //     "Invite Friends",
+              //     style: TextStyle(
+              //       fontSize: 14,
+              //       fontWeight: FontWeight.bold,
+              //     ),
+              //   ),
+              //   trailing: Icon(Icons.keyboard_arrow_right_rounded),
+              // ),
+              ListTile(
+                onTap: () {
+                  Get.to(() => const PreferenceSettingScreen());
+                },
                 minTileHeight: 30,
-                contentPadding: EdgeInsets.all(5),
-                leading: Text(
-                  "Invite Friends",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                trailing: Icon(Icons.keyboard_arrow_right_rounded),
-              ),
-              const ListTile(
-                minTileHeight: 30,
-                contentPadding: EdgeInsets.all(5),
-                leading: Text(
+                contentPadding: const EdgeInsets.all(5),
+                leading: const Text(
                   "Your Preferences",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                trailing: Icon(Icons.keyboard_arrow_right_rounded),
+                trailing: const Icon(Icons.keyboard_arrow_right_rounded),
               ),
               SizedBox(height: Get.height * 0.05),
               const Row(
