@@ -1,7 +1,5 @@
-import 'package:echodate/app/modules/chat/views/chat_list_screen.dart';
-import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/splash/views/splash_screen.dart';
-import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
+import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,7 +21,7 @@ class MainApp extends StatelessWidget {
         splashFactory: NoSplash.splashFactory,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: SettingsScreen(),
+      home: WithdrawalScreen(),
     );
   }
 }

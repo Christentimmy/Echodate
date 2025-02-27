@@ -168,8 +168,8 @@ class SettingsScreen extends StatelessWidget {
               ),
               ListTile(
                 minTileHeight: 25,
-                contentPadding: EdgeInsets.all(5),
-                leading: Text(
+                contentPadding: const EdgeInsets.all(5),
+                leading: const Text(
                   "Notification",
                   style: TextStyle(
                     fontSize: 14,

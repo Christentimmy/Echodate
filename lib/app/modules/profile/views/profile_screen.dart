@@ -1,5 +1,7 @@
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
+import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
+import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
@@ -146,7 +148,7 @@ class ProfileScreen extends StatelessWidget {
                 _buildProfileSettingTiles(
                   title: "EchoDate Premium",
                   onTap: () {
-                    Get.to(()=> const SubscriptionScreen());
+                    Get.to(() => const SubscriptionScreen());
                   },
                   bgColor: AppColors.primaryColor,
                   iconColor: Colors.white,
@@ -156,7 +158,9 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 _buildProfileSettingTiles(
                   title: "Settings",
-                  onTap: () {},
+                  onTap: () {
+                    Get.to(() => SettingsScreen());
+                  },
                   bgColor: Colors.blueGrey,
                   iconColor: Colors.white,
                   icon: FontAwesomeIcons.gear,
@@ -192,7 +196,9 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 _buildProfileSettingTiles(
                   title: "Sign Out",
-                  onTap: () {},
+                  onTap: () {
+                    Get.offAll(()=> RegisterScreen());
+                  },
                   bgColor: Colors.red,
                   iconColor: Colors.white,
                   icon: FontAwesomeIcons.arrowRightFromBracket,
