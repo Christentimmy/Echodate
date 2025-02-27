@@ -1,5 +1,6 @@
-import 'package:echodate/app/modules/withdraw/views/add_bank_screen.dart';
-import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
+import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
+import 'package:echodate/app/modules/splash/views/splash_screen.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,10 +19,11 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: GoogleFonts.montserratTextTheme(),
         splashColor: Colors.transparent,
+        primaryColor: AppColors.primaryColor,
         splashFactory: NoSplash.splashFactory,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: AddBankScreen(),
+      home: PreferenceSettingScreen(),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:echodate/app/modules/auth/views/change_password_screen.dart';
+import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -56,32 +58,39 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               const Divider(height: 0),
-              const ListTile(
-                minTileHeight: 25,
-                contentPadding: EdgeInsets.all(5),
-                leading: Text(
+              const SizedBox(width: 10),
+              ListTile(
+                onTap: () {
+                  Get.to(() => const EditProfileScreen());
+                },
+                minTileHeight: 30,
+                contentPadding: const EdgeInsets.all(5),
+                leading: const Text(
                   "Edit Profile",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                trailing: Icon(Icons.keyboard_arrow_right_rounded),
+                trailing: const Icon(Icons.keyboard_arrow_right_rounded),
               ),
-              const ListTile(
-                minTileHeight: 25,
-                contentPadding: EdgeInsets.all(5),
-                leading: Text(
+              ListTile(
+                onTap: () {
+                  Get.to(() => ChangePasswordScreen());
+                },
+                minTileHeight: 30,
+                contentPadding: const EdgeInsets.all(5),
+                leading: const Text(
                   "Change Password",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                trailing: Icon(Icons.keyboard_arrow_right_rounded),
+                trailing: const Icon(Icons.keyboard_arrow_right_rounded),
               ),
               const ListTile(
-                minTileHeight: 25,
+                minTileHeight: 30,
                 contentPadding: EdgeInsets.all(5),
                 leading: Text(
                   "Invite Friends",
@@ -93,7 +102,7 @@ class SettingsScreen extends StatelessWidget {
                 trailing: Icon(Icons.keyboard_arrow_right_rounded),
               ),
               const ListTile(
-                minTileHeight: 25,
+                minTileHeight: 30,
                 contentPadding: EdgeInsets.all(5),
                 leading: Text(
                   "Your Preferences",
@@ -120,8 +129,9 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               const Divider(height: 0),
+              const SizedBox(width: 10),
               ListTile(
-                minTileHeight: 25,
+                minTileHeight: 30,
                 contentPadding: const EdgeInsets.all(5),
                 leading: const Text(
                   "Location",
@@ -144,7 +154,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               ListTile(
-                minTileHeight: 25,
+                minTileHeight: 30,
                 contentPadding: const EdgeInsets.all(5),
                 leading: const Text(
                   "Recommendation",
@@ -167,7 +177,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               ListTile(
-                minTileHeight: 25,
+                minTileHeight: 30,
                 contentPadding: const EdgeInsets.all(5),
                 leading: const Text(
                   "Notification",

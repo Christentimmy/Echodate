@@ -3,6 +3,7 @@ import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
+import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -165,20 +166,22 @@ class ProfileScreen extends StatelessWidget {
                   iconColor: Colors.white,
                   icon: FontAwesomeIcons.gear,
                 ),
-                Divider(color: Colors.grey.withOpacity(0.2)),
-                const SizedBox(height: 10),
-                _buildProfileSettingTiles(
-                  title: "Billing Address",
-                  onTap: () {},
-                  bgColor: Colors.green,
-                  iconColor: Colors.white,
-                  icon: FontAwesomeIcons.addressBook,
-                ),
+                // Divider(color: Colors.grey.withOpacity(0.2)),
+                // const SizedBox(height: 10),
+                // _buildProfileSettingTiles(
+                //   title: "Billing Address",
+                //   onTap: () {},
+                //   bgColor: Colors.green,
+                //   iconColor: Colors.white,
+                //   icon: FontAwesomeIcons.addressBook,
+                // ),
                 Divider(color: Colors.grey.withOpacity(0.2)),
                 const SizedBox(height: 10),
                 _buildProfileSettingTiles(
                   title: "Earning and Withdrawal",
-                  onTap: () {},
+                  onTap: () {
+                    Get.to(() => WithdrawalScreen());
+                  },
                   bgColor: Colors.blueGrey,
                   iconColor: Colors.white,
                   icon: FontAwesomeIcons.creditCard,
@@ -197,7 +200,7 @@ class ProfileScreen extends StatelessWidget {
                 _buildProfileSettingTiles(
                   title: "Sign Out",
                   onTap: () {
-                    Get.offAll(()=> RegisterScreen());
+                    Get.offAll(() => RegisterScreen());
                   },
                   bgColor: Colors.red,
                   iconColor: Colors.white,

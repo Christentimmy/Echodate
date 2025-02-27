@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class CustomTextField extends StatelessWidget {
   TextEditingController? controller;
+  int? maxLines = 1;
   final String hintText;
   TextStyle? hintStyle;
   TextStyle? textStyle;
@@ -25,6 +26,7 @@ class CustomTextField extends StatelessWidget {
   CustomTextField({
     super.key,
     this.hintStyle,
+    this.maxLines,
     this.focusedBorder,
     this.enabledBorder,
     this.onChanged,
@@ -68,6 +70,7 @@ class CustomTextField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         style: textStyle,
+        maxLines: maxLines,
         decoration: InputDecoration(
           fillColor: bgColor,
           filled:  bgColor != null ? true : false,
