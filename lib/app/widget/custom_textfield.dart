@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
+  TextEditingController? controller;
   final String hintText;
   TextStyle? hintStyle;
   TextStyle? textStyle;
@@ -29,7 +29,7 @@ class CustomTextField extends StatelessWidget {
     this.enabledBorder,
     this.onChanged,
     this.errorText,
-    required this.controller,
+    this.controller,
     this.prefixIcon,
     this.suffixIcon,
     this.bgColor,

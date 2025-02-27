@@ -1,4 +1,4 @@
-import 'package:echodate/app/modules/splash/views/splash_screen.dart';
+import 'package:echodate/app/modules/withdraw/views/add_bank_screen.dart';
 import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,7 +21,7 @@ class MainApp extends StatelessWidget {
         splashFactory: NoSplash.splashFactory,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: WithdrawalScreen(),
+      home: AddBankScreen(),
     );
   }
 }

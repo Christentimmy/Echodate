@@ -134,7 +134,7 @@ class WithdrawalScreen extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: Get.height * 0.1),
+          SizedBox(height: Get.height * 0.02),
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 20,
@@ -217,7 +217,7 @@ class WithdrawalScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: Get.height * 0.1),
                 CustomButton(
                   ontap: () {},
                   child: const Text(
