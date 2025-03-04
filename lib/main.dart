@@ -1,3 +1,4 @@
+import 'package:echodate/app/bindings/app_bindings.dart';
 import 'package:echodate/app/modules/splash/views/splash_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class MainApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       home: SplashScreen1(),
+      initialBinding: AppBindings(),
     );
   }
 }

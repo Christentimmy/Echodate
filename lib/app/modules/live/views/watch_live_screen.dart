@@ -14,6 +14,8 @@ class WatchLiveScreen extends StatelessWidget {
       resizeToAvoidBottomInset: false, // Prevents shrinking
       body: Stack(
         children: [
+
+          //video
           Image.asset(
             "assets/images/gg.jpg",
             width: Get.width,

@@ -1,5 +1,7 @@
+import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
-import 'package:echodate/app/modules/live/views/watch_live_screen.dart';
+import 'package:echodate/app/modules/live/views/all_streams.dart';
+import 'package:echodate/app/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -15,6 +17,9 @@ class HomeScreen extends StatelessWidget {
     'https://randomuser.me/api/portraits/men/4.jpg',
     'https://randomuser.me/api/portraits/men/5.jpg',
   ];
+
+  // final controller = Get.put(LiveStreamController());
+  final _liveStreamController = Get.find<LiveStreamController>();
 
   final List<Map<String, String>> profiles = [
     {
@@ -61,8 +66,8 @@ class HomeScreen extends StatelessWidget {
                   Row(
                     children: [
                       InkWell(
-                        onTap: () {
-                          Get.to(() => WatchLiveScreen());
+                        onTap: () async {
+                          Get.to(() => LiveStreamListScreen());
                         },
                         child: const Icon(
                           FontAwesomeIcons.hive,
@@ -73,7 +78,45 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(width: 10),
                       const Icon(Icons.notifications, color: Colors.black),
                       const SizedBox(width: 10),
-                      const Icon(Icons.menu_rounded, color: Colors.black),
+                      InkWell(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 15,
+                                ),
+                                child: Center(
+                                  child: CustomButton(
+                                    child: Obx(
+                                      () =>
+                                          _liveStreamController.isLoading.value
+                                              ? const CircularProgressIndicator(
+                                                  color: Colors.white)
+                                              : const Text(
+                                                  "Go Live",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                    ),
+                                    ontap: () async {
+                                      await _liveStreamController.startLiveStream();
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        child: Icon(
+                          Icons.menu_rounded,
+                          color: Colors.black,
+                        ),
+                      ),
                     ],
                   )
                 ],
