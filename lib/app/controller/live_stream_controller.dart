@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/models/live_stream_model.dart';
 import 'package:echodate/app/modules/live/views/broad.dart';
 import 'package:echodate/app/modules/live/views/view_stream.dart';
@@ -8,11 +9,10 @@ import 'package:get/get.dart';
 
 class LiveStreamController extends GetxController {
   final LiveStreamService _service = LiveStreamService();
+  final _socketController = Get.find<SocketController>();
   var isLoading = false.obs;
   RxBool isJoinLoading = false.obs;
   RxList<LiveStreamModel> activeStreams = <LiveStreamModel>[].obs;
-  // var token = "".obs;
-  // var currentStream = {}.obs;
   String authToken =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzFhZWNhY2YwZTY2M2I4ZTU0NTAwOSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQwOTM4OTUyLCJleHAiOjE3NDExMTE3NTJ9.hePBiavrDtMc3lEx8FfwT_cJEklRLtaXXkCnnC2W16I";
 
@@ -81,8 +81,14 @@ class LiveStreamController extends GetxController {
       final uid = decoded['uid'];
       print("UID: $uid");
       if (token == null || uid == null) return;
-      Get.to(() =>
-          LiveStreamScreen(channelName: channelName, token: token, uid: uid));
+      _socketController.joinStream(channelName);
+      Get.to(
+        () => LiveStreamScreen(
+          channelName: channelName,
+          token: token,
+          uid: uid,
+        ),
+      );
     } catch (e, stackTrace) {
       debugPrint("${e.toString()}, $stackTrace");
     } finally {
