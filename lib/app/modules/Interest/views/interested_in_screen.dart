@@ -1,18 +1,18 @@
-import 'package:echodate/app/modules/Interest/views/interested_in_screen.dart';
+import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
 import 'package:echodate/app/modules/gender/widgets/gender_widget.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class GenderSelectionScreen extends StatefulWidget {
-  const GenderSelectionScreen({super.key});
+class InterestedInScreen extends StatefulWidget {
+  const InterestedInScreen({super.key});
 
   @override
-  State<GenderSelectionScreen> createState() => _GenderSelectionScreenState();
+  State<InterestedInScreen> createState() => _InterestedInScreenState();
 }
 
-class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
+class _InterestedInScreenState extends State<InterestedInScreen> {
   RxString selectedGender = "Man".obs;
 
   @override
@@ -65,7 +65,7 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
 
               // Title
               const Text(
-                "I am a",
+                "I am interested in",
                 style: TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
@@ -88,7 +88,7 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
               const Spacer(),
               CustomButton(
                 ontap: () {
-                  Get.to(()=> const InterestedInScreen());
+                  Get.to(()=> const RelationtionshipPreferenceScreen());
                 },
                 child: const Text(
                   "Continue",

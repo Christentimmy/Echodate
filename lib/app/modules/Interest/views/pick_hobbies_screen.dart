@@ -4,14 +4,14 @@ import 'package:echodate/app/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class PickInterestScreen extends StatefulWidget {
-  const PickInterestScreen({super.key});
+class PickHobbiesScreen extends StatefulWidget {
+  const PickHobbiesScreen({super.key});
 
   @override
-  State<PickInterestScreen> createState() => _PickInterestScreenState();
+  State<PickHobbiesScreen> createState() => _PickHobbiesScreenState();
 }
 
-class _PickInterestScreenState extends State<PickInterestScreen> {
+class _PickHobbiesScreenState extends State<PickHobbiesScreen> {
   List<Map<String, String>> interests = [
     {"emoji": "⚽", "label": "Football"},
     {"emoji": "🌿", "label": "Nature"},
