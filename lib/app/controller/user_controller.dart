@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/transaction_model.dart';
@@ -197,6 +198,172 @@ class UserController extends GetxController {
       if (response.statusCode == 200) isPaymentHistoryFetched.value = true;
     } catch (e) {
       debugPrint("❌ Error fetching payments: $e");
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> updateUserDetails({
+    String? fullName,
+    String? bio,
+    String? email,
+    String? gender,
+    String? dateOfBirth,
+    File? profilePicture,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _userService.updateUserDetails(
+        token: token,
+        fullName: fullName,
+        bio: bio,
+        email: email,
+        gender: gender,
+        dateOfBirth: dateOfBirth,
+        profilePicture: profilePicture,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      String message = decoded["message"];
+      if (response.statusCode != 200) {
+        debugPrint(message);
+        return;
+      }
+      await getUserDetails();
+      Get.back();
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> uploadPhotos({
+    required List<File> photos,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.uploadPhotos(
+        photos: photos,
+        token: token,
+      );
+
+      if (response == null) return;
+      var responseData = await response.stream.bytesToString();
+      final decoded = json.decode(responseData);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      CustomSnackbar.showErrorSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> updateLocation({
+    required double latitude,
+    required double longitude,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+      final response = await _userService.updateLocation(
+        token: token,
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> updateHobbies({
+    required List<String> hobbies,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+      final response = await _userService.updateHobbies(
+        token: token,
+        hobbies: hobbies,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+        return;
+      }
+      Get.offAll(() => BottomNavigationScreen());
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> updatePreference({
+    String? minAge,
+    String? maxAge,
+    String? interestedIn,
+    String? distance,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+      final response = await _userService.updatePreference(
+        token: token,
+        minAge: minAge,
+        maxAge: maxAge,
+        interestedIn: interestedIn,
+        distance: distance,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
     } finally {
       isloading.value = false;
     }

@@ -1,5 +1,3 @@
-
-
 import 'dart:convert';
 
 class UserModel {
@@ -30,6 +28,7 @@ class UserModel {
   final Preferences? preferences;
   final Location? location;
   final String? dob;
+  final int? matchPercentage;
 
   UserModel({
     this.id,
@@ -59,6 +58,7 @@ class UserModel {
     this.preferences,
     this.location,
     this.dob,
+    this.matchPercentage,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -69,13 +69,17 @@ class UserModel {
       phoneNumber: json['phone_number'] as String?,
       avatar: json['avatar'] as String?,
       bio: json['bio'] as String?,
-      photos: (json['photos'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      hobbies: (json['hobbies'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      photos:
+          (json['photos'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      hobbies:
+          (json['hobbies'] as List<dynamic>?)?.map((e) => e as String).toList(),
       status: json['status'] as String?,
       profileCompleted: json['profile_completed'] as bool?,
       isVerified: json['is_verified'] as bool?,
       isPremium: json['is_premium'] as bool?,
-      lastActive: json['last_active'] != null ? DateTime.tryParse(json['last_active']) : null,
+      lastActive: json['last_active'] != null
+          ? DateTime.tryParse(json['last_active'])
+          : null,
       gender: json['gender'] as String?,
       interestedIn: json['interested_in'] as String?,
       relationshipPreference: json['relationship_preference'] as String?,
@@ -87,19 +91,24 @@ class UserModel {
       plan: json['plan'] as String?,
       dailySwipes: json['daily_swipes'] as int?,
       dailyMessages: json['daily_messages'] as int?,
-      preferences: json['preferences'] != null ? Preferences.fromJson(json['preferences']) : null,
-      location: json['location'] != null ? Location.fromJson(json['location']) : null,
+      preferences: json['preferences'] != null
+          ? Preferences.fromJson(json['preferences'])
+          : null,
+      location:
+          json['location'] != null ? Location.fromJson(json['location']) : null,
       dob: json['dob'] as String?,
+      matchPercentage: json['matchPercentage'] ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-
     if (id != null) data['_id'] = id;
     if (fullName != null && fullName!.isNotEmpty) data['full_name'] = fullName;
     if (email != null && email!.isNotEmpty) data['email'] = email;
-    if (phoneNumber != null && phoneNumber!.isNotEmpty) data['phone_number'] = phoneNumber;
+    if (phoneNumber != null && phoneNumber!.isNotEmpty) {
+      data['phone_number'] = phoneNumber;
+    }
     if (avatar != null && avatar!.isNotEmpty) data['avatar'] = avatar;
     if (bio != null && bio!.isNotEmpty) data['bio'] = bio;
     if (photos != null && photos!.isNotEmpty) data['photos'] = photos;
@@ -110,15 +119,25 @@ class UserModel {
     if (isPremium != null) data['is_premium'] = isPremium;
     if (lastActive != null) data['last_active'] = lastActive!.toIso8601String();
     if (gender != null && gender!.isNotEmpty) data['gender'] = gender;
-    if (interestedIn != null && interestedIn!.isNotEmpty) data['interested_in'] = interestedIn;
+    if (interestedIn != null && interestedIn!.isNotEmpty) {
+      data['interested_in'] = interestedIn;
+    }
     if (relationshipPreference != null && relationshipPreference!.isNotEmpty) {
       data['relationship_preference'] = relationshipPreference;
     }
-    if (weekendAvailability != null) data['weekend_availability'] = weekendAvailability;
+    if (weekendAvailability != null) {
+      data['weekend_availability'] = weekendAvailability;
+    }
     if (echocoinsBalance != null) data['echocoins_balance'] = echocoinsBalance;
-    if (oneSignalId != null && oneSignalId!.isNotEmpty) data['one_signal_id'] = oneSignalId;
-    if (transactions != null && transactions!.isNotEmpty) data['transactions'] = transactions;
-    if (recipientCode != null && recipientCode!.isNotEmpty) data['recipient_code'] = recipientCode;
+    if (oneSignalId != null && oneSignalId!.isNotEmpty) {
+      data['one_signal_id'] = oneSignalId;
+    }
+    if (transactions != null && transactions!.isNotEmpty) {
+      data['transactions'] = transactions;
+    }
+    if (recipientCode != null && recipientCode!.isNotEmpty) {
+      data['recipient_code'] = recipientCode;
+    }
     if (plan != null && plan!.isNotEmpty) data['plan'] = plan;
     if (dailySwipes != null) data['daily_swipes'] = dailySwipes;
     if (dailyMessages != null) data['daily_messages'] = dailyMessages;
@@ -143,7 +162,8 @@ class Preferences {
 
   factory Preferences.fromJson(Map<String, dynamic> json) {
     return Preferences(
-      ageRange: (json['ageRange'] as List<dynamic>?)?.map((e) => e as int).toList(),
+      ageRange:
+          (json['ageRange'] as List<dynamic>?)?.map((e) => e as int).toList(),
       maxDistance: json['maxDistance'] as int?,
     );
   }
@@ -170,14 +190,18 @@ class Location {
   factory Location.fromJson(Map<String, dynamic> json) {
     return Location(
       type: json['type'] as String?,
-      coordinates: (json['coordinates'] as List<dynamic>?)?.map((e) => (e as num).toDouble()).toList(),
+      coordinates: (json['coordinates'] as List<dynamic>?)
+          ?.map((e) => (e as num).toDouble())
+          .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     if (type != null && type!.isNotEmpty) data['type'] = type;
-    if (coordinates != null && coordinates!.isNotEmpty) data['coordinates'] = coordinates;
+    if (coordinates != null && coordinates!.isNotEmpty) {
+      data['coordinates'] = coordinates;
+    }
     return data;
   }
 

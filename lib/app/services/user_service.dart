@@ -217,16 +217,6 @@ class UserService {
       }
       var response = await request.send();
       return response;
-      // Check the response status
-      // if (response.statusCode == 200) {
-      //   print('Photos uploaded successfully');
-      //   var responseData = await response.stream.bytesToString();
-      //   print('Response: $responseData');
-      // } else {
-      //   print('Failed to upload photos. Status code: ${response.statusCode}');
-      //   var errorData = await response.stream.bytesToString();
-      //   print('Error: $errorData');
-      // }
     } on SocketException catch (e) {
       CustomSnackbar.showErrorSnackBar("Check internet connection, $e");
       debugPrint("No internet connection");
@@ -295,24 +285,35 @@ class UserService {
   }
 
   Future<http.Response?> updatePreference({
-    required String token,
-    required String minAge,
-    required String maxAge,
-    required String interestedIn,
-    required String distance,
+    String? token,
+    String? minAge,
+    String? maxAge,
+    String? interestedIn,
+    String? distance,
   }) async {
     try {
+      final Map<String, dynamic> body = {};
+      if (minAge != null && minAge.isNotEmpty) {
+        body['minAge'] = int.parse(minAge);
+      }
+      if (maxAge != null && maxAge.isNotEmpty) {
+        body['maxAge'] = int.parse(maxAge);
+      }
+      if (interestedIn != null && interestedIn.isNotEmpty) {
+        body['interestedIn'] = interestedIn;
+      }
+      if (distance != null && distance.isNotEmpty) {
+        body['distance'] = int.parse(distance);
+      }
       final response = await client
-          .patch(Uri.parse("$baseUrl/user/preferences"),
-              headers: {
-                'Authorization': 'Bearer $token',
-                'Content-Type': 'application/json',
-              },
-              body: jsonEncode({
-                'ageRange': [minAge, maxAge],
-                'interestedIn': interestedIn,
-                'distance': distance,
-              }))
+          .patch(
+            Uri.parse("$baseUrl/user/preferences"),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(body),
+          )
           .timeout(const Duration(seconds: 15));
       return response;
     } on SocketException catch (e) {
