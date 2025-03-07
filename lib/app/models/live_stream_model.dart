@@ -4,6 +4,7 @@ class LiveStreamModel {
   final DateTime startTime;
   final String hostAvater;
   final List viewers;
+  final String visibility;
 
   LiveStreamModel({
     required this.hostAvater,
@@ -11,6 +12,7 @@ class LiveStreamModel {
     required this.hostId,
     required this.startTime,
     required this.viewers,
+    required this.visibility,
   });
 
   factory LiveStreamModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class LiveStreamModel {
       startTime: DateTime.parse(json['startTime']),
       hostAvater: json['hostAvater'] ?? "",
       viewers: json["viewers"] ?? [],
+      visibility: json['visibility'] ?? "",
     );
   }
 }
