@@ -514,4 +514,84 @@ class UserService {
     }
     return null;
   }
+
+  Future<http.Response?> markNotificationsRead({
+    required String token,
+    required List<String> notificationIds,
+  }) async {
+    try {
+      final response = await client
+          .post(
+            Uri.parse("$baseUrl/user/mark-notification"),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({'notificationIds': notificationIds}),
+          )
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> updateWeekendAvailability({
+    required String token,
+    required bool updateWeekendAvailability,
+  }) async {
+    try {
+      final response = await client
+          .patch(
+            Uri.parse("$baseUrl/user/weekend-availability"),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({'weekend_availability': updateWeekendAvailability}),
+          )
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> updateRelationshipPreference({
+    required String token,
+    required String relationshipPreference,
+  }) async {
+    try {
+      final response = await client
+          .patch(
+            Uri.parse("$baseUrl/user/relationship-preference"),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({'relationship_preference': relationshipPreference}),
+          )
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+
 }
