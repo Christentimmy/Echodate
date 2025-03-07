@@ -12,6 +12,7 @@ dependencies:
   custom_sliding_segmented_control: ^1.8.5
   flutter:
     sdk: flutter
+  flutter_animate: ^4.5.2
   flutter_card_swiper: ^7.0.2
   flutter_secure_storage: ^9.2.4
   font_awesome_flutter: ^10.8.0
