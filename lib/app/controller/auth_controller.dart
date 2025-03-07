@@ -7,7 +7,8 @@ import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/views/reset_password_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
-import 'package:echodate/app/modules/profile/views/profile_details_screen.dart';
+import 'package:echodate/app/modules/gender/views/gender_screen.dart';
+import 'package:echodate/app/modules/profile/views/complete_profile_screen.dart';
 import 'package:echodate/app/services/auth_service.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ class AuthController extends GetxController {
       _userController.getUserDetails();
       Get.to(
         () => OTPVerificationScreen(
+          email: userModel.email,
           onVerifiedCallBack: () => Get.offAll(() => CompleteProfileScreen()),
         ),
       );
@@ -80,7 +82,6 @@ class AuthController extends GetxController {
         otpCode: otpCode,
         email: email,
       );
-      print(response?.body);
       if (response == null) return;
       final decoded = json.decode(response.body);
       String message = decoded["message"] ?? "";
@@ -103,6 +104,7 @@ class AuthController extends GetxController {
   Future<void> completeProfileScreen({
     required UserModel userModel,
     required File imageFile,
+    VoidCallback? nextScreen,
   }) async {
     isLoading.value = true;
     try {
@@ -123,7 +125,11 @@ class AuthController extends GetxController {
         return;
       }
       await _userController.getUserDetails();
-      Get.offAll(() => BottomNavigationScreen());
+      if (nextScreen != null) {
+        nextScreen();
+        return;
+      }
+      Get.offAll(() => const GenderSelectionScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {

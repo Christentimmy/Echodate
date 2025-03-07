@@ -1,8 +1,9 @@
+import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
-import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
+import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
-import 'package:echodate/app/widget/custom_textfield.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,8 @@ class LoginScreen extends StatelessWidget {
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authController = Get.find<AuthController>();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +51,10 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: Get.height * 0.05),
-              CustomTextField(
-                controller: _emailController,
-                hintText: "Email",
-                prefixIcon: Icons.email,
-              ),
-              const SizedBox(height: 20),
-              CustomTextField(
-                controller: _passwordController,
-                hintText: "Password",
-                prefixIcon: Icons.lock,
+              LoginFormField(
+                formKey: _formKey,
+                emailController: _emailController,
+                passwordController: _passwordController,
               ),
               // const SizedBox(height: 5),
               Align(
@@ -76,16 +73,26 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: Get.height * 0.05),
               CustomButton(
-                ontap: () {
-                  Get.to(() => BottomNavigationScreen());
+                ontap: () async {
+                  // Get.to(() => BottomNavigationScreen());
+                  if (_formKey.currentState!.validate()) {
+                    await _authController.loginUser(
+                      identifier: _emailController.text,
+                      password: _passwordController.text,
+                    );
+                  }
                 },
-                child: const Text(
-                  "Login",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
+                child: Obx(
+                  () => _authController.isLoading.value
+                      ? const Loader()
+                      : const Text(
+                          "Login",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 20),

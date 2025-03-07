@@ -29,6 +29,7 @@ class UserModel {
   final Location? location;
   final String? dob;
   final int? matchPercentage;
+  String? password;
 
   UserModel({
     this.id,
@@ -59,6 +60,7 @@ class UserModel {
     this.location,
     this.dob,
     this.matchPercentage,
+    this.password,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -96,7 +98,7 @@ class UserModel {
           : null,
       location:
           json['location'] != null ? Location.fromJson(json['location']) : null,
-      dob: json['dob'] as String?,
+      dob: json['date_of_birth'] as String?,
       matchPercentage: json['matchPercentage'] ?? 0,
     );
   }
@@ -144,6 +146,7 @@ class UserModel {
     if (preferences != null) data['preferences'] = preferences!.toJson();
     if (location != null) data['location'] = location!.toJson();
     if (dob != null && dob!.isNotEmpty) data['dob'] = dob;
+    if (password != null && password!.isNotEmpty) data['password'] = password;
 
     return data;
   }

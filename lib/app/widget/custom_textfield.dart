@@ -69,10 +69,19 @@ class CustomTextField extends StatelessWidget {
         cursorColor: AppColors.primaryColor,
         controller: controller,
         keyboardType: keyboardType,
-        style: textStyle,
+        style: textStyle ??
+            const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
         maxLines: maxLines ?? 1,
         decoration: InputDecoration(
           fillColor: bgColor,
+          errorText: null,
+          errorStyle: const TextStyle(height: 0, fontSize: 0),
+          errorMaxLines: null,
+          error: null,
           filled: bgColor != null ? true : false,
           counterText: maxLength != null ? "" : null,
           hintText: hintText,

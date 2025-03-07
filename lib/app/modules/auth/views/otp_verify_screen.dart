@@ -1,3 +1,4 @@
+import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/controller/timer_controller.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
@@ -24,6 +25,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
   @override
   void initState() {
     super.initState();
+    _timerController.startTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _timerController.startTimer();
       _animationController = AnimationController(
@@ -46,11 +48,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
   }
 
   final _timerController = Get.put(TimerController());
-  // final _authController = Get.find<AuthController>();
+  final _authController = Get.find<AuthController>();
   final _otpController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  final _isLoading = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +64,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
             // Main Content
             SafeArea(
               child: Opacity(
-                opacity: 1.0,
+                opacity: _authController.isLoading.value ? 0.2 : 1.0,
                 child: AbsorbPointer(
                   absorbing: false,
                   child: SingleChildScrollView(
@@ -107,8 +108,14 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
                           SizedBox(height: Get.height * 0.0375),
                           CustomButton(
                             text: "Continue",
-                            ontap: () {
-                              widget.onVerifiedCallBack();
+                            ontap: () async {
+                              _authController.verifyOtp(
+                                otpCode: _otpController.text,
+                                email: widget.email ?? "",
+                                whatNext: () {
+                                  widget.onVerifiedCallBack();
+                                },
+                              );
                             },
                           ),
                           SizedBox(height: Get.height * 0.028),
@@ -121,7 +128,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
               ),
             ),
             // Preloader with Rotation and Bounce
-            if (_isLoading.value)
+            if (_authController.isLoading.value)
               Padding(
                 padding: EdgeInsets.only(bottom: Get.height * 0.1),
                 child: Center(
@@ -138,7 +145,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Image.asset(
-                                "assets/images/inoutlogo.png",
+                                "assets/images/ECHODATE.png",
                                 width: 50, // Reduced size
                                 height: 50,
                               ),
@@ -172,10 +179,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
             },
             child: _timerController.secondsRemaining.value == 0
                 ? Text(
-                    "Resend ",
+                    "Resend",
                     style: TextStyle(
                       fontSize: 16,
-                      color: const Color(0xff000000).withOpacity(0.25),
+                      color: AppColors.primaryColor,
                       fontWeight: FontWeight.bold,
                     ),
                   )
@@ -225,7 +232,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
       child: Container(
         height: 150,
         padding: const EdgeInsets.only(top: 45),
-        decoration:  BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
               const Color.fromARGB(255, 95, 63, 23),

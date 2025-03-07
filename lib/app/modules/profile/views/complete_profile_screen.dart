@@ -1,20 +1,25 @@
 import 'dart:io';
-import 'package:echodate/app/modules/gender/views/gender_screen.dart';
+import 'package:echodate/app/controller/auth_controller.dart';
+import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/image_picker.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class CompleteProfileScreen extends StatelessWidget {
-  CompleteProfileScreen({super.key});
+  final VoidCallback? nextScreen;
+  CompleteProfileScreen({super.key, this.nextScreen});
 
   final _fullNameController = TextEditingController();
   final _bioController = TextEditingController();
   final Rxn<DateTime> _selectedTime = Rxn<DateTime>();
   final Rxn<File> _selectedPicture = Rxn<File>();
+  final _authController = Get.find<AuthController>();
+  final _formKey = GlobalKey<FormState>();
 
   void selectImage() async {
     File? image = await pickImage();
@@ -68,7 +73,8 @@ class CompleteProfileScreen extends StatelessWidget {
                             image: DecorationImage(
                               image: _selectedPicture.value != null
                                   ? FileImage(_selectedPicture.value!)
-                                  : const AssetImage("assets/images/pp.jpg"),
+                                  : const AssetImage(
+                                      "assets/images/placeholder1.png"),
                               fit: BoxFit.cover,
                               alignment: Alignment.topCenter,
                             ),
@@ -105,21 +111,28 @@ class CompleteProfileScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 30),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      CustomTextField(
+                        controller: _fullNameController,
+                        hintText: "Full Name",
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Last Name Field
+                      CustomTextField(
+                        controller: _bioController,
+                        hintText: "Bio",
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
+                ),
 
                 // First Name Field
-                CustomTextField(
-                  controller: _fullNameController,
-                  hintText: "Full Name",
-                ),
-
-                const SizedBox(height: 20),
-
-                // Last Name Field
-                CustomTextField(
-                  controller: _bioController,
-                  hintText: "Bio",
-                  maxLines: 3,
-                ),
 
                 const SizedBox(height: 20),
 
@@ -169,12 +182,33 @@ class CompleteProfileScreen extends StatelessWidget {
 
                 // Confirm Button
                 CustomButton(
-                  ontap: () {
-                    Get.to(() => const GenderSelectionScreen());
+                  ontap: () async {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    if (!_formKey.currentState!.validate()) {
+                      return;
+                    }
+                    final UserModel userModel = UserModel(
+                      fullName: _fullNameController.text,
+                      bio: _bioController.text,
+                      dob: _selectedTime.value.toString(),
+                    );
+                    await _authController.completeProfileScreen(
+                      userModel: userModel,
+                      imageFile: _selectedPicture.value!,
+                      nextScreen: nextScreen,
+                    );
                   },
-                  child: const Text(
-                    "Confirm",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  child: Obx(
+                    () => _authController.isLoading.value
+                        ? const Loader()
+                        : const Text(
+                            "Confirm",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ],

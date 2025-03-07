@@ -1,6 +1,8 @@
+import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
-import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/loader.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -33,6 +35,7 @@ class _PickHobbiesScreenState extends State<PickHobbiesScreen> {
     {"emoji": "🧘", "label": "Meditation"},
   ];
 
+  final _userController = Get.find<UserController>();
   List<String> selectedInterests = [];
 
   void toggleSelection(String interest) {
@@ -117,20 +120,26 @@ class _PickHobbiesScreenState extends State<PickHobbiesScreen> {
               ),
               const Spacer(),
               CustomButton(
-                ontap: () {
+                ontap: () async {
                   if (selectedInterests.length >= 5) {
-                    Get.to(()=> BottomNavigationScreen());
-                  }else{
-                    Get.snackbar("Error", "pick 5 interest cards");
+                    await _userController.updateHobbies(
+                      hobbies: selectedInterests,
+                    );
+                  } else {
+                    CustomSnackbar.showErrorSnackBar("pick 5 interest cards");
                   }
                 },
-                child: const Text(
-                  "Next",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+                child: Obx(
+                  () => _userController.isloading.value
+                      ? const Loader()
+                      : const Text(
+                          "Next",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               )
             ],

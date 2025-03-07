@@ -1,7 +1,9 @@
-import 'package:echodate/app/modules/Interest/views/interested_in_screen.dart';
+import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/gender/widgets/gender_widget.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/loader.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -13,7 +15,8 @@ class GenderSelectionScreen extends StatefulWidget {
 }
 
 class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
-  RxString selectedGender = "Man".obs;
+  RxString selectedGender = "".obs;
+  final _userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
@@ -76,27 +79,39 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
               const SizedBox(height: 30),
 
               // Gender Selection Cards
-              buildGenderOption("Woman", selectedGender),
+              buildGenderOption("Female", selectedGender),
               const SizedBox(height: 10),
-              buildGenderOption("Man", selectedGender),
+              buildGenderOption("Male", selectedGender),
               const SizedBox(height: 10),
               buildGenderOption(
-                "Choose another",
+                "Others",
                 selectedGender,
                 showCheck: false,
               ),
               const Spacer(),
               CustomButton(
-                ontap: () {
-                  Get.to(()=> const InterestedInScreen());
+                ontap: () async {
+                  if (selectedGender.isEmpty) {
+                    CustomSnackbar.showErrorSnackBar(
+                      "Please select your gender",
+                    );
+                    return;
+                  }
+                  await _userController.updateGender(
+                    gender: selectedGender.value.toLowerCase(),
+                  );
                 },
-                child: const Text(
-                  "Continue",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                child: Obx(
+                  () => _userController.isloading.value
+                      ? const Loader()
+                      : const Text(
+                          "Continue",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               )
             ],

@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
@@ -5,6 +7,7 @@ import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/utils/age_calculator.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -18,6 +21,8 @@ class ProfileScreen extends StatelessWidget {
     {"emoji": "🗣️", "label": "Language"},
     {"emoji": "📸", "label": "Photography"},
   ];
+
+  final _userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
@@ -42,107 +47,129 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 SizedBox(height: Get.height * 0.01),
                 Center(
-                  child: CircleAvatar(
-                    backgroundColor: AppColors.primaryColor,
-                    radius: 45,
-                    child: const CircleAvatar(
-                      radius: 42,
-                      backgroundImage: AssetImage("assets/images/pp.jpg"),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    "@johndoe123",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                ),
-                SizedBox(height: Get.height * 0.04),
-                const Text(
-                  "Bio",
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const Text(
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin in sed enim suscipit phasellus nibh sed. ",
-                ),
-                const SizedBox(height: 10),
-                buildBasicInfoTile(
-                  leading: "Gender: ",
-                  title: "Male",
-                ),
-                buildBasicInfoTile(
-                  leading: "Age: ",
-                  title: "27 Years Old",
-                ),
-                SizedBox(height: Get.height * 0.04),
-                const Text(
-                  "Bio",
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: interests.map((interest) {
-                    return buildSelectiveCards(
-                      interest: interest,
-                      isSelected: false,
-                      onTap: () {},
+                  child: Obx(() {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(80),
+                      child: CachedNetworkImage(
+                        width: Get.width * 0.31,
+                        height: Get.height * 0.14,
+                        fit: BoxFit.cover,
+                        imageUrl: _userController.userModel.value?.avatar ?? "",
+                        placeholder: (context, url) => Center(
+                            child: CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                        )),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
                     );
-                  }).toList(),
+                  }),
+                ),
+
+                Center(
+                  child: Obx(
+                    () => Text(
+                      _userController.userModel.value?.fullName ?? "",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
                 ),
                 SizedBox(height: Get.height * 0.04),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          "115",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text("Visitor"),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          "115",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text("Likes"),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          "115",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text("Matches"),
-                      ],
-                    ),
-                  ],
+                const Text(
+                  "Bio",
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
+                Obx(() => Text(_userController.userModel.value?.bio ?? "")),
+                const SizedBox(height: 10),
+                Obx(
+                  () => buildBasicInfoTile(
+                    leading: "Gender: ",
+                    title: _userController.userModel.value?.gender
+                            ?.toUpperCase() ??
+                        "",
+                  ),
+                ),
+                Obx(
+                  () => buildBasicInfoTile(
+                    leading: "Age: ",
+                    title:
+                        "${calculateAge(_userController.userModel.value?.dob ?? "")} YEARS OLD",
+                  ),
+                ),
+                SizedBox(height: Get.height * 0.04),
+                const Text(
+                  "Hobbies",
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                Obx(() {
+                  List? hobbies = _userController.userModel.value?.hobbies;
+                  if (hobbies == null || hobbies.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: hobbies.map((interest) {
+                      return buildInterestCards(interest: interest);
+                    }).toList(),
+                  );
+                }),
+
+                // SizedBox(height: Get.height * 0.04),
+                // const Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //   children: [
+                //     Column(
+                //       children: [
+                //         Text(
+                //           "115",
+                //           style: TextStyle(
+                //             fontSize: 20,
+                //             fontWeight: FontWeight.w600,
+                //           ),
+                //         ),
+                //         Text("Visitor"),
+                //       ],
+                //     ),
+                //     Column(
+                //       children: [
+                //         Text(
+                //           "115",
+                //           style: TextStyle(
+                //             fontSize: 20,
+                //             fontWeight: FontWeight.w600,
+                //           ),
+                //         ),
+                //         Text("Likes"),
+                //       ],
+                //     ),
+                //     Column(
+                //       children: [
+                //         Text(
+                //           "115",
+                //           style: TextStyle(
+                //             fontSize: 20,
+                //             fontWeight: FontWeight.w600,
+                //           ),
+                //         ),
+                //         Text("Matches"),
+                //       ],
+                //     ),
+                //   ],
+                // ),
+                
                 SizedBox(height: Get.height * 0.04),
                 Divider(color: Colors.grey.withOpacity(0.2)),
                 const SizedBox(height: 10),

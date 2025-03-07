@@ -1,7 +1,8 @@
-import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
+import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/gender/widgets/gender_widget.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,7 +16,8 @@ class RelationtionshipPreferenceScreen extends StatefulWidget {
 
 class _RelationtionshipPreferenceScreenState
     extends State<RelationtionshipPreferenceScreen> {
-  RxString selectedGender = "".obs;
+  RxString selectedPreference = "".obs;
+  final _userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
@@ -80,27 +82,36 @@ class _RelationtionshipPreferenceScreenState
                 const SizedBox(height: 30),
 
                 // Gender Selection Cards
-                buildGenderOption("Long-Term", selectedGender),
+                buildGenderOption("Long-Term", selectedPreference),
                 const SizedBox(height: 10),
-                buildGenderOption("Marriage", selectedGender),
+                buildGenderOption("Marriage", selectedPreference),
                 const SizedBox(height: 10),
-                buildGenderOption("Short-Term", selectedGender),
+                buildGenderOption("Short-Term", selectedPreference),
                 const SizedBox(height: 10),
-                buildGenderOption("Friends", selectedGender),
+                buildGenderOption("Friends", selectedPreference),
                 const SizedBox(height: 10),
-                buildGenderOption("Other", selectedGender),
+                buildGenderOption("Other", selectedPreference),
                 SizedBox(height: Get.height * 0.1),
                 CustomButton(
-                  ontap: () {
-                    Get.to(() => const PickHobbiesScreen());
+                  ontap: () async {
+                    if (selectedPreference.isEmpty) {
+                      return;
+                    }
+                    await _userController.updateRelationshipPreference(
+                      relationshipPreference: selectedPreference.value,
+                    );
                   },
-                  child: const Text(
-                    "Continue",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  child: Obx(
+                    () => _userController.isloading.value
+                        ? const Loader()
+                        : const Text(
+                            "Continue",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 )
               ],

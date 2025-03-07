@@ -499,7 +499,7 @@ class UserService {
     bool? unread,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/user-notifications').replace(
+      final url = Uri.parse('$baseUrl/user/user-notifications').replace(
         queryParameters: {
           if (page != null) 'page': page.toString(),
           if (limit != null) 'limit': limit.toString(),
@@ -590,6 +590,27 @@ class UserService {
                 jsonEncode({'relationship_preference': relationshipPreference}),
           )
           .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> getUserWithId({
+    required String token,
+    required String userId,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/user/get-user/$userId');
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 15));
       return response;
     } on SocketException catch (e) {
       debugPrint("No internet connection $e");

@@ -4,10 +4,13 @@ import 'dart:io';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/transaction_model.dart';
 import 'package:echodate/app/models/user_model.dart';
+import 'package:echodate/app/modules/Interest/views/interested_in_screen.dart';
+import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
+import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
-import 'package:echodate/app/modules/profile/views/profile_details_screen.dart';
+import 'package:echodate/app/modules/profile/views/complete_profile_screen.dart';
 import 'package:echodate/app/services/user_service.dart';
 import 'package:echodate/app/utils/url_launcher.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
@@ -395,6 +398,7 @@ class UserController extends GetxController {
 
   Future<void> updateGender({
     required String gender,
+    VoidCallback? nextScreen,
   }) async {
     isloading.value = true;
     try {
@@ -416,7 +420,10 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
-      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+      if (nextScreen != null) {
+        nextScreen();
+      }
+      Get.to(() => const InterestedInScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -447,7 +454,7 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
-      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+      Get.to(() => const RelationtionshipPreferenceScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -693,11 +700,35 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
+      Get.to(() => const PickHobbiesScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {
       isloading.value = false;
     }
+  }
+
+  Future<UserModel?> getUserWithId({required String userId}) async {
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return null;
+      }
+      final response =
+          await _userService.getUserWithId(token: token, userId: userId);
+      if (response == null) return null;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return null;
+      }
+      return UserModel.fromJson(decoded["data"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
   }
 
   void clearUserData() {

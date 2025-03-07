@@ -1,9 +1,11 @@
+import 'package:echodate/app/controller/auth_controller.dart';
+import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
-import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
-import 'package:echodate/app/modules/profile/views/profile_details_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/loader.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,6 +18,7 @@ class RegisterScreen extends StatelessWidget {
   final _passwordController = TextEditingController();
   final _signUpFormKey = GlobalKey<FormState>();
   final _isCheckValue = false.obs;
+  final _authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -74,22 +77,41 @@ class RegisterScreen extends StatelessWidget {
               ),
               SizedBox(height: Get.height * 0.05),
               CustomButton(
-                ontap: () {
-                  Get.to(
-                    () => OTPVerificationScreen(
-                      onVerifiedCallBack: () {
-                        Get.to(() => CompleteProfileScreen());
-                      },
-                    ),
+                ontap: () async {
+                  if (!_signUpFormKey.currentState!.validate()) {
+                    return;
+                  }
+                  if (!_isCheckValue.value) {
+                    CustomSnackbar.showErrorSnackBar(
+                      "Accept our terms and condition",
+                    );
+                    return;
+                  }
+                  final userModel = UserModel(
+                    email: _emailController.text,
+                    phoneNumber: _phoneNUmberController.text,
+                    password: _passwordController.text,
                   );
+                  await _authController.signUpUSer(userModel: userModel);
+                  // Get.to(
+                  //   () => OTPVerificationScreen(
+                  //     onVerifiedCallBack: () {
+                  //       Get.to(() => CompleteProfileScreen());
+                  //     },
+                  //   ),
+                  // );
                 },
-                child: const Text(
-                  "Register",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+                child: Obx(
+                  () => _authController.isLoading.value
+                      ? const Loader()
+                      : const Text(
+                          "Register",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
               SizedBox(height: Get.height * 0.1),

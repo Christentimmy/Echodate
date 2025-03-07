@@ -49,3 +49,35 @@ Widget buildSelectiveCards({
     ),
   );
 }
+
+Widget buildInterestCards({required String interest}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 15,
+      vertical: 10,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(
+        color: Colors.orange,
+        width: 1.5,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.orange.withOpacity(0.15),
+          blurRadius: 5,
+          spreadRadius: 1,
+        ),
+      ],
+    ),
+    child: Text(
+      interest,
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+        color: Colors.orange,
+      ),
+    ),
+  );
+}
