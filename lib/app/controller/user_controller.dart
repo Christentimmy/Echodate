@@ -18,6 +18,7 @@ class UserController extends GetxController {
   final UserService _userService = UserService();
   Rxn<UserModel> userModel = Rxn<UserModel>();
   RxList<UserModel> potentialMatchesList = <UserModel>[].obs;
+  RxList<UserModel> matchesList = <UserModel>[].obs;
   RxList<TransactionModel> userTransactionHistory = <TransactionModel>[].obs;
   RxBool isloading = false.obs;
   RxBool isPaymentProcessing = false.obs;
@@ -447,6 +448,251 @@ class UserController extends GetxController {
         return;
       }
       CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> swipeLike({
+    required String swipedUserId,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.swipeLike(
+        token: token,
+        swipedUserId: swipedUserId,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> swipeDislike({
+    required String swipedUserId,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.swipeDislike(
+        token: token,
+        swipedUserId: swipedUserId,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> swipeSuperLike({
+    required String swipedUserId,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.swipeSuperLike(
+        token: token,
+        swipedUserId: swipedUserId,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> getMatches() async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.getMatches(token: token);
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      List matches = decoded["data"];
+      if (matches.isEmpty) return;
+      matchesList.value = matches.map((e) => UserModel.fromJson(e)).toList();
+      matchesList.refresh();
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> getNotifications({
+    int? page,
+    int? limit,
+    bool? unread,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.getNotifications(
+        token: token,
+        page: page,
+        limit: limit,
+        unread: unread,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> markNotificationsRead({
+    required List<String> notificationIds,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.markNotificationsRead(
+        token: token,
+        notificationIds: notificationIds,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> updateWeekendAvailability({
+    required bool updateWeekendAvailability,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.updateWeekendAvailability(
+        token: token,
+        updateWeekendAvailability: updateWeekendAvailability,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> updateRelationshipPreference({
+    required String relationshipPreference,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.updateRelationshipPreference(
+        token: token,
+        relationshipPreference: relationshipPreference,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
     } catch (e) {
       debugPrint(e.toString());
     } finally {
