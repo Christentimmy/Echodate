@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
@@ -38,7 +37,7 @@ class AuthController extends GetxController {
       _userController.getUserDetails();
       Get.to(
         () => OTPVerificationScreen(
-          onVerifiedCallBack: () => Get.offAll(() => ProfileDetailsScreen()),
+          onVerifiedCallBack: () => Get.offAll(() => CompleteProfileScreen()),
         ),
       );
     } catch (e) {
@@ -93,7 +92,7 @@ class AuthController extends GetxController {
         whatNext();
         return;
       }
-      Get.offAll(() => ProfileDetailsScreen());
+      Get.offAll(() => CompleteProfileScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -171,7 +170,7 @@ class AuthController extends GetxController {
       }
       if (response.statusCode == 400) {
         CustomSnackbar.showErrorSnackBar(message);
-        Get.offAll(() => ProfileDetailsScreen());
+        Get.offAll(() => CompleteProfileScreen());
         return;
       }
       await storageController.storeToken(token);

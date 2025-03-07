@@ -78,7 +78,7 @@ class RegisterScreen extends StatelessWidget {
                   Get.to(
                     () => OTPVerificationScreen(
                       onVerifiedCallBack: () {
-                        Get.to(() => ProfileDetailsScreen());
+                        Get.to(() => CompleteProfileScreen());
                       },
                     ),
                   );

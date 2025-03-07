@@ -154,15 +154,20 @@ class UserService {
 
   Future<http.Response?> getUserPaymentHistory({
     required String token,
-    required String type,
-    required int limit,
+    String? type,
+    int? limit,
     String? status,
     String? startDate,
     String? endDate,
   }) async {
     try {
-      String url =
-          "$baseUrl/user/get-user-payment-history?type=$type&limit=$limit";
+      String url = "$baseUrl/user/get-user-payment-history?";
+      if (type != null && type.isNotEmpty) {
+        url += "&type=$type";
+      }
+      if (limit != null && limit != 0) {
+        url += "&limit=$limit";
+      }
       if (status != null && status.isNotEmpty) {
         url += "&status=$status";
       }
@@ -553,7 +558,8 @@ class UserService {
               'Authorization': 'Bearer $token',
               'Content-Type': 'application/json',
             },
-            body: jsonEncode({'weekend_availability': updateWeekendAvailability}),
+            body:
+                jsonEncode({'weekend_availability': updateWeekendAvailability}),
           )
           .timeout(const Duration(seconds: 15));
       return response;
@@ -579,7 +585,8 @@ class UserService {
               'Authorization': 'Bearer $token',
               'Content-Type': 'application/json',
             },
-            body: jsonEncode({'relationship_preference': relationshipPreference}),
+            body:
+                jsonEncode({'relationship_preference': relationshipPreference}),
           )
           .timeout(const Duration(seconds: 15));
       return response;
@@ -592,6 +599,4 @@ class UserService {
     }
     return null;
   }
-
-
 }

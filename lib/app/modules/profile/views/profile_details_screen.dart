@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:echodate/app/modules/gender/views/gender_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/image_picker.dart';
@@ -9,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class ProfileDetailsScreen extends StatelessWidget {
-  ProfileDetailsScreen({super.key});
+class CompleteProfileScreen extends StatelessWidget {
+  CompleteProfileScreen({super.key});
 
   final _fullNameController = TextEditingController();
   final _bioController = TextEditingController();
