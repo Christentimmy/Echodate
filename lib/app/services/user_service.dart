@@ -369,7 +369,7 @@ class UserService {
 
   Future<http.Response?> updateInterestedIn({
     required String token,
-    required String interestedIn
+    required String interestedIn,
   }) async {
     try {
       final response = await client
@@ -391,5 +391,127 @@ class UserService {
     return null;
   }
 
+  Future<http.Response?> swipeLike({
+    required String token,
+    required String swipedUserId,
+  }) async {
+    try {
+      final response = await client
+          .post(Uri.parse("$baseUrl/user/swipe/like"),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({'swipedUserId': swipedUserId}))
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
 
+  Future<http.Response?> swipeDislike({
+    required String token,
+    required String swipedUserId,
+  }) async {
+    try {
+      final response = await client
+          .post(Uri.parse("$baseUrl/user/swipe/dislike"),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({'swipedUserId': swipedUserId}))
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> swipeSuperLike({
+    required String token,
+    required String swipedUserId,
+  }) async {
+    try {
+      final response = await client
+          .post(Uri.parse("$baseUrl/user/swipe/super-like"),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({'swipedUserId': swipedUserId}))
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> getMatches({
+    required String token,
+  }) async {
+    try {
+      final response = await client.get(
+          Uri.parse(
+            "$baseUrl/user/get-matches",
+          ),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          }).timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> getNotifications({
+    required String token,
+    int? page,
+    int? limit,
+    bool? unread,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/user-notifications').replace(
+        queryParameters: {
+          if (page != null) 'page': page.toString(),
+          if (limit != null) 'limit': limit.toString(),
+          if (unread != null) 'unread': unread.toString(),
+        },
+      );
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
 }
