@@ -244,14 +244,40 @@ class UserService {
     required double longitude,
   }) async {
     try {
-      final response = await client.patch(
-        Uri.parse("$baseUrl/user/update-location"),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({'latitude': latitude, 'longitude': longitude}),
-      ).timeout(const Duration(seconds: 15));
+      final response = await client
+          .patch(
+            Uri.parse("$baseUrl/user/update-location"),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({'latitude': latitude, 'longitude': longitude}),
+          )
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> updateHobbies({
+    required String token,
+    required List<String> hobbies,
+  }) async {
+    try {
+      final response = await client
+          .patch(Uri.parse("$baseUrl/user/hobbies"),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({'hobbies': hobbies}))
+          .timeout(const Duration(seconds: 15));
       return response;
     } on SocketException catch (e) {
       debugPrint("No internet connection $e");
