@@ -288,4 +288,37 @@ class UserService {
     }
     return null;
   }
+
+  Future<http.Response?> updatePreference({
+    required String token,
+    required String minAge,
+    required String maxAge,
+    required String interestedIn,
+    required String distance,
+  }) async {
+    try {
+      final response = await client
+          .patch(Uri.parse("$baseUrl/user/preferences"),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({
+                'ageRange': [minAge, maxAge],
+                'interestedIn': interestedIn,
+                'distance': distance,
+              }))
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+
 }
