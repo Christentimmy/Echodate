@@ -17,6 +17,7 @@ import 'package:get/get.dart';
 class UserController extends GetxController {
   final UserService _userService = UserService();
   Rxn<UserModel> userModel = Rxn<UserModel>();
+  RxList<UserModel> potentialMatchesList = <UserModel>[].obs;
   RxList<TransactionModel> userTransactionHistory = <TransactionModel>[].obs;
   RxBool isloading = false.obs;
   RxBool isPaymentProcessing = false.obs;
@@ -358,6 +359,90 @@ class UserController extends GetxController {
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> getPotentialMatches() async {
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+      final response = await _userService.getPotentialMatches(token: token);
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(decoded["message"]);
+        return;
+      }
+      List matches = decoded["data"];
+      if (matches.isEmpty) return;
+      potentialMatchesList.value =
+          matches.map((e) => UserModel.fromJson(e)).toList();
+      potentialMatchesList.refresh();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<void> updateGender({
+    required String gender,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.updateGender(
+        token: token,
+        gender: gender,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> updateInterestedIn({
+    required String interestedIn,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.updateInterestedIn(
+        token: token,
+        interestedIn: interestedIn,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200 && response.statusCode != 201) {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
