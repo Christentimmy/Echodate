@@ -1,5 +1,9 @@
+// ignore_for_file: library_prefixes
+
 import 'dart:async';
 import 'package:echodate/app/controller/storage_controller.dart';
+import 'package:echodate/app/controller/story_controller.dart';
+// import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/live_stream_chat_model.dart';
 import 'package:echodate/app/utils/base_url.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +16,7 @@ class SocketController extends GetxController {
   // RxList<ChatModel> chatModelList = <ChatModel>[].obs;
   RxBool isloading = false.obs;
   // final _userController = Get.find<UserController>();
+  final _storyController = Get.find<StoryController>();
   int _reconnectAttempts = 0;
   final int _maxReconnectAttempts = 5;
 
@@ -57,6 +62,10 @@ class SocketController extends GetxController {
     socket?.on('newChatMessage', (data) {
       final newMessage = LiveStreamChatModel.fromJson(data);
       chatMessages.insert(0, newMessage);
+    });
+
+    socket?.on("new-story", (data) {
+      _storyController.getAllStories();
     });
   }
 

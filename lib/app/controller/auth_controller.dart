@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:echodate/app/controller/storage_controller.dart';
+import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
@@ -18,7 +19,6 @@ class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
   final AuthService _authService = AuthService();
   final _storageController = Get.find<StorageController>();
-  final _userController = Get.find<UserController>();
 
   Future<void> signUpUSer({
     required UserModel userModel,
@@ -33,9 +33,10 @@ class AuthController extends GetxController {
         CustomSnackbar.showErrorSnackBar(message);
         return;
       }
+      final userController = Get.find<UserController>();
       String token = decoded["token"];
       await _storageController.storeToken(token);
-      _userController.getUserDetails();
+      userController.getUserDetails();
       Get.to(
         () => OTPVerificationScreen(
           email: userModel.email,
@@ -124,7 +125,8 @@ class AuthController extends GetxController {
         CustomSnackbar.showErrorSnackBar(message);
         return;
       }
-      await _userController.getUserDetails();
+      final userController = Get.find<UserController>();
+      await userController.getUserDetails();
       if (nextScreen != null) {
         nextScreen();
         return;
@@ -179,8 +181,13 @@ class AuthController extends GetxController {
         Get.offAll(() => CompleteProfileScreen());
         return;
       }
+      final userController = Get.find<UserController>();
+      final storyController = Get.find<StoryController>();
       await storageController.storeToken(token);
-      await _userController.getUserDetails();
+      await userController.getUserDetails();
+      await userController.getPotentialMatches();
+      await storyController.getAllStories();
+      await storyController.getUserPostedStories();
       Get.offAll(() => BottomNavigationScreen());
     } catch (e) {
       debugPrint(e.toString());

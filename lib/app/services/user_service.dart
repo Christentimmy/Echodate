@@ -237,6 +237,7 @@ class UserService {
     required String token,
     required double latitude,
     required double longitude,
+    required String address,
   }) async {
     try {
       final response = await client
@@ -246,7 +247,11 @@ class UserService {
               'Authorization': 'Bearer $token',
               'Content-Type': 'application/json',
             },
-            body: jsonEncode({'latitude': latitude, 'longitude': longitude}),
+            body: jsonEncode({
+              'latitude': latitude,
+              'longitude': longitude,
+              "address": address,
+            }),
           )
           .timeout(const Duration(seconds: 15));
       return response;
@@ -621,5 +626,4 @@ class UserService {
     }
     return null;
   }
-
 }

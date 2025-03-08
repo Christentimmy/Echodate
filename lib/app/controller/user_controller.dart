@@ -282,6 +282,7 @@ class UserController extends GetxController {
   Future<void> updateLocation({
     required double latitude,
     required double longitude,
+    required String address,
   }) async {
     isloading.value = true;
     try {
@@ -295,6 +296,7 @@ class UserController extends GetxController {
         token: token,
         latitude: latitude,
         longitude: longitude,
+        address: address,
       );
 
       if (response == null) return;
@@ -383,7 +385,7 @@ class UserController extends GetxController {
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
-        debugPrint(decoded["message"]);
+        debugPrint(decoded["message"].toString());
         return;
       }
       List matches = decoded["data"];

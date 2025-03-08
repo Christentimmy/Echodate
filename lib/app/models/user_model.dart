@@ -63,10 +63,10 @@ class UserModel {
     this.password,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromJson(json) {
     return UserModel(
       id: json['_id'] ?? "",
-      fullName: json['full_name'] as String?,
+      fullName: json['full_name'] ?? "",
       email: json['email'] as String?,
       phoneNumber: json['phone_number'] as String?,
       avatar: json['avatar'] as String?,
@@ -163,7 +163,7 @@ class Preferences {
 
   Preferences({this.ageRange, this.maxDistance});
 
-  factory Preferences.fromJson(Map<String, dynamic> json) {
+  factory Preferences.fromJson(json) {
     return Preferences(
       ageRange:
           (json['ageRange'] as List<dynamic>?)?.map((e) => e as int).toList(),
@@ -185,14 +185,14 @@ class Preferences {
 }
 
 class Location {
-  final String? type;
+  final String? address;
   final List<double>? coordinates;
 
-  Location({this.type, this.coordinates});
+  Location({this.address, this.coordinates});
 
-  factory Location.fromJson(Map<String, dynamic> json) {
+  factory Location.fromJson(json) {
     return Location(
-      type: json['type'] as String?,
+      address: json['address'] ?? "",
       coordinates: (json['coordinates'] as List<dynamic>?)
           ?.map((e) => (e as num).toDouble())
           .toList(),
@@ -201,7 +201,7 @@ class Location {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    if (type != null && type!.isNotEmpty) data['type'] = type;
+    if (address!= null && address!.isNotEmpty) data['address'] = address;
     if (coordinates != null && coordinates!.isNotEmpty) {
       data['coordinates'] = coordinates;
     }

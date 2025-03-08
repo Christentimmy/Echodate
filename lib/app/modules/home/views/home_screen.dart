@@ -1,4 +1,6 @@
 import 'package:echodate/app/controller/live_stream_controller.dart';
+import 'package:echodate/app/controller/story_controller.dart';
+import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
 import 'package:echodate/app/modules/live/views/all_streams.dart';
 import 'package:echodate/app/widget/custom_button.dart';
@@ -10,37 +12,9 @@ import 'package:get/get.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
-  final List<String> storyImages = [
-    'https://randomuser.me/api/portraits/women/1.jpg',
-    'https://randomuser.me/api/portraits/women/2.jpg',
-    'https://randomuser.me/api/portraits/men/3.jpg',
-    'https://randomuser.me/api/portraits/men/4.jpg',
-    'https://randomuser.me/api/portraits/men/5.jpg',
-  ];
-
-  // final controller = Get.put(LiveStreamController());
   final _liveStreamController = Get.find<LiveStreamController>();
-
-  final List<Map<String, String>> profiles = [
-    {
-      "name": "Sara Williams",
-      "location": "California, USA (54 km)",
-      "image": "assets/images/pp.jpg",
-      "match": "70% Match"
-    },
-    {
-      "name": "Emma Brown",
-      "location": "New York, USA (30 km)",
-      "image": "assets/images/pp.jpg",
-      "match": "85% Match"
-    },
-    {
-      "name": "Sophia Davis",
-      "location": "Texas, USA (10 km)",
-      "image": "assets/images/pp.jpg",
-      "match": "90% Match"
-    },
-  ];
+  final _storyController = Get.find<StoryController>();
+  final _userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +78,8 @@ class HomeScreen extends StatelessWidget {
                                                 ),
                                     ),
                                     ontap: () async {
-                                      await _liveStreamController.startLiveStream();
+                                      await _liveStreamController
+                                          .startLiveStream();
                                     },
                                   ),
                                 ),
@@ -112,7 +87,7 @@ class HomeScreen extends StatelessWidget {
                             },
                           );
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.menu_rounded,
                           color: Colors.black,
                         ),
@@ -124,15 +99,27 @@ class HomeScreen extends StatelessWidget {
             ),
             SizedBox(
               height: 90,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: storyImages.length,
-                itemBuilder: (context, index) {
-                  return StoryCard(
-                    storyImages: storyImages,
-                    index: index,
-                  );
-                },
+              child: Row(
+                children: [
+                  Obx(
+                    () => StoryCard(
+                      story: _storyController.userPostedStoryList.first,
+                    ),
+                  ),
+                  Expanded(child: Obx(() {
+                    if (_storyController.allstoriesList.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _storyController.allstoriesList.length,
+                      itemBuilder: (context, index) {
+                        final story = _storyController.allstoriesList[index];
+                        return StoryCard(story: story);
+                      },
+                    );
+                  })),
+                ],
               ),
             ),
             const SizedBox(height: 15),
@@ -140,48 +127,76 @@ class HomeScreen extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Swiping Cards
-                  CardSwiper(
-                    cardBuilder: (
-                      context,
-                      index,
-                      horizontalOffsetPercentage,
-                      verticalOffsetPercentage,
-                    ) {
-                      return InkWell(
-                        onTap: () {
-                          Get.to(() => const TinderCardDetails());
-                        },
-                        child: TinderCard(profile: profiles[index]),
+                  Obx(() {
+                    if (_userController.isloading.value) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
                       );
-                    },
-                    cardsCount: profiles.length,
-                  ),
+                    }
 
-                  Positioned(
-                    bottom: Get.height * 0.05,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        actionButton(
-                          FontAwesomeIcons.xmark,
-                          Colors.white,
-                          false,
+                    if (_userController.potentialMatchesList.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No matches found",
+                          style: TextStyle(color: Colors.white),
                         ),
-                        const SizedBox(width: 20),
-                        actionButton(
-                          FontAwesomeIcons.solidHeart,
-                          Colors.orange,
-                          true,
-                        ),
-                        const SizedBox(width: 20),
-                        actionButton(
-                          Icons.star_border,
-                          Colors.white,
-                          false,
-                        ),
-                      ],
-                    ),
+                      );
+                    }
+
+                    return CardSwiper(
+                      cardsCount: _userController.potentialMatchesList.length,
+                      numberOfCardsDisplayed:
+                          _userController.potentialMatchesList.length < 3
+                              ? _userController.potentialMatchesList.length
+                              : 3,
+                      cardBuilder: (
+                        context,
+                        index,
+                        horizontalOffsetPercentage,
+                        verticalOffsetPercentage,
+                      ) {
+                        final profile =
+                            _userController.potentialMatchesList[index];
+                        return InkWell(
+                          onTap: () {
+                            Get.to(() =>
+                                TinderCardDetails(userId: profile.id ?? ""));
+                          },
+                          child: TinderCard(profile: profile),
+                        );
+                      },
+                    );
+                  }),
+                  Obx(
+                    () => _userController.potentialMatchesList.isEmpty
+                        ? const SizedBox.shrink()
+                        : Positioned(
+                            bottom: Get.height * 0.05,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                actionButton(
+                                  FontAwesomeIcons.xmark,
+                                  Colors.white,
+                                  false,
+                                ),
+                                const SizedBox(width: 20),
+                                actionButton(
+                                  FontAwesomeIcons.solidHeart,
+                                  Colors.orange,
+                                  true,
+                                ),
+                                const SizedBox(width: 20),
+                                actionButton(
+                                  Icons.star_border,
+                                  Colors.white,
+                                  false,
+                                ),
+                              ],
+                            ),
+                          ),
                   ),
                 ],
               ),

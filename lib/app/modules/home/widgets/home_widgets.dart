@@ -1,4 +1,7 @@
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/models/story_model.dart';
+import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -85,22 +88,28 @@ class AnimatedSwitcherWidget extends StatelessWidget {
 }
 
 class TinderCard extends StatelessWidget {
-  final Map<String, String> profile;
+  final UserModel profile;
 
   const TinderCard({super.key, required this.profile});
 
   @override
   Widget build(BuildContext context) {
+    print(profile.avatar);
     return Stack(
       children: [
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(width: 3, color: Colors.orange),
-            image: DecorationImage(
-              image: AssetImage(profile["image"]!),
-              fit: BoxFit.cover,
-            ),
+            image: profile.avatar?.isEmpty == true
+                ? const DecorationImage(
+                    image: AssetImage("assets/images/placeholder.png"),
+                    fit: BoxFit.cover,
+                  )
+                : DecorationImage(
+                    image: NetworkImage(profile.avatar ?? ""),
+                    fit: BoxFit.cover,
+                  ),
           ),
         ),
         Container(
@@ -149,7 +158,7 @@ class TinderCard extends StatelessWidget {
               ),
             ),
             child: Text(
-              profile["match"]!,
+              "${profile.matchPercentage.toString()}% Match",
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -164,7 +173,7 @@ class TinderCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                profile["name"]!,
+                profile.fullName ?? "",
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -172,7 +181,7 @@ class TinderCard extends StatelessWidget {
                 ),
               ),
               Text(
-                profile["location"]!,
+                profile.location?.address ?? "",
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   color: Colors.white,
@@ -186,8 +195,31 @@ class TinderCard extends StatelessWidget {
   }
 }
 
-class TinderCardDetails extends StatelessWidget {
-  const TinderCardDetails({super.key});
+class TinderCardDetails extends StatefulWidget {
+  final String userId;
+  const TinderCardDetails({super.key, required this.userId});
+
+  @override
+  State<TinderCardDetails> createState() => _TinderCardDetailsState();
+}
+
+class _TinderCardDetailsState extends State<TinderCardDetails> {
+  final userModel = Rxn<UserModel>();
+  final _userController = Get.find<UserController>();
+  @override
+  void initState() {
+    super.initState();
+    getUserDetails();
+  }
+
+  void getUserDetails() async {
+    final response = await _userController.getUserWithId(
+      userId: widget.userId,
+    );
+    if (response != null) {
+      userModel.value = response;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -448,14 +480,11 @@ Widget buildBasicInfoTile({
 }
 
 class StoryCard extends StatelessWidget {
-  final int index;
+  final StoryModel story;
   const StoryCard({
     super.key,
-    required this.storyImages,
-    required this.index,
+    required this.story,
   });
-
-  final List<String> storyImages;
 
   @override
   Widget build(BuildContext context) {
@@ -465,12 +494,19 @@ class StoryCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-            radius: 30,
-            backgroundImage: NetworkImage(storyImages[index]),
+            radius: 32,
+            backgroundColor: AppColors.primaryColor,
+            child: CircleAvatar(
+              radius: 30,
+              backgroundImage:
+                  story.mediaUrl == null && story.mediaUrl?.isEmpty == true
+                      ? const AssetImage("assets/images/placeholder.png")
+                      : NetworkImage(story.mediaUrl ?? ""),
+            ),
           ),
           const SizedBox(height: 4),
           Text(
-            ['My Story', 'Selena', 'Clara', 'Fabian', "Tope"][index],
+            story.fullName?.split(" ")[0].toString() ?? "",
             style: const TextStyle(fontSize: 12),
           )
         ],
