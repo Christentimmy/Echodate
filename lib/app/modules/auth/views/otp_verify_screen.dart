@@ -176,6 +176,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
           () => InkWell(
             onTap: () async {
               _timerController.startTimer();
+              await _authController.sendOtp();
             },
             child: _timerController.secondsRemaining.value == 0
                 ? Text(

@@ -56,7 +56,7 @@ class SocketController extends GetxController {
 
   void listenToEvents() {
     socket?.on("userDetails", (data) {
-      debugPrint(data.toString());
+      // debugPrint(data.toString());
     });
 
     socket?.on('newChatMessage', (data) {

@@ -23,7 +23,6 @@ class LocationController extends GetxController {
       String? city = placemarks[0].subAdministrativeArea;
       if (city == null || city.isEmpty) return;
       final userController = Get.find<UserController>();
-
       await userController.updateLocation(
         latitude: position.latitude,
         longitude: position.longitude,
@@ -33,4 +32,5 @@ class LocationController extends GetxController {
       debugPrint("${e.toString()} StackTrace: $stackTrace");
     }
   }
+
 }

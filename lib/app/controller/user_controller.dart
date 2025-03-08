@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:echodate/app/controller/location_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/transaction_model.dart';
 import 'package:echodate/app/models/user_model.dart';
@@ -26,6 +26,17 @@ class UserController extends GetxController {
   RxBool isloading = false.obs;
   RxBool isPaymentProcessing = false.obs;
   RxBool isPaymentHistoryFetched = false.obs;
+  RxBool isPotentialMatchFetched = false.obs;
+  RxBool isUserDetailsFetched = false.obs;
+
+  @override
+  void onInit() async {
+    super.onInit();
+    getUserDetails();
+    getPotentialMatches();
+    getMatches();
+    getUserPaymentHistory();
+  }
 
   Future<void> getUserDetails() async {
     isloading.value = true;
@@ -70,6 +81,7 @@ class UserController extends GetxController {
         return true;
       }
       final decoded = json.decode(response.body);
+      print("decoded: $decoded");
       String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
         Get.offAll(() => RegisterScreen());
@@ -78,27 +90,38 @@ class UserController extends GetxController {
       }
       String status = decoded["data"]["status"];
       String email = decoded["data"]["email"];
-      bool isEmailVerified = decoded["data"]["is_email_verified"] ?? false;
+      bool isEmailVerified = decoded["data"]["is_verified"] ?? false;
       bool isProfileCompleted = decoded["data"]["profile_completed"] ?? false;
-      bool isPhoneNumberVerified =
-          decoded["data"]["is_phone_number_verified"] ?? false;
+      String address = decoded["data"]["location"]?["address"];
+      print("address: $address");
       if (status == "banned" || status == "blocked") {
         CustomSnackbar.showErrorSnackBar("Your account has been banned.");
         Get.offAll(() => RegisterScreen());
         return true;
       }
-      if (!isEmailVerified && !isPhoneNumberVerified) {
+      if (!isEmailVerified) {
         CustomSnackbar.showErrorSnackBar("Your account email is not verified.");
         Get.offAll(() => OTPVerificationScreen(
             email: email,
             onVerifiedCallBack: () {
-              Get.offAll(() => BottomNavigationScreen());
+              getUserStatus();
+              // Get.offAll(() => BottomNavigationScreen());
             }));
         return true;
       }
       if (!isProfileCompleted) {
         CustomSnackbar.showErrorSnackBar("Your profile is not completed.");
-        Get.offAll(() => CompleteProfileScreen());
+        Get.offAll(() => CompleteProfileScreen(
+              nextScreen: () {
+                getUserStatus();
+              },
+            ));
+        return true;
+      }
+      final locationController = Get.find<LocationController>();
+      if (address.isEmpty) {
+        await locationController.getCurrentCity();
+        Get.offAll(() => BottomNavigationScreen());
         return true;
       }
       return false;
@@ -197,6 +220,7 @@ class UserController extends GetxController {
       final payments = decoded["payments"] as List;
       // final totalPages = decoded["totalPages"];
       // final currentPage = decoded["page"];
+      if (payments.isEmpty) return;
       userTransactionHistory.addAll(
         payments.map((payment) => TransactionModel.fromJson(payment)).toList(),
       );
@@ -300,6 +324,7 @@ class UserController extends GetxController {
       );
 
       if (response == null) return;
+      print(response.body);
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
@@ -393,6 +418,7 @@ class UserController extends GetxController {
       potentialMatchesList.value =
           matches.map((e) => UserModel.fromJson(e)).toList();
       potentialMatchesList.refresh();
+      isPotentialMatchFetched.value = true;
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -425,6 +451,8 @@ class UserController extends GetxController {
       if (nextScreen != null) {
         nextScreen();
       }
+      final locationController = Get.find<LocationController>();
+      await locationController.getCurrentCity();
       Get.to(() => const InterestedInScreen());
     } catch (e) {
       debugPrint(e.toString());
@@ -734,6 +762,12 @@ class UserController extends GetxController {
   }
 
   void clearUserData() {
+    potentialMatchesList.clear();
+    matchesList.clear();
+    userTransactionHistory.clear();
     userModel.value = null;
+    isPaymentHistoryFetched.value = false;
+    isPotentialMatchFetched.value = false;
+    isUserDetailsFetched.value = false;
   }
 }

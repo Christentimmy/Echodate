@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -94,24 +96,50 @@ class TinderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(profile.avatar);
     return Stack(
       children: [
         Container(
+          width: double.infinity,
+          height: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(width: 3, color: Colors.orange),
-            image: profile.avatar?.isEmpty == true
-                ? const DecorationImage(
-                    image: AssetImage("assets/images/placeholder.png"),
-                    fit: BoxFit.cover,
-                  )
-                : DecorationImage(
-                    image: NetworkImage(profile.avatar ?? ""),
-                    fit: BoxFit.cover,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(17),
+            child: CachedNetworkImage(
+              width: double.infinity,
+              height: double.infinity,
+              imageUrl: profile.avatar ?? "",
+              fit: BoxFit.cover,
+              placeholder: (context, url) {
+                return ShimmerEffect(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
+                );
+              },
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
           ),
         ),
+        // Container(
+        //   decoration: BoxDecoration(
+        //     borderRadius: BorderRadius.circular(20),
+        //     border: Border.all(width: 3, color: Colors.orange),
+        //     image: profile.avatar?.isEmpty == true
+        //         ? const DecorationImage(
+        //             image: AssetImage("assets/images/placeholder.png"),
+        //             fit: BoxFit.cover,
+        //           )
+        //         : DecorationImage(
+        //             image: NetworkImage(profile.avatar ?? ""),
+        //             fit: BoxFit.cover,
+        //           ),
+        //   ),
+        // ),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -507,7 +535,10 @@ class StoryCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             story.fullName?.split(" ")[0].toString() ?? "",
-            style: const TextStyle(fontSize: 12),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           )
         ],
       ),

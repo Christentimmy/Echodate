@@ -10,9 +10,17 @@ import 'package:get/get.dart';
 
 class StoryController extends GetxController {
   RxBool isloading = false.obs;
+  RxBool isStoryFetched = false.obs;
   final StoryService _storyService = StoryService();
   RxList<StoryModel> allstoriesList = RxList<StoryModel>();
   RxList<StoryModel> userPostedStoryList = RxList<StoryModel>();
+
+  @override
+  void onInit() {
+    getAllStories();
+    getUserPostedStories();
+    super.onInit();
+  }
 
   Future<void> createStory({
     required File media,
@@ -64,6 +72,7 @@ class StoryController extends GetxController {
       List<StoryModel> mappedList =
           stories.map((data) => StoryModel.fromJson(data)).toList();
       allstoriesList.value = mappedList;
+      isStoryFetched.value = true;
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -172,5 +181,11 @@ class StoryController extends GetxController {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  void clearUserData() {
+    allstoriesList.clear();
+    userPostedStoryList.clear();
+    isStoryFetched.value = false;
   }
 }

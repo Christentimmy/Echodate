@@ -1,3 +1,8 @@
+import 'package:echodate/app/controller/socket_controller.dart';
+import 'package:echodate/app/controller/storage_controller.dart';
+import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/modules/auth/views/signup_screen.dart';
+import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/modules/onboarding/views/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +16,6 @@ class SplashScreen1 extends StatefulWidget {
 
 class _SplashScreen1State extends State<SplashScreen1>
     with SingleTickerProviderStateMixin {
-      
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
@@ -54,11 +58,25 @@ class _SplashScreen1State extends State<SplashScreen1>
     _animationController.forward();
 
     // Navigate to onboarding screen
-    Future.delayed(const Duration(seconds: 3), () {
-      Get.to(
-        () => const OnboardingScreen(),
-        transition: Transition.fade,
-      );
+    Future.delayed(const Duration(seconds: 3), () async {
+      final userController = Get.find<UserController>();
+      final socketController = Get.find<SocketController>();
+      final storageController = Get.find<StorageController>();
+      bool newUser = await storageController.getUserStatus();
+      if (newUser) {
+        Get.offAll(() => const OnboardingScreen());
+        await storageController.saveStatus("notNewAgain");
+        return;
+      }
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        Get.off(() => RegisterScreen());
+        return;
+      }
+      bool hasNavigated = await userController.getUserStatus();
+      if (hasNavigated) return;
+      Get.offAll(() => BottomNavigationScreen());
+      socketController.initializeSocket();
     });
   }
 

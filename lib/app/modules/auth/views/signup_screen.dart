@@ -78,6 +78,7 @@ class RegisterScreen extends StatelessWidget {
               SizedBox(height: Get.height * 0.05),
               CustomButton(
                 ontap: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
                   if (!_signUpFormKey.currentState!.validate()) {
                     return;
                   }

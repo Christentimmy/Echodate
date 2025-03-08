@@ -1,20 +1,26 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
-import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/age_calculator.dart';
+import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-class ProfileScreen extends StatelessWidget {
-  ProfileScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   final List<Map<String, String>> interests = [
     {"emoji": "⚽", "label": "Football"},
     {"emoji": "🌿", "label": "Nature"},
@@ -23,6 +29,14 @@ class ProfileScreen extends StatelessWidget {
   ];
 
   final _userController = Get.find<UserController>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_userController.isUserDetailsFetched.value) {
+      _userController.getUserDetails();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +62,17 @@ class ProfileScreen extends StatelessWidget {
                 SizedBox(height: Get.height * 0.01),
                 Center(
                   child: Obx(() {
+                    final userModel = _userController.userModel.value;
+                    final isloading = _userController.isloading.value;
+                    if (userModel == null ||
+                        userModel.avatar?.isEmpty == true ||
+                        isloading) {
+                      return ShimmerEffect(
+                        child: ShimmerEffect(
+                          child: const CircleAvatar(radius: 30),
+                        ),
+                      );
+                    }
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(80),
                       child: CachedNetworkImage(
@@ -55,10 +80,11 @@ class ProfileScreen extends StatelessWidget {
                         height: Get.height * 0.14,
                         fit: BoxFit.cover,
                         imageUrl: _userController.userModel.value?.avatar ?? "",
-                        placeholder: (context, url) => Center(
-                            child: CircularProgressIndicator(
-                          color: AppColors.primaryColor,
-                        )),
+                        placeholder: (context, url) {
+                          return ShimmerEffect(
+                            child: const CircleAvatar(radius: 30),
+                          );
+                        },
                         errorWidget: (context, url, error) =>
                             const Icon(Icons.error),
                       ),
@@ -89,14 +115,14 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 Obx(() => Text(_userController.userModel.value?.bio ?? "")),
                 const SizedBox(height: 10),
-                Obx(
-                  () => buildBasicInfoTile(
+                Obx(() {
+                  String gender = _userController.userModel.value?.gender ?? "";
+                  print(gender);
+                  return buildBasicInfoTile(
                     leading: "Gender: ",
-                    title: _userController.userModel.value?.gender
-                            ?.toUpperCase() ??
-                        "",
-                  ),
-                ),
+                    title: gender.toUpperCase(),
+                  );
+                }),
                 Obx(
                   () => buildBasicInfoTile(
                     leading: "Age: ",
@@ -169,7 +195,7 @@ class ProfileScreen extends StatelessWidget {
                 //     ),
                 //   ],
                 // ),
-                
+
                 SizedBox(height: Get.height * 0.04),
                 Divider(color: Colors.grey.withOpacity(0.2)),
                 const SizedBox(height: 10),
@@ -227,7 +253,8 @@ class ProfileScreen extends StatelessWidget {
                 _buildProfileSettingTiles(
                   title: "Sign Out",
                   onTap: () {
-                    Get.offAll(() => RegisterScreen());
+                    final authController = Get.find<AuthController>();
+                    authController.logout();
                   },
                   bgColor: Colors.red,
                   iconColor: Colors.white,

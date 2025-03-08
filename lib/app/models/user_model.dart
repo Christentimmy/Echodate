@@ -99,7 +99,7 @@ class UserModel {
       location:
           json['location'] != null ? Location.fromJson(json['location']) : null,
       dob: json['date_of_birth'] as String?,
-      matchPercentage: json['matchPercentage'] ?? 0,
+      matchPercentage: (json['matchPercentage'] as num?)?.toInt() ?? 0,
     );
   }
 

@@ -74,7 +74,7 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: Get.height * 0.05),
               CustomButton(
                 ontap: () async {
-                  // Get.to(() => BottomNavigationScreen());
+                  FocusManager.instance.primaryFocus?.unfocus();
                   if (_formKey.currentState!.validate()) {
                     await _authController.loginUser(
                       identifier: _emailController.text,
