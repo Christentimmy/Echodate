@@ -93,7 +93,6 @@ class UserController extends GetxController {
       bool isEmailVerified = decoded["data"]["is_verified"] ?? false;
       bool isProfileCompleted = decoded["data"]["profile_completed"] ?? false;
       String address = decoded["data"]["location"]?["address"];
-      print("address: $address");
       if (status == "banned" || status == "blocked") {
         CustomSnackbar.showErrorSnackBar("Your account has been banned.");
         Get.offAll(() => RegisterScreen());
@@ -589,17 +588,14 @@ class UserController extends GetxController {
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
-      if (token == null || token.isEmpty) {
-        CustomSnackbar.showErrorSnackBar("Authentication required");
-        return;
-      }
+      if (token == null || token.isEmpty) return;
 
       final response = await _userService.getMatches(token: token);
 
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200 && response.statusCode != 201) {
-        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        debugPrint(decoded["message"].toString());
         return;
       }
       List matches = decoded["data"];

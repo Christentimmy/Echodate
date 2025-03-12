@@ -64,7 +64,7 @@ class StoryController extends GetxController {
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
-        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        debugPrint(decoded["message"].toString());
         return;
       }
       List stories = decoded["data"];
@@ -93,7 +93,7 @@ class StoryController extends GetxController {
       if (response == null) return null;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
-        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        debugPrint(decoded["message"].toString());
         return null;
       }
       List stories = decoded["data"];
@@ -169,7 +169,7 @@ class StoryController extends GetxController {
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
-        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        debugPrint(decoded["message"].toString());
         return;
       }
       List stories = decoded["data"];
