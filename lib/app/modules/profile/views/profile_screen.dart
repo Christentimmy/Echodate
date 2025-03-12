@@ -21,13 +21,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final List<Map<String, String>> interests = [
-    {"emoji": "⚽", "label": "Football"},
-    {"emoji": "🌿", "label": "Nature"},
-    {"emoji": "🗣️", "label": "Language"},
-    {"emoji": "📸", "label": "Photography"},
-  ];
-
   final _userController = Get.find<UserController>();
 
   @override
@@ -63,23 +56,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Center(
                   child: Obx(() {
                     final userModel = _userController.userModel.value;
-                    final isloading = _userController.isloading.value;
-                    if (userModel == null ||
-                        userModel.avatar?.isEmpty == true ||
-                        isloading) {
-                      return ShimmerEffect(
-                        child: ShimmerEffect(
-                          child: const CircleAvatar(radius: 30),
-                        ),
-                      );
-                    }
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(80),
                       child: CachedNetworkImage(
                         width: Get.width * 0.31,
                         height: Get.height * 0.14,
                         fit: BoxFit.cover,
-                        imageUrl: _userController.userModel.value?.avatar ?? "",
+                        imageUrl: userModel?.avatar ?? "",
                         placeholder: (context, url) {
                           return ShimmerEffect(
                             child: const CircleAvatar(radius: 30),

@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 class StoryModel {
@@ -6,8 +5,8 @@ class StoryModel {
   final String? userId;
   final String? fullName;
   final String? content;
-  final String? mediaUrl;
-  final String? mediaType;
+  final List<String>? mediaUrls;
+  final List<String>? mediaTypes;
   final DateTime? expiresAt;
   final String? visibility;
   final List<String>? viewedBy;
@@ -18,8 +17,8 @@ class StoryModel {
     this.userId,
     this.fullName,
     this.content,
-    this.mediaUrl,
-    this.mediaType,
+    this.mediaUrls,
+    this.mediaTypes,
     this.expiresAt,
     this.visibility,
     this.viewedBy,
@@ -33,8 +32,8 @@ class StoryModel {
       userId: json['userId'] as String?,
       fullName: json['full_name'] as String?,
       content: json['content'] as String?,
-      mediaUrl: json['mediaUrl'] as String?,
-      mediaType: json['mediaType'] as String?,
+      mediaUrls: (json['mediaUrls'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      mediaTypes: (json['mediaTypes'] as List<dynamic>?)?.map((e) => e as String).toList(),
       expiresAt: json['expiresAt'] != null ? DateTime.tryParse(json['expiresAt']) : null,
       visibility: json['visibility'] as String?,
       viewedBy: (json['viewedBy'] as List<dynamic>?)?.map((e) => e as String).toList(),
@@ -49,8 +48,8 @@ class StoryModel {
       'userId': userId,
       'full_name': fullName,
       'content': content,
-      'mediaUrl': mediaUrl,
-      'mediaType': mediaType,
+      'mediaUrls': mediaUrls,
+      'mediaTypes': mediaTypes,
       'expiresAt': expiresAt?.toIso8601String(),
       'visibility': visibility,
       'viewedBy': viewedBy,

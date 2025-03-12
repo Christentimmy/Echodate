@@ -3,6 +3,7 @@ import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
 import 'package:echodate/app/modules/live/views/all_streams.dart';
+import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -137,7 +138,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             backgroundColor: AppColors.primaryColor,
                           );
                         }
-
                         if (_storyController.userPostedStoryList.isEmpty) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(
@@ -164,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       right: -5,
                                       child: InkWell(
                                         onTap: () {
-                                          // selectImage();
+                                          Get.to(() => CreateStoryScreen());
                                         },
                                         child: Container(
                                           height: 35,
@@ -214,7 +214,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               bottom: 15,
                               right: 5,
                               child: InkWell(
-                                onTap: () {},
+                                onTap: () {
+                                  Get.to(() => CreateStoryScreen());
+                                },
                                 child: Container(
                                   height: 35,
                                   width: 35,

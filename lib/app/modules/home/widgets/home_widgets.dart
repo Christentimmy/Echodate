@@ -527,9 +527,9 @@ class StoryCard extends StatelessWidget {
             child: CircleAvatar(
               radius: 30,
               backgroundImage:
-                  story.mediaUrl == null && story.mediaUrl?.isEmpty == true
+                  story.mediaUrls == null && story.mediaUrls?.isEmpty == true
                       ? const AssetImage("assets/images/placeholder.png")
-                      : NetworkImage(story.mediaUrl ?? ""),
+                      : NetworkImage(story.mediaUrls?.first ?? ""),
             ),
           ),
           const SizedBox(height: 4),

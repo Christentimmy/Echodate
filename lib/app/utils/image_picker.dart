@@ -9,3 +9,11 @@ Future<File?> pickImage() async {
   }
   return null;
 }
+
+Future<File?> pickVideo() async {
+  final pickedFile = await ImagePicker().pickVideo(source: ImageSource.gallery);
+  if (pickedFile != null) {
+    return File(pickedFile.path);
+  }
+  return null;
+}

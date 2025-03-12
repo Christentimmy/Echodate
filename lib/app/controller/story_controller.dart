@@ -23,9 +23,10 @@ class StoryController extends GetxController {
   }
 
   Future<void> createStory({
-    required File media,
+    required List<File> mediaFiles,
     required String content,
     required String visibility,
+    required BuildContext context,
   }) async {
     isloading.value = true;
     try {
@@ -36,17 +37,18 @@ class StoryController extends GetxController {
         content: content,
         token: token,
         visibility: visibility,
-        media: media,
+        mediaFiles: mediaFiles,
       );
       if (response == null) return;
       final responseBody = await response.stream.bytesToString();
       final decoded = json.decode(responseBody);
-      if (response.statusCode != 200) {
+      if (response.statusCode != 201) {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
       CustomSnackbar.showSuccessSnackBar("Story created successfully!");
-      Get.back();
+      mediaFiles.clear();
+      Navigator.pop(context);
     } catch (e) {
       debugPrint(e.toString());
     } finally {

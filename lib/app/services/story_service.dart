@@ -14,7 +14,7 @@ class StoryService {
     required String content,
     required String token,
     required String visibility,
-    required File media,
+    required List<File> mediaFiles,
   }) async {
     try {
       var uri = Uri.parse("$baseUrl/story/create");
@@ -23,25 +23,22 @@ class StoryService {
         ..headers['Authorization'] = 'Bearer $token'
         ..headers['Content-Type'] = 'multipart/form-data'
         ..fields['content'] = content
-        ..fields['visibility'] = visibility
-        ..files.add(
+        ..fields['visibility'] = visibility;
+
+      for (var mediaFile in mediaFiles) {
+        request.files.add(
           await http.MultipartFile.fromPath(
             'media',
-            media.path,
+            mediaFile.path,
           ),
         );
+      }
 
-      var response = await request.send().timeout(const Duration(seconds: 15));
+      var response = await request.send();
       return response;
     } on SocketException catch (e) {
       CustomSnackbar.showErrorSnackBar("Check internet connection, $e");
       debugPrint("No internet connection");
-      return null;
-    } on TimeoutException {
-      CustomSnackbar.showErrorSnackBar(
-        "Request timeout, probably bad network, try again",
-      );
-      debugPrint("Request timeout");
       return null;
     } catch (e) {
       debugPrint(e.toString());
@@ -156,7 +153,4 @@ class StoryService {
     }
     return null;
   }
-
-
-
 }
