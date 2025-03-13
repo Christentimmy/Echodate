@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
+import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +13,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:video_compress/video_compress.dart';
 
 Widget actionButton(
   IconData icon,
@@ -507,7 +511,7 @@ Widget buildBasicInfoTile({
   );
 }
 
-class StoryCard extends StatelessWidget {
+class StoryCard extends StatefulWidget {
   final StoryModel story;
   const StoryCard({
     super.key,
@@ -515,32 +519,75 @@ class StoryCard extends StatelessWidget {
   });
 
   @override
+  State<StoryCard> createState() => _StoryCardState();
+}
+
+class _StoryCardState extends State<StoryCard> {
+  bool _isVideo(String url) {
+    return url.endsWith(".mp4") ||
+        url.endsWith(".mov") ||
+        url.endsWith(".avi") ||
+        url.endsWith(".mkv");
+  }
+
+  Rxn<Uint8List> uint8list = Rxn<Uint8List>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (_isVideo(widget.story.stories?.first.mediaUrl ?? "")) {
+        uint8list.value = await VideoCompress.getByteThumbnail(
+          widget.story.stories?.first.mediaUrl ?? "",
+          quality: 50,
+          position: -1,
+        );
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 32,
-            backgroundColor: AppColors.primaryColor,
-            child: CircleAvatar(
-              radius: 30,
-              backgroundImage:
-                  story.mediaUrls == null && story.mediaUrls?.isEmpty == true
-                      ? const AssetImage("assets/images/placeholder.png")
-                      : NetworkImage(story.mediaUrls?.first ?? ""),
+    return InkWell(
+      onTap: () {
+        Get.to(() => ViewStoryFullScreen(story: widget.story));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 32,
+              backgroundColor: AppColors.primaryColor,
+              child: _isVideo(widget.story.stories?.first.mediaUrl ?? "")
+                  ? Obx(() {
+                      if (uint8list.value != null) {
+                        return CircleAvatar(
+                          radius: 30,
+                          backgroundImage: MemoryImage(uint8list.value!),
+                        );
+                      } else {
+                        return const CircleAvatar(radius: 30);
+                      }
+                    })
+                  : CircleAvatar(
+                      radius: 30,
+                      backgroundImage: NetworkImage(
+                        widget.story.stories?.first.mediaUrl ?? "",
+                      ),
+                    ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            story.fullName?.split(" ")[0].toString() ?? "",
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          )
-        ],
+            const SizedBox(height: 4),
+            Text(
+              widget.story.fullName?.split(" ")[0].toString() ?? "",
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

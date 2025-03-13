@@ -1,6 +1,7 @@
 import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
 import 'package:echodate/app/modules/live/views/all_streams.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
@@ -45,6 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
       body: RefreshIndicator(
         color: AppColors.primaryColor,
         onRefresh: () async {
+          await _storyController.getUserPostedStories();
+          await _storyController.getAllStories();
           await _userController.getPotentialMatches();
         },
         child: SingleChildScrollView(
@@ -132,13 +135,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Obx(() {
                         final userModel = _userController.userModel.value;
+                        final storyModel = _storyController.userPostedStory.value;
                         if (userModel == null) {
                           return CircleAvatar(
                             radius: 32,
                             backgroundColor: AppColors.primaryColor,
                           );
                         }
-                        if (_storyController.userPostedStoryList.isEmpty) {
+                        if (storyModel == null || storyModel.stories?.isEmpty == true) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8.0,
@@ -208,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           clipBehavior: Clip.none,
                           children: [
                             StoryCard(
-                              story: _storyController.userPostedStoryList.first,
+                              story: _storyController.userPostedStory.value ?? StoryModel(),
                             ),
                             Positioned(
                               bottom: 15,

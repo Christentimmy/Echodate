@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:echodate/app/utils/base_url.dart';
+import 'package:echodate/app/utils/get_file_type.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mime_type/mime_type.dart';
+import 'package:http_parser/http_parser.dart';
 
 class UserService {
   http.Client client = http.Client();
@@ -205,15 +206,13 @@ class UserService {
       var request = http.MultipartRequest('POST', url);
       request.headers['Authorization'] = 'Bearer $token';
       for (var photo in photos) {
-        var mimeType = mime(photo.path)?.split('/');
-        if (mimeType != null) {
-          var file = await http.MultipartFile.fromPath(
-            'photos',
-            photo.path,
-            // contentType: MediaType(mimeType[0], mimeType[1]),
-          );
-          request.files.add(file);
-        }
+        final filePath = photo.path;
+        var file = await http.MultipartFile.fromPath(
+          'photos',
+          photo.path,
+          contentType: MediaType.parse(getMimeType(filePath)),
+        );
+        request.files.add(file);
       }
       var response = await request.send();
       return response;

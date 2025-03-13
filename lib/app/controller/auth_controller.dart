@@ -239,7 +239,6 @@ class AuthController extends GetxController {
       }
       final userController = Get.find<UserController>();
       final storyController = Get.find<StoryController>();
-
       final storage = Get.find<StorageController>();
       await storage.deleteToken();
       userController.clearUserData();

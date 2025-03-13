@@ -88,7 +88,7 @@ class UserModel {
       weekendAvailability: json['weekend_availability'] as bool?,
       echocoinsBalance: json['echocoins_balance'] as int?,
       oneSignalId: json['one_signal_id'] as String?,
-      transactions: json['transactions'] as List<dynamic>?,
+      transactions: json['transactions'] ?? [],
       recipientCode: json['recipient_code'] as String?,
       plan: json['plan'] as String?,
       dailySwipes: json['daily_swipes'] as int?,

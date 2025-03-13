@@ -235,9 +235,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10),
                 _buildProfileSettingTiles(
                   title: "Sign Out",
-                  onTap: () {
+                  onTap: () async {
                     final authController = Get.find<AuthController>();
-                    authController.logout();
+                    await authController.logout();
                   },
                   bgColor: Colors.red,
                   iconColor: Colors.white,

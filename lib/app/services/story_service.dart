@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:echodate/app/utils/base_url.dart';
+import 'package:echodate/app/utils/get_file_type.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 class StoryService {
   http.Client client = http.Client();
@@ -26,10 +27,12 @@ class StoryService {
         ..fields['visibility'] = visibility;
 
       for (var mediaFile in mediaFiles) {
+        final filePath = mediaFile.path;
         request.files.add(
           await http.MultipartFile.fromPath(
             'media',
             mediaFile.path,
+            contentType: MediaType.parse(getMimeType(filePath)),
           ),
         );
       }
@@ -66,16 +69,39 @@ class StoryService {
     return null;
   }
 
-  Future<http.Response?> getUserStories({
+  Future<http.Response?> viewStory({
     required String token,
-    required String userId,
+    required String storyId,
+    required String storyItemId,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/story/get-user-story/$userId');
+      final url = Uri.parse('$baseUrl/story/view-story/$storyId/$storyItemId');
       final response = await http.get(
         url,
         headers: {'Authorization': 'Bearer $token'},
       ).timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> getStoryViewers({
+    required String token,
+    required String storyId,
+    required String storyItemId,
+  }) async {
+    try {
+      final url = Uri.parse('$baseUrl/story/get-story-viewers/$storyId/$storyItemId');
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(const Duration(seconds: 60));
       return response;
     } on SocketException catch (e) {
       debugPrint("No internet connection $e");
@@ -153,4 +179,5 @@ class StoryService {
     }
     return null;
   }
+
 }

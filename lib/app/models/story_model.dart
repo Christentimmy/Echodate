@@ -1,73 +1,94 @@
-import 'dart:convert';
 
 class StoryModel {
   final String? id;
   final String? userId;
   final String? fullName;
-  final String? content;
-  final List<String>? mediaUrls;
-  final List<String>? mediaTypes;
-  final DateTime? expiresAt;
-  final String? visibility;
-  final List<String>? viewedBy;
-  final DateTime? createdAt;
+  final List<Stories>? stories;
 
   StoryModel({
     this.id,
     this.userId,
     this.fullName,
-    this.content,
-    this.mediaUrls,
-    this.mediaTypes,
-    this.expiresAt,
-    this.visibility,
-    this.viewedBy,
-    this.createdAt,
+    this.stories,
   });
 
-  // Factory method to create a StoryModel object from a JSON map
   factory StoryModel.fromJson(Map<String, dynamic> json) {
     return StoryModel(
       id: json['_id'] as String?,
       userId: json['userId'] as String?,
       fullName: json['full_name'] as String?,
-      content: json['content'] as String?,
-      mediaUrls: (json['mediaUrls'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      mediaTypes: (json['mediaTypes'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      expiresAt: json['expiresAt'] != null ? DateTime.tryParse(json['expiresAt']) : null,
-      visibility: json['visibility'] as String?,
-      viewedBy: (json['viewedBy'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      stories: json['stories'] != null ? List<Stories>.from(json['stories'].map((x) => Stories.fromMap(x))) : <Stories>[],
     );
   }
 
-  // Convert a StoryModel object into a JSON map
-  Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'userId': userId,
-      'full_name': fullName,
-      'content': content,
-      'mediaUrls': mediaUrls,
-      'mediaTypes': mediaTypes,
-      'expiresAt': expiresAt?.toIso8601String(),
-      'visibility': visibility,
-      'viewedBy': viewedBy,
-      'createdAt': createdAt?.toIso8601String(),
+  @override
+  String toString() {
+    return '''
+    StoryModel(
+    id: $id, 
+    userId: $userId, 
+    fullName: $fullName, 
+    stories: $stories
+    )''';
+  }
+}
+
+class Stories {
+  final String? content;
+  final String? mediaUrl;
+  final String? mediaType;
+  final DateTime? createdAt;
+  final DateTime? expiresAt;
+  final List<String>? viewedBy;
+  final String? id;
+
+  Stories({
+    this.content,
+    this.mediaUrl,
+    this.mediaType,
+    this.createdAt,
+    this.expiresAt,
+    this.viewedBy,
+    this.id,
+  });
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'content': content ?? "",
+      'mediaUrl': mediaUrl ?? "",
+      'mediaType': mediaType ?? "",
+      'createdAt': createdAt ?? "",
+      'expiresAt': expiresAt ?? "",
+      'viewedBy': viewedBy ?? [],
+      'id': id ?? "",
     };
   }
 
-  // Convert a JSON string to a StoryModel object
-  static StoryModel? fromJsonString(String jsonString) {
-    try {
-      return StoryModel.fromJson(json.decode(jsonString));
-    } catch (e) {
-      return null;
-    }
+  factory Stories.fromMap(Map<String, dynamic> map) {
+    return Stories(
+      content:  map['content'] ?? "",
+      mediaUrl:  map['mediaUrl'] ?? "",
+      mediaType: map['mediaType'] ?? "",
+      createdAt: map['createdAt'] != null ? DateTime.tryParse(map['createdAt'].toString()) : DateTime.now(),
+      expiresAt: map['expiresAt'] != null ? DateTime.tryParse(map['expiresAt'].toString()) : DateTime.now(),
+      viewedBy: map['viewedBy'] != null ? List<String>.from((map['viewedBy'])) : [],
+      id: map['_id'] ?? "",
+    );
   }
 
-  // Convert a StoryModel object to a JSON string
-  String toJsonString() {
-    return json.encode(toJson());
+
+  @override
+  String toString() {
+    return '''
+    Stories(
+    content: $content, 
+    mediaUrl: $mediaUrl, 
+    mediaType: $mediaType, 
+    createdAt: $createdAt, 
+    expiresAt: $expiresAt, 
+    viewedBy: $viewedBy, 
+    id: $id 
+    )''';
   }
+
 }

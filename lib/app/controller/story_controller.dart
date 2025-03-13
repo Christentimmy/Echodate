@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
+import 'package:echodate/app/models/user_model.dart';
+import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/services/story_service.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,8 @@ class StoryController extends GetxController {
   RxBool isStoryFetched = false.obs;
   final StoryService _storyService = StoryService();
   RxList<StoryModel> allstoriesList = RxList<StoryModel>();
-  RxList<StoryModel> userPostedStoryList = RxList<StoryModel>();
+  RxList<UserModel> allStoryViewers = RxList<UserModel>();
+  Rxn<StoryModel> userPostedStory = Rxn<StoryModel>();
 
   @override
   void onInit() {
@@ -46,6 +48,7 @@ class StoryController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
+      await getUserPostedStories();
       CustomSnackbar.showSuccessSnackBar("Story created successfully!");
       mediaFiles.clear();
       Navigator.pop(context);
@@ -70,6 +73,7 @@ class StoryController extends GetxController {
         return;
       }
       List stories = decoded["data"];
+      allstoriesList.clear();
       if (stories.isEmpty) return;
       List<StoryModel> mappedList =
           stories.map((data) => StoryModel.fromJson(data)).toList();
@@ -82,33 +86,65 @@ class StoryController extends GetxController {
     }
   }
 
-  Future<List<StoryModel>?> getUserStories({
-    required String userId,
+  Future<void> viewStory({
+    required String storyId,
+    required String storyItemId,
   }) async {
     isloading.value = true;
     try {
       final storageController = Get.find<StorageController>();
       final String? token = await storageController.getToken();
-      if (token == null) return null;
-      final response =
-          await _storyService.getUserStories(userId: userId, token: token);
-      if (response == null) return null;
+      if (token == null) return;
+      final response = await _storyService.viewStory(
+        token: token,
+        storyId: storyId,
+        storyItemId: storyItemId,
+      );
+      if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
         debugPrint(decoded["message"].toString());
-        return null;
+        return;
       }
-      List stories = decoded["data"];
-      if (stories.isEmpty) return null;
-      List<StoryModel> mappedList =
-          stories.map((data) => StoryModel.fromJson(data)).toList();
-      return mappedList;
     } catch (e) {
       debugPrint(e.toString());
     } finally {
       isloading.value = false;
     }
-    return null;
+  }
+
+  Future<void> getStoryViewers({
+    required String storyId,
+    required String storyItemId,
+  }) async {
+    try {
+      final storageController = Get.find<StorageController>();
+      final String? token = await storageController.getToken();
+      if (token == null) return;
+      final response = await _storyService.getStoryViewers(
+        token: token,
+        storyId: storyId,
+        storyItemId: storyItemId,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(decoded["message"].toString());
+        return;
+      }
+      final viewers = decoded["viewers"] ?? "";
+      allStoryViewers.clear();
+      if (viewers.isEmpty) return;
+      List<UserModel> viewerList = (viewers as List)
+          .cast<Map<String, dynamic>>()
+          .map((e) => UserModel.fromJson(e))
+          .toList();
+      if (viewerList.isEmpty) return;
+      allStoryViewers.value = viewerList;
+      allStoryViewers.refresh();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   Future<void> updateVisibility({
@@ -153,8 +189,8 @@ class StoryController extends GetxController {
         return;
       }
       CustomSnackbar.showSuccessSnackBar("Story deleted successfully!");
-      allstoriesList.removeWhere((story) => story.id == storyId);
-      await getAllStories();
+      await getUserPostedStories();
+      Get.offAll(() => BottomNavigationScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -171,15 +207,18 @@ class StoryController extends GetxController {
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
+        userPostedStory.value = null;
         debugPrint(decoded["message"].toString());
         return;
       }
-      List stories = decoded["data"];
-      if (stories.isEmpty) return;
-      List<StoryModel> mappedList =
-          stories.map((e) => StoryModel.fromJson(e)).toList();
-      userPostedStoryList.value = mappedList;
-      userPostedStoryList.refresh();
+      var storyMap = decoded["data"] ?? "";
+      userPostedStory.value = null;
+      if (storyMap == null || storyMap.isEmpty || storyMap["stories"] == null) {
+        return;
+      }
+      StoryModel story = StoryModel.fromJson(storyMap);
+      userPostedStory.value = story;
+      userPostedStory.refresh();
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -187,7 +226,8 @@ class StoryController extends GetxController {
 
   void clearUserData() {
     allstoriesList.clear();
-    userPostedStoryList.clear();
+    allStoryViewers.clear();
+    userPostedStory.value = null;
     isStoryFetched.value = false;
   }
 }
