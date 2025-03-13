@@ -535,7 +535,7 @@ class _ViewSoryViewersWidgetState extends State<ViewSoryViewersWidget> {
                     itemBuilder: (context, index) {
                       final viewer = _storyController.allStoryViewers[index];
                       return ListTile(
-                        minTileHeight: 60,
+                        minTileHeight: 50,
                         leading: CircleAvatar(
                           backgroundImage: NetworkImage(viewer.avatar ?? ""),
                         ),

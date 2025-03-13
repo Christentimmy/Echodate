@@ -1,4 +1,3 @@
-import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
@@ -6,7 +5,7 @@ import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
 import 'package:echodate/app/modules/live/views/all_streams.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
-import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/delete_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _liveStreamController = Get.find<LiveStreamController>();
   final _storyController = Get.find<StoryController>();
   final _userController = Get.find<UserController>();
 
@@ -81,46 +79,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               size: 20,
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          const Icon(Icons.notifications, color: Colors.black),
-                          const SizedBox(width: 10),
+                          // const SizedBox(width: 10),
+                          // const Icon(Icons.notifications, color: Colors.black),
+                          const SizedBox(width: 20),
                           InkWell(
                             onTap: () {
-                              showModalBottomSheet(
+                              showDialog(
+                                barrierColor: Colors.black.withOpacity(0.7),
                                 context: context,
                                 builder: (context) {
-                                  return Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                      horizontal: 15,
-                                    ),
-                                    child: Center(
-                                      child: CustomButton(
-                                        child: Obx(
-                                          () => _liveStreamController
-                                                  .isLoading.value
-                                              ? const CircularProgressIndicator(
-                                                  color: Colors.white)
-                                              : const Text(
-                                                  "Go Live",
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                        ),
-                                        ontap: () async {
-                                          await _liveStreamController
-                                              .startLiveStream();
-                                        },
-                                      ),
-                                    ),
-                                  );
+                                  return GoLiveWidget();
                                 },
                               );
                             },
                             child: const Icon(
-                              Icons.menu_rounded,
+                              Icons.live_tv,
                               color: Colors.black,
                             ),
                           ),

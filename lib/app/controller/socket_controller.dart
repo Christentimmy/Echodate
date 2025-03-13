@@ -1,22 +1,22 @@
 // ignore_for_file: library_prefixes
 
 import 'dart:async';
+import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
-// import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/live_stream_chat_model.dart';
 import 'package:echodate/app/utils/base_url.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketController extends GetxController {
   IO.Socket? socket;
   RxList<LiveStreamChatModel> chatMessages = <LiveStreamChatModel>[].obs;
-  // RxList<ChatModel> chatModelList = <ChatModel>[].obs;
   RxBool isloading = false.obs;
-  // final _userController = Get.find<UserController>();
   final _storyController = Get.find<StoryController>();
+
   int _reconnectAttempts = 0;
   final int _maxReconnectAttempts = 5;
 
@@ -35,8 +35,15 @@ class SocketController extends GetxController {
 
     socket?.connect();
 
-    socket?.onConnect((_) {
-      print("Socket connected successfully");
+    socket?.onConnect((_) async {
+      const prefs = FlutterSecureStorage();
+      final channelName = await prefs.read(key: 'channelName');
+      if (channelName != null && channelName.isNotEmpty) {
+        await Future.delayed(const Duration(seconds: 3), () {
+          joinStream(channelName);
+        });
+      }
+
       listenToEvents();
     });
 
@@ -55,17 +62,21 @@ class SocketController extends GetxController {
   }
 
   void listenToEvents() {
-    socket?.on("userDetails", (data) {
-      // debugPrint(data.toString());
-    });
-
     socket?.on('newChatMessage', (data) {
       final newMessage = LiveStreamChatModel.fromJson(data);
-      chatMessages.insert(0, newMessage);
+      chatMessages.add(newMessage);
+      chatMessages.refresh();
     });
 
     socket?.on("new-story", (data) {
       _storyController.getAllStories();
+    });
+
+    socket?.on("viewer-count-updated", (data) {
+      final liveStreamController = Get.find<LiveStreamController>();
+      int viewers = data ?? 0;
+      liveStreamController.numberOfViewers.value = viewers;
+      liveStreamController.numberOfViewers.refresh();
     });
   }
 
@@ -94,10 +105,6 @@ class SocketController extends GetxController {
     };
     socket?.emit('sendMessage', payload);
   }
-
-  // void joinRoom({required String roomId}) {
-  //   socket?.emit("joinRoom", {"roomId": roomId});
-  // }
 
   void getChatHistory(String rideId) {
     socket?.emit("history", {"rideId": rideId});
@@ -129,7 +136,18 @@ class SocketController extends GetxController {
   }
 
   void joinStream(String channelName) {
-    socket?.emit('joinStream', channelName);
+    if (socket == null || !socket!.connected) {
+      print("Socket is not connected");
+      return;
+    }
+
+    if (channelName.isEmpty) {
+      print("Invalid channelName");
+      return;
+    }
+
+    print("Emitting joinStream event for channel: $channelName");
+    socket?.emit('joinStream', {"channelName": channelName});
   }
 
   void sendChatMessage(

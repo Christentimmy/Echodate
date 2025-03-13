@@ -1,12 +1,26 @@
+import 'package:echodate/app/controller/live_stream_controller.dart';
+import 'package:echodate/app/controller/socket_controller.dart';
+import 'package:echodate/app/models/live_stream_chat_model.dart';
+import 'package:echodate/app/models/live_stream_model.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:permission_handler/permission_handler.dart'; // Add this import
+import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BroadcastScreen extends StatefulWidget {
   final String channelName;
   final String tempToken;
+  final String hostId;
+  final LiveStreamModel liveStreamModel;
 
-  const BroadcastScreen({super.key, required this.channelName, required this.tempToken});
+  const BroadcastScreen({
+    super.key,
+    required this.channelName,
+    required this.tempToken,
+    required this.hostId,
+    required this.liveStreamModel,
+  });
 
   @override
   _BroadcastScreenState createState() => _BroadcastScreenState();
@@ -16,13 +30,28 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   late RtcEngine _agoraEngine;
   bool _isBroadcasting = false;
   int? _remoteUid;
-  bool _isLocalVideoEnabled = true;
+  final bool _isLocalVideoEnabled = true;
   bool _permissionsGranted = false;
+  final _liveStreamController = Get.find<LiveStreamController>();
+  final _socketController = Get.find<SocketController>();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _requestPermissions();
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   Future<void> _requestPermissions() async {
@@ -38,7 +67,9 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     } else {
       // Handle the case where permissions are denied
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Camera and microphone permissions are required to broadcast.')),
+        const SnackBar(
+            content: Text(
+                'Camera and microphone permissions are required to broadcast.')),
       );
     }
   }
@@ -47,7 +78,8 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     // Initialize Agora RTC Engine
     _agoraEngine = createAgoraRtcEngine();
     await _agoraEngine.initialize(const RtcEngineContext(
-      appId: '3f2d4f1858c2486096f6007138a48e46', // Replace with your Agora App ID
+      appId:
+          '3f2d4f1858c2486096f6007138a48e46', // Replace with your Agora App ID
     ));
 
     // Enable video
@@ -65,7 +97,8 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
           _remoteUid = remoteUid;
         });
       },
-      onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
+      onUserOffline: (RtcConnection connection, int remoteUid,
+          UserOfflineReasonType reason) {
         setState(() {
           _remoteUid = null;
         });
@@ -79,7 +112,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     await _agoraEngine.joinChannel(
       token: widget.tempToken,
       channelId: widget.channelName,
-      uid: 0, 
+      uid: 0,
       options: const ChannelMediaOptions(
         channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
         clientRoleType: ClientRoleType.clientRoleBroadcaster,
@@ -88,70 +121,246 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     _agoraEngine.leaveChannel();
     _agoraEngine.release();
     super.dispose();
   }
 
-  // Toggle local video (camera) on/off
-  Future<void> _toggleLocalVideo() async {
-    setState(() {
-      _isLocalVideoEnabled = !_isLocalVideoEnabled;
-    });
-    await _agoraEngine.enableLocalVideo(_isLocalVideoEnabled);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Broadcasting'),
-      ),
-      body: _permissionsGranted
-          ? Stack(
-              children: [
-                // Local video preview
-                Center(
-                  child: _isBroadcasting
-                      ? AgoraVideoView(
-                          controller: VideoViewController(
-                            rtcEngine: _agoraEngine,
-                            canvas: const VideoCanvas(uid: 0),
-                          ),
-                        )
-                      : const CircularProgressIndicator(),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        floatingActionButton: _permissionsGranted
+            ? FloatingActionButton(
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: Colors.white,
+                onPressed: () async {
+                  await _liveStreamController.endLiveStream(
+                    widget.channelName,
+                    widget.hostId,
+                    context,
+                  );
+                },
+                child: Icon(
+                  _isLocalVideoEnabled ? Icons.videocam_off : Icons.videocam,
                 ),
-                // Remote video view (if another user joins)
-                if (_remoteUid != null)
-                  Positioned(
-                    top: 20,
-                    right: 20,
-                    child: Container(
-                      width: 100,
-                      height: 150,
-                      child: AgoraVideoView(
-                        controller: VideoViewController.remote(
-                          rtcEngine: _agoraEngine,
-                          canvas: VideoCanvas(uid: _remoteUid),
-                          connection: RtcConnection(channelId: widget.channelName),
+              )
+            : const SizedBox.shrink(),
+        body: _permissionsGranted
+            ? Stack(
+                children: [
+                  // Local video preview
+                  Center(
+                    child: _isBroadcasting
+                        ? AgoraVideoView(
+                            controller: VideoViewController(
+                              rtcEngine: _agoraEngine,
+                              canvas: const VideoCanvas(uid: 0),
+                            ),
+                          )
+                        : const CircularProgressIndicator(
+                            color: Colors.orange,
+                          ),
+                  ),
+                  // Remote video view (if another user joins)
+                  if (_remoteUid != null)
+                    Positioned(
+                      top: 20,
+                      right: 20,
+                      child: SizedBox(
+                        width: 100,
+                        height: 150,
+                        child: AgoraVideoView(
+                          controller: VideoViewController.remote(
+                            rtcEngine: _agoraEngine,
+                            canvas: VideoCanvas(uid: _remoteUid),
+                            connection: RtcConnection(
+                              channelId: widget.channelName,
+                            ),
+                          ),
                         ),
                       ),
                     ),
+
+                  HostInfoWidget(
+                    widget: widget,
+                    liveStreamController: _liveStreamController,
                   ),
-              ],
-            )
-          : const Center(
-              child: Text('Waiting for camera and microphone permissions...'),
-            ),
-      floatingActionButton: _permissionsGranted
-          ? FloatingActionButton(
-              onPressed: _toggleLocalVideo,
-              child: Icon(
-                _isLocalVideoEnabled ? Icons.videocam_off : Icons.videocam,
+
+                  Container(
+                    height: Get.height,
+                    width: Get.width,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.9),
+                        ],
+                        stops: const [
+                          0.7,
+                          1.0
+                        ], // Adjust the stops to make the darker part take 80%
+                      ),
+                    ),
+                  ),
+
+                  // Live Chat Overlay (Instagram-style)
+                  _buildChatMessages(),
+
+                  // _buildEndLiveAndPauseButton(context),
+                ],
+              )
+            : const Center(
+                child: Text('Waiting for camera and microphone permissions...'),
               ),
-            )
-          : null,
+      ),
+    );
+  }
+
+  Widget _buildChatMessages() {
+    return Align(
+      alignment: Alignment.bottomLeft,
+      child: Container(
+        height: Get.height * 0.3,
+        width: double.infinity,
+        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.only(bottom: 40),
+        child: Obx(
+          () => ListView.builder(
+            reverse: false,
+            controller: _scrollController,
+            itemCount: _socketController.chatMessages.length,
+            padding: EdgeInsets.zero,
+            itemBuilder: (context, index) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => _scrollToBottom(),
+              );
+              final message = _socketController.chatMessages[index];
+              return _buildChatMessageBubble(message);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChatMessageBubble(LiveStreamChatModel message) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 14,
+            backgroundImage: NetworkImage(message.userAvatar),
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "${message.username}: ",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    TextSpan(
+                      text: message.message,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class HostInfoWidget extends StatelessWidget {
+  const HostInfoWidget({
+    super.key,
+    required this.widget,
+    required LiveStreamController liveStreamController,
+  }) : _liveStreamController = liveStreamController;
+
+  final BroadcastScreen widget;
+  final LiveStreamController _liveStreamController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: Get.height * 0.05,
+        horizontal: 15,
+      ),
+      child: Row(
+        children: [
+          Container(
+            height: 45,
+            width: Get.width * 0.5,
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.black.withOpacity(0.6),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(
+                    widget.liveStreamModel.hostAvater,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  widget.liveStreamModel.hostName,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 2,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.black.withOpacity(0.6),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.person, color: Colors.white),
+                Obx(
+                  () => Text(
+                    "${_liveStreamController.numberOfViewers.value}",
+                    style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

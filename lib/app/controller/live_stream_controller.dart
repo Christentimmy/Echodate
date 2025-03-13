@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:echodate/app/controller/socket_controller.dart';
+import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/live_stream_model.dart';
 import 'package:echodate/app/modules/live/views/broad.dart';
-import 'package:echodate/app/modules/live/views/view_stream.dart';
+import 'package:echodate/app/modules/live/views/watch_live_screen.dart';
 import 'package:echodate/app/services/live_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 class LiveStreamController extends GetxController {
@@ -12,27 +14,47 @@ class LiveStreamController extends GetxController {
   final _socketController = Get.find<SocketController>();
   var isLoading = false.obs;
   RxBool isJoinLoading = false.obs;
+  RxBool isEndingLoading = false.obs;
   RxList<LiveStreamModel> activeStreams = <LiveStreamModel>[].obs;
-  String authToken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzFhZWNhY2YwZTY2M2I4ZTU0NTAwOSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQwOTM4OTUyLCJleHAiOjE3NDExMTE3NTJ9.hePBiavrDtMc3lEx8FfwT_cJEklRLtaXXkCnnC2W16I";
+  RxInt numberOfViewers = RxInt(0);
 
-  Future<void> startLiveStream() async {
+  Future<void> startLiveStream({
+    required String visibility,
+  }) async {
     isLoading.value = true;
     try {
-      final response = await _service.startLiveStream(authToken);
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _service.startLiveStream(
+        token,
+        visibility,
+      );
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 201) {
         print(decoded["message"]);
         return;
       }
-      String? token = decoded["token"];
+      var stream = decoded["stream"] ?? "";
+      if (stream == null || stream.isEmpty) return;
+      LiveStreamModel liveStreamModel = LiveStreamModel.fromJson(stream);
+      String? tempToken = decoded["token"];
+      String? hostId = decoded["hostId"];
       String? channelName = decoded["stream"]["channelName"];
-      print(channelName);
-      print(token);
-      if (token == null || channelName == null) return;
-      Get.to(
-        () => BroadcastScreen(channelName: channelName, tempToken: token),
+      if (tempToken == null || channelName == null || hostId == null) return;
+      _socketController.joinStream(channelName);
+      const prefs = FlutterSecureStorage();
+      await prefs.delete(key: "channelName");
+      await prefs.write(key: 'channelName', value: channelName);
+      Get.off(
+        () => BroadcastScreen(
+          channelName: channelName,
+          tempToken: tempToken,
+          hostId: hostId,
+          liveStreamModel: liveStreamModel,
+        ),
       );
     } catch (e) {
       debugPrint(e.toString());
@@ -44,7 +66,13 @@ class LiveStreamController extends GetxController {
   Future<void> fetchActiveStreams() async {
     isLoading.value = true;
     try {
-      final response = await _service.getActiveStreams(token: authToken);
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _service.getActiveStreams(
+        token: token,
+      );
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
@@ -67,9 +95,13 @@ class LiveStreamController extends GetxController {
   Future<void> joinLiveStream(String channelName) async {
     isJoinLoading.value = true;
     try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
       final response = await _service.joinLiveStream(
         channelName,
-        authToken,
+        token,
       );
       if (response == null) {
         debugPrint("response is null");
@@ -77,16 +109,18 @@ class LiveStreamController extends GetxController {
         return;
       }
       final decoded = json.decode(response.body);
-      final token = decoded['token'];
+      final joinToken = decoded['token'] ?? "";
       final uid = decoded['uid'];
-      print("UID: $uid");
-      if (token == null || uid == null) return;
+      var stream = decoded["stream"] ?? "";
+      if (joinToken == null || uid == null || stream == null) return;
       _socketController.joinStream(channelName);
+      LiveStreamModel liveStreamModel = LiveStreamModel.fromJson(stream);
       Get.to(
-        () => LiveStreamScreen(
+        () => WatchLiveScreen(
           channelName: channelName,
           token: token,
           uid: uid,
+          liveStreamModel: liveStreamModel,
         ),
       );
     } catch (e, stackTrace) {
@@ -99,11 +133,61 @@ class LiveStreamController extends GetxController {
   Future<void> endLiveStream(
     String channelName,
     String hostId,
-    String authToken,
+    BuildContext context,
   ) async {
-    isLoading(true);
-    await _service.endLiveStream(channelName, hostId, authToken);
-    // currentStream.clear();
-    isLoading(false);
+    isEndingLoading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+      final response = await _service.endLiveStream(
+        channelName,
+        hostId,
+        token,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(decoded["message"].toString());
+        return;
+      }
+      activeStreams.clear();
+      numberOfViewers.value = 0;
+      const prefs = FlutterSecureStorage();
+      await prefs.delete(key: 'channelName');
+      Get.back();
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isEndingLoading.value = false;
+    }
+  }
+
+  Future<void> leaveStream(
+    String channelName,
+    BuildContext context,
+  ) async {
+    isEndingLoading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _service.leaveStream(
+        channelName,
+        token,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(decoded["message"].toString());
+        return;
+      }
+      Get.back();
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isEndingLoading.value = false;
+    }
   }
 }

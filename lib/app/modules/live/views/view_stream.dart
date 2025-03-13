@@ -1,13 +1,20 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:echodate/app/models/live_stream_model.dart';
 import 'package:flutter/material.dart';
 
 class LiveStreamScreen extends StatefulWidget {
   final String channelName;
   final String token;
   final int uid;
+  final LiveStreamModel liveStreamModel;
 
-  LiveStreamScreen(
-      {required this.channelName, required this.token, required this.uid});
+  const LiveStreamScreen({
+    super.key,
+    required this.channelName,
+    required this.token,
+    required this.uid,
+    required this.liveStreamModel,
+  });
 
   @override
   _LiveStreamScreenState createState() => _LiveStreamScreenState();
