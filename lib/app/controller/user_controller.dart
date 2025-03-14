@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:echodate/app/controller/location_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
+import 'package:echodate/app/models/sub_model.dart';
 import 'package:echodate/app/models/transaction_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/Interest/views/interested_in_screen.dart';
@@ -25,6 +26,7 @@ class UserController extends GetxController {
   RxList<UserModel> potentialMatchesList = <UserModel>[].obs;
   RxList<UserModel> matchesList = <UserModel>[].obs;
   RxList<UserModel> usersWhoLikesMeList = <UserModel>[].obs;
+  RxList<SubModel> allSubscriptionPlanList = <SubModel>[].obs;
   RxList<TransactionModel> userTransactionHistory = <TransactionModel>[].obs;
   RxBool isloading = false.obs;
   RxBool isPaymentProcessing = false.obs;
@@ -33,6 +35,7 @@ class UserController extends GetxController {
   RxBool isUserDetailsFetched = false.obs;
   RxBool isMatchesListFetched = false.obs;
   RxBool isGetUserWhoLikesMeFetched = false.obs;
+  RxBool isSubscriptionPlansFetched = false.obs;
   final RxList<Map<String, dynamic>> _swipeQueue = <Map<String, dynamic>>[].obs;
   bool _isProcessingQueue = false;
 
@@ -882,6 +885,7 @@ class UserController extends GetxController {
         token: token,
         updateWeekendAvailability: updateWeekendAvailability,
       );
+      print(response?.body);
 
       if (response == null) return;
       final decoded = json.decode(response.body);
@@ -889,6 +893,7 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
+      await getUserDetails();
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -916,7 +921,7 @@ class UserController extends GetxController {
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200 && response.statusCode != 201) {
-        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        CustomSnackbar.showErrorSnackBar(decoded["message"].toString());
         return;
       }
       Get.to(() => const PickHobbiesScreen());
@@ -950,13 +955,81 @@ class UserController extends GetxController {
     return null;
   }
 
+  Future<void> getSubscriptionPlans() async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _userService.getSubscriptionPlans(token: token);
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(decoded["message"].toString());
+        return;
+      }
+      List matches = decoded["data"];
+      allSubscriptionPlanList.clear();
+      if (matches.isEmpty) return;
+      List<SubModel> mapped = matches.map((e) => SubModel.fromMap(e)).toList();
+      allSubscriptionPlanList.value = mapped;
+      allSubscriptionPlanList.refresh();
+      if (response.statusCode == 200) isSubscriptionPlansFetched.value = true;
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> subscribeToPlan({
+    required String planId,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.subscribeToPlan(
+        token: token,
+        planId: planId,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"].toString());
+        return;
+      }
+      String url = decoded["data"]["authorization_url"] ?? "";
+      if (url.isEmpty) return;
+      await urlLauncher(url);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
   void clearUserData() {
     potentialMatchesList.clear();
     matchesList.clear();
+    userTransactionHistory.clear();
+    allSubscriptionPlanList.clear();
+    usersWhoLikesMeList.clear();
     userTransactionHistory.clear();
     userModel.value = null;
     isPaymentHistoryFetched.value = false;
     isPotentialMatchFetched.value = false;
     isUserDetailsFetched.value = false;
+    isMatchesListFetched.value = false;
+    isGetUserWhoLikesMeFetched.value = false;
+    isSubscriptionPlansFetched.value = false;
   }
 }

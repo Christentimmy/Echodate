@@ -1,3 +1,6 @@
+import 'package:echodate/app/controller/location_controller.dart';
+import 'package:echodate/app/controller/notification_controller.dart';
+import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/auth/views/change_password_screen.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
@@ -6,12 +9,25 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-class SettingsScreen extends StatelessWidget {
-  SettingsScreen({super.key});
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
 
-  final RxBool _isLocation = false.obs;
-  final RxBool _isRecommendation = false.obs;
-  final RxBool _isNotification = false.obs;
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _isWeekendVibes.value =
+        _userController.userModel.value?.weekendAvailability ?? false;
+  }
+
+  final _locationController = Get.put(LocationController());
+  final _controller = Get.put(NotificationController());
+  final _userController = Get.find<UserController>();
+  final RxBool _isWeekendVibes = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +36,9 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.back();
+            },
             icon: const Icon(
               FontAwesomeIcons.x,
               size: 18,
@@ -136,10 +154,14 @@ class SettingsScreen extends StatelessWidget {
                   scale: 0.7,
                   child: Obx(
                     () => Switch(
-                      value: _isLocation.value,
+                      value: _locationController.isLocation.value,
                       activeColor: AppColors.primaryColor,
-                      onChanged: (value) {
-                        _isLocation.value = value;
+                      onChanged: (value) async {
+                        if (value) {
+                          await _locationController.requestLocationPermission();
+                        } else {
+                          _locationController.isLocation.value = false;
+                        }
                       },
                     ),
                   ),
@@ -159,10 +181,13 @@ class SettingsScreen extends StatelessWidget {
                   scale: 0.7,
                   child: Obx(
                     () => Switch(
-                      value: _isRecommendation.value,
+                      value: _isWeekendVibes.value,
                       activeColor: AppColors.primaryColor,
-                      onChanged: (value) {
-                        _isRecommendation.value = value;
+                      onChanged: (value) async {
+                        _isWeekendVibes.value = value;
+                        await _userController.updateWeekendAvailability(
+                          updateWeekendAvailability: value,
+                        );
                       },
                     ),
                   ),
@@ -182,10 +207,10 @@ class SettingsScreen extends StatelessWidget {
                   scale: 0.7,
                   child: Obx(
                     () => Switch(
-                      value: _isNotification.value,
+                      value: _controller.isNotification.value,
                       activeColor: AppColors.primaryColor,
                       onChanged: (value) {
-                        _isNotification.value = value;
+                        _controller.toggleNotification(value);
                       },
                     ),
                   ),

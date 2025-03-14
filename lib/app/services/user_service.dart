@@ -736,4 +736,54 @@ class UserService {
     }
     return null;
   }
+
+  Future<http.Response?> getSubscriptionPlans({
+    required String token,
+  }) async {
+    try {
+      final response = await client.get(
+          Uri.parse(
+            "$baseUrl/user/get-subscriptions-plan",
+          ),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          }).timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> subscribeToPlan({
+    required String token,
+    required String planId,
+  }) async {
+    try {
+      final response = await client
+          .post(
+            Uri.parse("$baseUrl/user/purchase-subscription"),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({'planId': planId}),
+          )
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
 }

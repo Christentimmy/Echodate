@@ -1,11 +1,29 @@
+import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/models/sub_model.dart';
 import 'package:echodate/app/modules/subscription/views/sub_payment_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-class SubscriptionScreen extends StatelessWidget {
+class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
+
+  @override
+  State<SubscriptionScreen> createState() => _SubscriptionScreenState();
+}
+
+class _SubscriptionScreenState extends State<SubscriptionScreen> {
+  final _userController = Get.find<UserController>();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_userController.isSubscriptionPlansFetched.value) {
+        _userController.getSubscriptionPlans();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,43 +50,51 @@ class SubscriptionScreen extends StatelessWidget {
                   "Choose your subscription plan:",
                   style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                 ),
-                SizedBox(height: Get.height * 0.05),
-                SubsCard(
-                  title: "Basic Plan",
-                  price: "29.99",
-                  imagePath: "assets/images/couple.png",
-                  features: [
-                    _buildFeature("See who likes you"),
-                    _buildFeature("Be Seen Faster"),
-                    _buildFeature("20 Swipes Per Day"),
-                    _buildFeature("5 Priority Messages Daily"),
-                  ],
-                ),
-                SizedBox(height: Get.height * 0.05),
-                SubsCard(
-                  title: "Budget Plan",
-                  price: "59.99",
-                  imagePath: "assets/images/couple.png",
-                  features: [
-                    _buildFeature("See who likes you"),
-                    _buildFeature("Be Seen Faster"),
-                    _buildFeature("30 Swipes Per Day"),
-                    _buildFeature("10 Priority Messages Daily"),
-                  ],
-                ),
-                SizedBox(height: Get.height * 0.05),
-                SubsCard(
-                  title: "Premium Plan",
-                  price: "119.99",
-                  imagePath: "assets/images/couple.png",
-                  features: [
-                    _buildFeature("See who likes you"),
-                    _buildFeature("Be Seen Faster"),
-                    _buildFeature("30 Swipes Per Day"),
-                    _buildFeature("10 Priority Messages Daily"),
-                    _buildFeature("Unlock Echome"),
-                  ],
-                ),
+                Obx(() {
+                  if (_userController.isloading.value) {
+                    return SizedBox(
+                      height: Get.height * 0.55,
+                      width: Get.width,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    );
+                  }
+                  if (_userController.allSubscriptionPlanList.isEmpty) {
+                    return SizedBox(
+                      height: Get.height * 0.55,
+                      width: Get.width,
+                      child: const Center(
+                        child: Text("Empty"),
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _userController.allSubscriptionPlanList.length,
+                    itemBuilder: (context, index) {
+                      final subModel =
+                          _userController.allSubscriptionPlanList[index];
+                      return InkWell(
+                        onTap: () {
+                          Get.to(() => SubPaymentScreen(subModel: subModel));
+                        },
+                        child: SubsCard(
+                          title: subModel.title,
+                          price: subModel.price.toString(),
+                          imagePath: "assets/images/couple.png",
+                          subModel: subModel,
+                          features: subModel.features
+                              .map((e) => _buildFeature(e))
+                              .toList(),
+                        ),
+                      );
+                    },
+                  );
+                }),
                 SizedBox(height: Get.height * 0.05),
               ],
             ),
@@ -107,6 +133,7 @@ class SubsCard extends StatelessWidget {
   final String price;
   final List<Widget> features;
   final String imagePath;
+  final SubModel subModel;
 
   const SubsCard({
     super.key,
@@ -114,64 +141,61 @@ class SubsCard extends StatelessWidget {
     required this.price,
     required this.features,
     required this.imagePath,
+    required this.subModel,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: (){
-        Get.to(()=> SubPaymentScreen(selectedPlan: title));
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: AppColors.primaryColor,
-        ),
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: AppColors.primaryColor,
+      ),
+      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
-                const Spacer(),
-                Text(
-                  "GH₵ $price",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+              ),
+              const Spacer(),
+              Text(
+                "GH₵ $price",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    ...features,
-                  ],
-                ),
-                const Spacer(),
-                Image.asset(
-                  imagePath,
-                  width: 80,
-                  height: 85,
-                  fit: BoxFit.cover,
-                ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
+                  ...features,
+                ],
+              ),
+              const Spacer(),
+              Image.asset(
+                imagePath,
+                width: 80,
+                height: 85,
+                fit: BoxFit.cover,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

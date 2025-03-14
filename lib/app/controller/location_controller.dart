@@ -5,7 +5,34 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 class LocationController extends GetxController {
-  
+  RxBool _isLocation = false.obs;
+  RxBool get isLocation => _isLocation;
+  @override
+  void onInit() {
+    super.onInit();
+    checkLocationPermission();
+  }
+
+  Future<void> checkLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      _isLocation.value = true;
+    } else {
+      _isLocation.value = false;
+    }
+  }
+
+  Future<void> requestLocationPermission() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      _isLocation.value = true;
+    } else {
+      _isLocation.value = false;
+    }
+  }
+
   Future<void> getCurrentCity() async {
     try {
       LocationPermission permission = await Geolocator.checkPermission();
@@ -32,5 +59,4 @@ class LocationController extends GetxController {
       debugPrint("${e.toString()} StackTrace: $stackTrace");
     }
   }
-
 }

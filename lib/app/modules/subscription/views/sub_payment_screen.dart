@@ -1,17 +1,23 @@
+import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/models/sub_model.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
+import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class SubPaymentScreen extends StatelessWidget {
-  final String selectedPlan;
+  final SubModel subModel;
+  SubPaymentScreen({
+    super.key,
+    required this.subModel,
+  });
 
-  SubPaymentScreen({super.key, required this.selectedPlan});
+  final _userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
-    final selectedPlanDetails = _selectedPan[selectedPlan];
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -36,72 +42,42 @@ class SubPaymentScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                 ),
                 SizedBox(height: Get.height * 0.05),
-                if (selectedPlanDetails != null) selectedPlanDetails,
+                SubsCard(
+                  title: subModel.title,
+                  price: subModel.price.toString(),
+                  imagePath: "assets/images/couple.png",
+                  subModel: subModel,
+                  features:
+                      subModel.features.map((e) => _buildFeature(e)).toList(),
+                ),
                 SizedBox(height: Get.height * 0.05),
                 Text(
-                  "Choose Payment methods",
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-                ),
-                SizedBox(height: Get.height * 0.02),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: const Color.fromARGB(255, 243, 251, 255),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 2,
-                        spreadRadius: 1.0,
-                        offset: const Offset(0.0, 2.0),
-                      )
-                    ],
-                  ),
-                  child: ListTile(
-                    onTap: () {},
-                    contentPadding: const EdgeInsets.all(5),
-                    leading: const CircleAvatar(
-                      radius: 25,
-                      backgroundColor: Colors.white,
-                      child: FaIcon(FontAwesomeIcons.stripe),
-                    ),
-                    title: const Text(
-                      "Stripe",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                  "Payment",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade500,
                   ),
                 ),
                 SizedBox(height: Get.height * 0.02),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: const Color.fromARGB(255, 243, 251, 255),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 2,
-                        spreadRadius: 1.0,
-                        offset: const Offset(0.0, 2.0),
-                      )
-                    ],
-                  ),
-                  child: ListTile(
-                    onTap: () {},
-                    contentPadding: const EdgeInsets.all(5),
-                    leading: const CircleAvatar(
-                      radius: 25,
-                      backgroundColor: Colors.white,
-                      child: FaIcon(FontAwesomeIcons.creditCard),
-                    ),
-                    title: const Text(
-                      "Momo",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                CustomButton(
+                  ontap: _userController.isloading.value
+                      ? () {}
+                      : () async {
+                          await _userController.subscribeToPlan(
+                            planId: subModel.id,
+                          );
+                        },
+                  child: Obx(
+                    () => _userController.isloading.value
+                        ? const Loader()
+                        : const Text(
+                            "Pay",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -135,42 +111,4 @@ class SubPaymentScreen extends StatelessWidget {
       ),
     );
   }
-
-  // Initialize _selectedPan using the static _buildFeature
-  final Map<String, Widget> _selectedPan = {
-    "Basic Plan": SubsCard(
-      title: "Basic Plan",
-      price: "9.99",
-      imagePath: "assets/images/couple.png",
-      features: [
-        _buildFeature("See who likes you"),
-        _buildFeature("Be Seen Faster"),
-        _buildFeature("20 Swipes Per Day"),
-        _buildFeature("5 Priority Messages Daily"),
-      ],
-    ),
-    "Budget Plan": SubsCard(
-      title: "Budget Plan",
-      price: "19.99",
-      imagePath: "assets/images/couple.png",
-      features: [
-        _buildFeature("See who likes you"),
-        _buildFeature("Be Seen Faster"),
-        _buildFeature("30 Swipes Per Day"),
-        _buildFeature("10 Priority Messages Daily"),
-      ],
-    ),
-    "Premium Plan": SubsCard(
-      title: "Premium Plan",
-      price: "29.99",
-      imagePath: "assets/images/couple.png",
-      features: [
-        _buildFeature("See who likes you"),
-        _buildFeature("Be Seen Faster"),
-        _buildFeature("30 Swipes Per Day"),
-        _buildFeature("10 Priority Messages Daily"),
-        _buildFeature("Unlock Echome"),
-      ],
-    ),
-  };
 }

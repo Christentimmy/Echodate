@@ -17,7 +17,7 @@ class UserModel {
   final String? gender;
   final String? interestedIn;
   final String? relationshipPreference;
-  final bool? weekendAvailability;
+  bool? weekendAvailability;
   final int? echocoinsBalance;
   final String? oneSignalId;
   final List<dynamic>? transactions;
