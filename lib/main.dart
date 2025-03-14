@@ -1,4 +1,5 @@
 import 'package:echodate/app/bindings/app_bindings.dart';
+import 'package:echodate/app/controller/one_signal_controller.dart';
 import 'package:echodate/app/modules/splash/views/splash_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Get.put(OneSignalController());
   runApp(const MainApp());
 }
 

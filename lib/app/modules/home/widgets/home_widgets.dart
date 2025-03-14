@@ -1,14 +1,20 @@
 import 'dart:typed_data';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
+import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
+import 'package:echodate/app/modules/live/views/all_streams.dart';
+import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/utils/age_calculator.dart';
+import 'package:echodate/app/widget/delete_dialog.dart';
 import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,26 +25,30 @@ Widget actionButton(
   IconData icon,
   Color color,
   bool isCenter,
+  VoidCallback onTap,
 ) {
-  return Container(
-    height: isCenter ? 70 : 55,
-    width: isCenter ? 70 : 55,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: isCenter ? Colors.white : Colors.white.withOpacity(0.8),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.2),
-          blurRadius: 6,
-          spreadRadius: 2,
-        ),
-      ],
-    ),
-    child: Icon(
-      icon,
-      color: color,
-      size: 25,
+  return InkWell(
+    onTap: onTap,
+    child: Container(
+      height: isCenter ? 70 : 55,
+      width: isCenter ? 70 : 55,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isCenter ? Colors.white : Colors.white.withOpacity(0.8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 6,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Icon(
+        icon,
+        color: color,
+        size: 25,
+      ),
     ),
   );
 }
@@ -228,8 +238,12 @@ class TinderCard extends StatelessWidget {
 }
 
 class TinderCardDetails extends StatefulWidget {
-  final String userId;
-  const TinderCardDetails({super.key, required this.userId});
+  // final String userId;\
+  final UserModel userModel;
+  const TinderCardDetails({
+    super.key,
+    required this.userModel,
+  });
 
   @override
   State<TinderCardDetails> createState() => _TinderCardDetailsState();
@@ -246,12 +260,16 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
 
   void getUserDetails() async {
     final response = await _userController.getUserWithId(
-      userId: widget.userId,
+      userId: widget.userModel.id ?? "",
     );
     if (response != null) {
       userModel.value = response;
     }
   }
+
+  final RxInt _activeIndex = 0.obs;
+  final RxBool isExpanded = false.obs;
+  static const int maxBioLength = 250; // Set a limit for truncation
 
   @override
   Widget build(BuildContext context) {
@@ -265,13 +283,41 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
               width: Get.width,
               child: Stack(
                 children: [
-                  Image.asset(
-                    "assets/images/pp.jpg",
-                    fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
-                    height: Get.height * 0.6,
-                    width: Get.width,
-                  ),
+                  Obx(() {
+                    if (userModel.value?.photos != null &&
+                        userModel.value!.photos!.isNotEmpty) {
+                      return PageView.builder(
+                        onPageChanged: (value) {
+                          _activeIndex.value = value;
+                        },
+                        itemCount: widget.userModel.photos?.length,
+                        itemBuilder: (context, index) {
+                          return Image.network(
+                            widget.userModel.photos?[index] ?? "",
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                            height: Get.height * 0.6,
+                            width: Get.width,
+                          );
+                        },
+                      );
+                    } else {
+                      return CachedNetworkImage(
+                        imageUrl: widget.userModel.avatar!,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                        height: Get.height * 0.6,
+                        width: Get.width,
+                        placeholder: (context, url) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      );
+                    }
+                  }),
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: 15,
@@ -318,15 +364,22 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          AnimatedSmoothIndicator(
-                            activeIndex: 0,
-                            count: 4,
-                            effect: ExpandingDotsEffect(
-                              dotWidth: 10,
-                              dotHeight: 10,
-                              activeDotColor: AppColors.primaryColor,
-                            ),
-                          ),
+                          Obx(() {
+                            if (userModel.value?.photos != null &&
+                                userModel.value?.photos?.isNotEmpty == true) {
+                              return AnimatedSmoothIndicator(
+                                activeIndex: _activeIndex.value,
+                                count: userModel.value?.photos?.length ?? 0,
+                                effect: ExpandingDotsEffect(
+                                  dotWidth: 10,
+                                  dotHeight: 10,
+                                  activeDotColor: AppColors.primaryColor,
+                                ),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          }),
                           SizedBox(width: Get.width / 4.8),
                           CircleAvatar(
                             radius: 30,
@@ -356,9 +409,9 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                     bottomRight: Radius.circular(20),
                   ),
                 ),
-                child: const Text(
-                  "70% match",
-                  style: TextStyle(
+                child: Text(
+                  "${widget.userModel.matchPercentage}% match",
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -374,18 +427,21 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                 children: [
                   Row(
                     children: [
-                      const Column(
-                        children: [
-                          Text(
-                            "Sara Willaims (27)",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                      Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "${widget.userModel.fullName} (${calculateAge(userModel.value?.dob ?? "").toString()})",
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          Text("Califonia, USA ( 54Km )"),
-                        ],
+                            Text(widget.userModel.location?.address ?? ""),
+                          ],
+                        ),
                       ),
                       const Spacer(),
                       CircleAvatar(
@@ -404,21 +460,43 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nisi,etium maecenas sed urna lorem ipsum dolor sit amet, consectetur adipiscing elit...",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  Text(
-                    "Show more",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryColor,
-                    ),
+                  const SizedBox(height: 5),
+                  Obx(
+                    () {
+                      if (userModel.value == null) {
+                        return const SizedBox.shrink();
+                      }
+                      bool shouldTruncate =
+                          userModel.value!.bio!.length > maxBioLength;
+                      String displayBio = shouldTruncate && !isExpanded.value
+                          ? "${userModel.value!.bio!.substring(0, maxBioLength)}..."
+                          : userModel.value!.bio!;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            displayBio,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          if (shouldTruncate)
+                            GestureDetector(
+                              onTap: () => isExpanded.toggle(),
+                              child: Text(
+                                isExpanded.value ? "Show less" : "Show more",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.orange,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -432,47 +510,73 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                   const SizedBox(height: 10),
                   buildBasicInfoTile(
                     leading: "Gender: ",
-                    title: "Male",
+                    title: userModel.value?.gender ?? "",
                   ),
                   buildBasicInfoTile(
                     leading: "Age: ",
                     title: "27 Years Old",
                   ),
-                  buildBasicInfoTile(
-                    leading: "Interests: ",
-                    title: "Football, Clubbing, Swimming, Cooking",
+                  const SizedBox(height: 30),
+                  // buildBasicInfoTile(
+                  //   leading: "Interests: ",
+                  //   title: userModel.value!.hobbies.s,
+                  // ),
+                  const Text(
+                    "Hobbies",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black,
+                    ),
                   ),
+                  Obx(() {
+                    List? hobbies = _userController.userModel.value?.hobbies;
+                    if (hobbies == null || hobbies.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: hobbies.map((interest) {
+                        return buildInterestCards(interest: interest);
+                      }).toList(),
+                    );
+                  }),
+
                   const SizedBox(height: 10),
                 ],
               ),
             ),
-            Container(
-              color: AppColors.primaryColor,
-              width: Get.width,
-              height: Get.height * 0.1,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  actionButton(
-                    FontAwesomeIcons.xmark,
-                    Colors.white,
-                    false,
-                  ),
-                  const SizedBox(width: 20),
-                  actionButton(
-                    FontAwesomeIcons.solidHeart,
-                    Colors.orange,
-                    true,
-                  ),
-                  const SizedBox(width: 20),
-                  actionButton(
-                    Icons.star_border,
-                    Colors.white,
-                    false,
-                  ),
-                ],
-              ),
-            ),
+            // Container(
+            //   color: AppColors.primaryColor,
+            //   width: Get.width,
+            //   height: Get.height * 0.1,
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //     children: [
+            //       actionButton(
+            //         FontAwesomeIcons.xmark,
+            //         Colors.white,
+            //         false,
+            //         () {},
+            //       ),
+            //       const SizedBox(width: 20),
+            //       actionButton(
+            //         FontAwesomeIcons.solidHeart,
+            //         Colors.orange,
+            //         true,
+            //         () {},
+            //       ),
+            //       const SizedBox(width: 20),
+            //       actionButton(
+            //         Icons.star_border,
+            //         Colors.white,
+            //         false,
+            //         () {},
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -589,6 +693,344 @@ class _StoryCardState extends State<StoryCard> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class HeaderHomeWidget extends StatelessWidget {
+  const HeaderHomeWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 8.0,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Image.asset(
+            "assets/images/ECHODATE.png",
+            width: Get.width * 0.2,
+            height: 30,
+            fit: BoxFit.fitWidth,
+          ),
+          Row(
+            children: [
+              InkWell(
+                onTap: () async {
+                  Get.to(() => LiveStreamListScreen());
+                },
+                child: const Icon(
+                  FontAwesomeIcons.hive,
+                  color: Colors.black,
+                  size: 20,
+                ),
+              ),
+              // const SizedBox(width: 10),
+              // const Icon(Icons.notifications, color: Colors.black),
+              const SizedBox(width: 20),
+              InkWell(
+                onTap: () {
+                  showDialog(
+                    barrierColor: Colors.black.withOpacity(0.7),
+                    context: context,
+                    builder: (context) {
+                      return GoLiveWidget();
+                    },
+                  );
+                },
+                child: const Icon(
+                  Icons.live_tv,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class StoryCardBuilderWidget extends StatelessWidget {
+  StoryCardBuilderWidget({super.key});
+
+  final _storyController = Get.find<StoryController>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Obx(() {
+        if (_storyController.allstoriesList.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: _storyController.allstoriesList.length,
+          itemBuilder: (context, index) {
+            final story = _storyController.allstoriesList[index];
+            return StoryCard(story: story);
+          },
+        );
+      }),
+    );
+  }
+}
+
+class UserPostedStoryWidget extends StatelessWidget {
+  UserPostedStoryWidget({super.key});
+  final _userController = Get.find<UserController>();
+  final _storyController = Get.find<StoryController>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final userModel = _userController.userModel.value;
+      final storyModel = _storyController.userPostedStory.value;
+      if (userModel == null) {
+        return CircleAvatar(
+          radius: 32,
+          backgroundColor: AppColors.primaryColor,
+        );
+      }
+      if (storyModel == null || storyModel.stories?.isEmpty == true) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8.0,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: AppColors.primaryColor,
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: NetworkImage(
+                        userModel.avatar ?? "",
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: -5,
+                    right: -5,
+                    child: InkWell(
+                      onTap: () {
+                        Get.to(() => CreateStoryScreen());
+                      },
+                      child: Container(
+                        height: 35,
+                        width: 35,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 2,
+                            color: Colors.white,
+                          ),
+                          color: AppColors.primaryColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                userModel.fullName?.split(" ")[0].toString() ?? "",
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              )
+            ],
+          ),
+        );
+      }
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          StoryCard(
+            story: _storyController.userPostedStory.value ?? StoryModel(),
+          ),
+          Positioned(
+            bottom: 15,
+            right: 5,
+            child: InkWell(
+              onTap: () {
+                Get.to(() => CreateStoryScreen());
+              },
+              child: Container(
+                height: 35,
+                width: 35,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 2,
+                    color: Colors.white,
+                  ),
+                  color: AppColors.primaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+class GetPotentialMatchesBuilder extends StatelessWidget {
+  GetPotentialMatchesBuilder({super.key});
+  final _userController = Get.find<UserController>();
+  final _cardSwipeController = CardSwiperController();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: Get.height * 0.65,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Obx(() {
+            if (_userController.isloading.value) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              );
+            }
+
+            if (_userController.potentialMatchesList.isEmpty) {
+              return const Center(
+                child: Text(
+                  "No matches found",
+                  style: TextStyle(color: Colors.black),
+                ),
+              );
+            }
+
+            return CardSwiper(
+              controller: _cardSwipeController,
+              isLoop: false,
+              cardsCount: _userController.potentialMatchesList.length,
+              numberOfCardsDisplayed:
+                  _userController.potentialMatchesList.length > 1
+                      ? 2
+                      : _userController.potentialMatchesList.length,
+              allowedSwipeDirection: const AllowedSwipeDirection.symmetric(
+                horizontal: true,
+              ),
+              onEnd: (){
+                _userController.potentialMatchesList.clear();
+              },
+              onSwipe: (previousIndex, currentIndex, direction) {
+                if (_userController.potentialMatchesList.isEmpty ||
+                    previousIndex >=
+                        _userController.potentialMatchesList.length) {
+                  return false;
+                }
+                final userId =
+                    _userController.potentialMatchesList[previousIndex].id ??
+                        "";
+                _userController.addSwipeToQueue(userId, direction);
+                return true;
+              },
+              cardBuilder: (
+                context,
+                index,
+                horizontalOffsetPercentage,
+                verticalOffsetPercentage,
+              ) {
+                final profile = _userController.potentialMatchesList[index];
+                return InkWell(
+                  onTap: () {
+                    Get.to(
+                      () => TinderCardDetails(
+                        userModel: profile,
+                      ),
+                    );
+                  },
+                  child: TinderCard(profile: profile),
+                );
+              },
+            );
+          }),
+          SwiperActionButtonsWidget(controller: _cardSwipeController),
+        ],
+      ),
+    );
+  }
+}
+
+class SwiperActionButtonsWidget extends StatelessWidget {
+  final CardSwiperController controller;
+  SwiperActionButtonsWidget({
+    super.key,
+    required this.controller,
+  });
+
+  final _userController = Get.find<UserController>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => _userController.potentialMatchesList.isEmpty
+          ? const SizedBox.shrink()
+          : Positioned(
+              bottom: Get.height * 0.05,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  actionButton(
+                    FontAwesomeIcons.xmark,
+                    Colors.white,
+                    false,
+                    () {
+                      controller.swipe(CardSwiperDirection.left);
+                    },
+                  ),
+                  const SizedBox(width: 20),
+                  actionButton(
+                    FontAwesomeIcons.solidHeart,
+                    Colors.orange,
+                    true,
+                    () {
+                      controller.swipe(CardSwiperDirection.right);
+                    },
+                  ),
+                  const SizedBox(width: 20),
+                  actionButton(
+                    Icons.star_border,
+                    Colors.white,
+                    false,
+                    () {
+                      controller.swipe(CardSwiperDirection.right);
+                    },
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

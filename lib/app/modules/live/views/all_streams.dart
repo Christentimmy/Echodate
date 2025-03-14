@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LiveStreamListScreen extends StatefulWidget {
+  const LiveStreamListScreen({super.key});
+
   @override
   _LiveStreamListScreenState createState() => _LiveStreamListScreenState();
 }

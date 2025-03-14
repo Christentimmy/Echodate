@@ -1,3 +1,4 @@
+
 class LiveStreamModel {
   final String channelName;
   final String hostId;
@@ -8,13 +9,13 @@ class LiveStreamModel {
   final String visibility;
 
   LiveStreamModel({
-    required this.hostAvater,
     required this.channelName,
     required this.hostId,
     required this.startTime,
+    required this.hostAvater,
+    required this.hostName,
     required this.viewers,
     required this.visibility,
-    required this.hostName,
   });
 
   factory LiveStreamModel.fromJson(Map<String, dynamic> json) {
@@ -27,5 +28,19 @@ class LiveStreamModel {
       visibility: json['visibility'] ?? "",
       hostName: json['hostName'] ?? "",
     );
+  }
+
+  @override
+  String toString() {
+    return '''
+    LiveStreamModel(
+      channelName: $channelName, 
+      hostId: $hostId, 
+      startTime: $startTime, 
+      hostAvater: $hostAvater, 
+      hostName: $hostName, 
+      viewers: $viewers, 
+      visibility: $visibility
+    )''';
   }
 }

@@ -75,11 +75,13 @@ class LiveStreamController extends GetxController {
       );
       if (response == null) return;
       final decoded = json.decode(response.body);
+      print(decoded);
       if (response.statusCode != 200) {
         print(decoded["message"]);
         return;
       }
       List stream = decoded["streams"];
+      activeStreams.clear();
       if (stream.isEmpty) return;
       List<LiveStreamModel> mapped =
           stream.map((e) => LiveStreamModel.fromJson(e)).toList();

@@ -11,10 +11,12 @@ import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/modules/profile/views/complete_profile_screen.dart';
+import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/services/user_service.dart';
 import 'package:echodate/app/utils/url_launcher.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:get/get.dart';
 
 class UserController extends GetxController {
@@ -28,6 +30,8 @@ class UserController extends GetxController {
   RxBool isPaymentHistoryFetched = false.obs;
   RxBool isPotentialMatchFetched = false.obs;
   RxBool isUserDetailsFetched = false.obs;
+  final RxList<Map<String, dynamic>> _swipeQueue = <Map<String, dynamic>>[].obs;
+  bool _isProcessingQueue = false;
 
   @override
   void onInit() async {
@@ -36,6 +40,43 @@ class UserController extends GetxController {
     getPotentialMatches();
     getMatches();
     getUserPaymentHistory();
+  }
+
+  void addSwipeToQueue(String userId, CardSwiperDirection direction) async {
+    _swipeQueue.add({"userId": userId, "direction": direction});
+    await _processSwipeQueue();
+  }
+
+  Future<void> _processSwipeQueue() async {
+    if (_isProcessingQueue || _swipeQueue.isEmpty) return;
+
+    _isProcessingQueue = true;
+
+    while (_swipeQueue.isNotEmpty) {
+      final swipe = _swipeQueue.removeAt(0);
+      bool success = false;
+
+      try {
+        if (swipe["direction"] == CardSwiperDirection.left) {
+          success = await swipeDislike(swipedUserId: swipe["userId"]);
+        } else if (swipe["direction"] == CardSwiperDirection.right) {
+          success = await swipeLike(swipedUserId: swipe["userId"]);
+        }
+
+        if (!success) {
+          _swipeQueue
+              .removeWhere((element) => element["userId"] == swipe["userId"]);
+          _swipeQueue.refresh();
+        }
+      } catch (e) {
+        debugPrint("Error processing swipe: $e");
+        _swipeQueue
+            .removeWhere((element) => element["userId"] == swipe["userId"]);
+        _swipeQueue.refresh();
+      }
+    }
+
+    _isProcessingQueue = false; // Reset the processing flag
   }
 
   Future<void> getUserDetails() async {
@@ -63,7 +104,7 @@ class UserController extends GetxController {
       var userData = decoded["data"];
       userModel.value = UserModel.fromJson(userData);
       userModel.refresh();
-      if(response.statusCode == 200) isUserDetailsFetched.value = true;
+      if (response.statusCode == 200) isUserDetailsFetched.value = true;
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -414,9 +455,11 @@ class UserController extends GetxController {
         return;
       }
       List matches = decoded["data"];
+      potentialMatchesList.clear();
       if (matches.isEmpty) return;
-      potentialMatchesList.value =
+      List<UserModel> mapped =
           matches.map((e) => UserModel.fromJson(e)).toList();
+      potentialMatchesList.value = mapped;
       potentialMatchesList.refresh();
       isPotentialMatchFetched.value = true;
     } catch (e) {
@@ -492,96 +535,107 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> swipeLike({
+  Future<bool> swipeLike({
     required String swipedUserId,
   }) async {
-    isloading.value = true;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
       if (token == null || token.isEmpty) {
         CustomSnackbar.showErrorSnackBar("Authentication required");
-        return;
+        return false;
       }
 
       final response = await _userService.swipeLike(
         token: token,
         swipedUserId: swipedUserId,
       );
-
-      if (response == null) return;
+      print(response?.body);
+      if (response?.statusCode == 403) {
+        Get.to(() => const SubscriptionScreen());
+        return false;
+      }
+      if (response == null) return false;
       final decoded = json.decode(response.body);
+      if (response.statusCode == 403) {
+        Get.to(() => const SubscriptionScreen());
+        return false;
+      }
       if (response.statusCode != 200 && response.statusCode != 201) {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
-        return;
+        return false;
       }
+      return true;
     } catch (e) {
       debugPrint(e.toString());
-    } finally {
-      isloading.value = false;
     }
+    return false;
   }
 
-  Future<void> swipeDislike({
+  Future<bool> swipeDislike({
     required String swipedUserId,
   }) async {
-    isloading.value = true;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
       if (token == null || token.isEmpty) {
         CustomSnackbar.showErrorSnackBar("Authentication required");
-        return;
+        return false;
       }
 
       final response = await _userService.swipeDislike(
         token: token,
         swipedUserId: swipedUserId,
       );
-
-      if (response == null) return;
+      if (response?.statusCode == 403) {
+        Get.to(() => const SubscriptionScreen());
+        return false;
+      }
+      if (response == null) return false;
       final decoded = json.decode(response.body);
+
       if (response.statusCode != 200 && response.statusCode != 201) {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
-        return;
+        return false;
       }
-      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+      return true;
     } catch (e) {
       debugPrint(e.toString());
-    } finally {
-      isloading.value = false;
     }
+    return false;
   }
 
-  Future<void> swipeSuperLike({
+  Future<bool> swipeSuperLike({
     required String swipedUserId,
   }) async {
-    isloading.value = true;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
       if (token == null || token.isEmpty) {
         CustomSnackbar.showErrorSnackBar("Authentication required");
-        return;
+        return false;
       }
 
       final response = await _userService.swipeSuperLike(
         token: token,
         swipedUserId: swipedUserId,
       );
-
-      if (response == null) return;
+      if (response?.statusCode == 403) {
+        Get.to(() => const SubscriptionScreen());
+        return false;
+      }
+      if (response == null) return false;
       final decoded = json.decode(response.body);
+
       if (response.statusCode != 200 && response.statusCode != 201) {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
-        return;
+        return false;
       }
-      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+      return true;
     } catch (e) {
       debugPrint(e.toString());
-    } finally {
-      isloading.value = false;
     }
+    return false;
   }
 
   Future<void> getMatches() async {

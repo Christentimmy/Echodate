@@ -10,8 +10,8 @@ import 'package:get/get.dart';
 class AppBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(StoryController());
     Get.put(StorageController());
+    Get.put(StoryController());
     Get.put(SocketController());
     Get.put(LiveStreamController());
     Get.put(UserController());
