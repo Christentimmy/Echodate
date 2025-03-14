@@ -4,20 +4,20 @@ import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class FavouriteScreen extends StatefulWidget {
-  const FavouriteScreen({super.key});
+class MatchesScreen extends StatefulWidget {
+  const MatchesScreen({super.key});
 
   @override
-  State<FavouriteScreen> createState() => _FavouriteScreenState();
+  State<MatchesScreen> createState() => _MatchesScreenState();
 }
 
-class _FavouriteScreenState extends State<FavouriteScreen> {
+class _MatchesScreenState extends State<MatchesScreen> {
   final _userController = Get.find<UserController>();
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_userController.isGetUserWhoLikesMeFetched.value) {
-        _userController.getUserWhoLikesMe();
+      if (!_userController.isMatchesListFetched.value) {
+        _userController.getMatches();
       }
     });
     super.initState();
@@ -59,7 +59,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                       ),
                     ),
                   );
-                } else if (_userController.usersWhoLikesMeList.isEmpty) {
+                } else if (_userController.matchesList.isEmpty) {
                   return const Expanded(
                     child: Center(
                       child: Text(
@@ -74,7 +74,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                 } else {
                   return Expanded(
                     child: GridView.builder(
-                      itemCount: _userController.usersWhoLikesMeList.length,
+                      itemCount: _userController.matchesList.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -84,7 +84,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                       ),
                       itemBuilder: (context, index) {
                         final matchUserModel =
-                            _userController.usersWhoLikesMeList[index];
+                            _userController.matchesList[index];
                         return LikeAndMatchCard(
                           userController: _userController,
                           matchUserModel: matchUserModel,

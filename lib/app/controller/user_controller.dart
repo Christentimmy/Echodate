@@ -24,12 +24,15 @@ class UserController extends GetxController {
   Rxn<UserModel> userModel = Rxn<UserModel>();
   RxList<UserModel> potentialMatchesList = <UserModel>[].obs;
   RxList<UserModel> matchesList = <UserModel>[].obs;
+  RxList<UserModel> usersWhoLikesMeList = <UserModel>[].obs;
   RxList<TransactionModel> userTransactionHistory = <TransactionModel>[].obs;
   RxBool isloading = false.obs;
   RxBool isPaymentProcessing = false.obs;
   RxBool isPaymentHistoryFetched = false.obs;
   RxBool isPotentialMatchFetched = false.obs;
   RxBool isUserDetailsFetched = false.obs;
+  RxBool isMatchesListFetched = false.obs;
+  RxBool isGetUserWhoLikesMeFetched = false.obs;
   final RxList<Map<String, dynamic>> _swipeQueue = <Map<String, dynamic>>[].obs;
   bool _isProcessingQueue = false;
 
@@ -649,14 +652,48 @@ class UserController extends GetxController {
 
       if (response == null) return;
       final decoded = json.decode(response.body);
-      if (response.statusCode != 200 && response.statusCode != 201) {
+      if (response.statusCode != 200) {
         debugPrint(decoded["message"].toString());
         return;
       }
       List matches = decoded["data"];
+      matchesList.clear();
       if (matches.isEmpty) return;
-      matchesList.value = matches.map((e) => UserModel.fromJson(e)).toList();
+      List<UserModel> mapped =
+          matches.map((e) => UserModel.fromJson(e)).toList();
+      matchesList.value = mapped;
       matchesList.refresh();
+      if (response.statusCode == 200) isMatchesListFetched.value = true;
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> getUserWhoLikesMe() async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _userService.getUserWhoLikesMe(token: token);
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(decoded["message"].toString());
+        return;
+      }
+      List matches = decoded["data"];
+      usersWhoLikesMeList.clear();
+      if (matches.isEmpty) return;
+      List<UserModel> mapped =
+          matches.map((e) => UserModel.fromJson(e)).toList();
+      usersWhoLikesMeList.value = mapped;
+      usersWhoLikesMeList.refresh();
+      if (response.statusCode == 200) isGetUserWhoLikesMeFetched.value = true;
     } catch (e) {
       debugPrint(e.toString());
     } finally {

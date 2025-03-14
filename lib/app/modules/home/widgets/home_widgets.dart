@@ -129,6 +129,8 @@ class TinderCard extends StatelessWidget {
               placeholder: (context, url) {
                 return ShimmerEffect(
                   child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -139,21 +141,6 @@ class TinderCard extends StatelessWidget {
             ),
           ),
         ),
-        // Container(
-        //   decoration: BoxDecoration(
-        //     borderRadius: BorderRadius.circular(20),
-        //     border: Border.all(width: 3, color: Colors.orange),
-        //     image: profile.avatar?.isEmpty == true
-        //         ? const DecorationImage(
-        //             image: AssetImage("assets/images/placeholder.png"),
-        //             fit: BoxFit.cover,
-        //           )
-        //         : DecorationImage(
-        //             image: NetworkImage(profile.avatar ?? ""),
-        //             fit: BoxFit.cover,
-        //           ),
-        //   ),
-        // ),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -168,22 +155,24 @@ class TinderCard extends StatelessWidget {
             ),
           ),
         ),
-        Positioned(
-          top: 20,
-          right: 10,
-          child: Container(
-            height: 45,
-            width: 45,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: AppColors.primaryColor,
-            ),
-            child: const Icon(
-              FontAwesomeIcons.wallet,
-              color: Colors.white,
-            ),
-          ),
-        ),
+        profile.isPremium == true
+            ? Positioned(
+                top: 20,
+                right: 10,
+                child: Container(
+                  height: 45,
+                  width: 45,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.primaryColor,
+                  ),
+                  child: const Icon(
+                    FontAwesomeIcons.wallet,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            : const SizedBox.shrink(),
         Positioned(
           top: 0,
           left: MediaQuery.of(context).size.width * 0.32,
@@ -238,7 +227,6 @@ class TinderCard extends StatelessWidget {
 }
 
 class TinderCardDetails extends StatefulWidget {
-  // final String userId;\
   final UserModel userModel;
   const TinderCardDetails({
     super.key,
@@ -269,7 +257,7 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
 
   final RxInt _activeIndex = 0.obs;
   final RxBool isExpanded = false.obs;
-  static const int maxBioLength = 250; // Set a limit for truncation
+  static const int maxBioLength = 250;
 
   @override
   Widget build(BuildContext context) {
@@ -284,6 +272,14 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
               child: Stack(
                 children: [
                   Obx(() {
+                    if (_userController.isloading.value) {
+                      return ShimmerEffect(
+                        child: SizedBox(
+                          height: Get.height * 0.6,
+                          width: Get.width,
+                        ),
+                      );
+                    }
                     if (userModel.value?.photos != null &&
                         userModel.value!.photos!.isNotEmpty) {
                       return PageView.builder(
@@ -292,8 +288,10 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                         },
                         itemCount: widget.userModel.photos?.length,
                         itemBuilder: (context, index) {
+                          String picture =
+                              userModel.value?.photos?[index] ?? "";
                           return Image.network(
-                            widget.userModel.photos?[index] ?? "",
+                            picture,
                             fit: BoxFit.cover,
                             alignment: Alignment.topCenter,
                             height: Get.height * 0.6,
@@ -303,9 +301,8 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                       );
                     } else {
                       return CachedNetworkImage(
-                        imageUrl: widget.userModel.avatar!,
+                        imageUrl: widget.userModel.avatar ?? "",
                         fit: BoxFit.cover,
-                        alignment: Alignment.topCenter,
                         height: Get.height * 0.6,
                         width: Get.width,
                         placeholder: (context, url) {
@@ -508,19 +505,22 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  buildBasicInfoTile(
-                    leading: "Gender: ",
-                    title: userModel.value?.gender ?? "",
+                  Obx(
+                    () => buildBasicInfoTile(
+                      leading: "Gender: ",
+                      title: userModel.value?.gender?.toUpperCase() ?? "",
+                    ),
                   ),
-                  buildBasicInfoTile(
-                    leading: "Age: ",
-                    title: "27 Years Old",
-                  ),
+                  Obx(() {
+                    String dob = userModel.value?.dob ?? "";
+                    if (dob.isEmpty) return const SizedBox.shrink();
+                    int age = calculateAge(dob);
+                    return buildBasicInfoTile(
+                      leading: "Age: ",
+                      title: "${age.toString()} Years Old",
+                    );
+                  }),
                   const SizedBox(height: 30),
-                  // buildBasicInfoTile(
-                  //   leading: "Interests: ",
-                  //   title: userModel.value!.hobbies.s,
-                  // ),
                   const Text(
                     "Hobbies",
                     style: TextStyle(
@@ -542,41 +542,10 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                       }).toList(),
                     );
                   }),
-
                   const SizedBox(height: 10),
                 ],
               ),
             ),
-            // Container(
-            //   color: AppColors.primaryColor,
-            //   width: Get.width,
-            //   height: Get.height * 0.1,
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //     children: [
-            //       actionButton(
-            //         FontAwesomeIcons.xmark,
-            //         Colors.white,
-            //         false,
-            //         () {},
-            //       ),
-            //       const SizedBox(width: 20),
-            //       actionButton(
-            //         FontAwesomeIcons.solidHeart,
-            //         Colors.orange,
-            //         true,
-            //         () {},
-            //       ),
-            //       const SizedBox(width: 20),
-            //       actionButton(
-            //         Icons.star_border,
-            //         Colors.white,
-            //         false,
-            //         () {},
-            //       ),
-            //     ],
-            //   ),
-            // ),
           ],
         ),
       ),
@@ -941,7 +910,7 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
               allowedSwipeDirection: const AllowedSwipeDirection.symmetric(
                 horizontal: true,
               ),
-              onEnd: (){
+              onEnd: () {
                 _userController.potentialMatchesList.clear();
               },
               onSwipe: (previousIndex, currentIndex, direction) {

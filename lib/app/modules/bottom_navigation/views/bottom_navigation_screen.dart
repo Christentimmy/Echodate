@@ -1,5 +1,6 @@
 import 'package:echodate/app/modules/chat/views/chat_list_screen.dart';
 import 'package:echodate/app/modules/favourtie/views/favourite_screen.dart';
+import 'package:echodate/app/modules/favourtie/views/matches_screen.dart';
 import 'package:echodate/app/modules/home/views/home_screen.dart';
 import 'package:echodate/app/modules/profile/views/profile_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
@@ -14,6 +15,7 @@ class BottomNavigationScreen extends StatelessWidget {
   final List<Widget> _pages = [
     const HomeScreen(),
     const FavouriteScreen(),
+    const MatchesScreen(),
     ChatListScreen(),
     const ProfileScreen(),
   ];
@@ -38,6 +40,10 @@ class BottomNavigationScreen extends StatelessWidget {
             ),
             BottomNavigationBarItem(
               icon: Icon(FontAwesomeIcons.solidHeart),
+              label: "",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(FontAwesomeIcons.peopleGroup),
               label: "",
             ),
             BottomNavigationBarItem(
