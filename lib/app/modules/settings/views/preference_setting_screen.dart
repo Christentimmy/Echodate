@@ -1,6 +1,8 @@
+import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class PreferenceSettingScreen extends StatefulWidget {
   const PreferenceSettingScreen({super.key});
@@ -11,17 +13,40 @@ class PreferenceSettingScreen extends StatefulWidget {
 }
 
 class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
-  bool showMeMen = true;
-  bool showMeWomen = true;
+  final UserController _userController = Get.find<UserController>();
+
+  RxString interestedIn = "".obs;
   double distance = 50.0;
   RangeValues ageRange = const RangeValues(18, 45);
-  String selectedRelationshipType = "Casual Dating";
-  List<String> relationshipTypes = [
-    "Casual Dating",
-    "Serious Relationship",
-    "Friendship",
-    "Marriage"
-  ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = _userController.userModel.value;
+      if (user != null) {
+        interestedIn.value = user.interestedIn?.capitalizeFirst ?? "";
+        if (user.preferences != null &&
+            user.preferences!.ageRange != null &&
+            user.preferences!.ageRange!.length >= 2) {
+          ageRange = RangeValues(
+            user.preferences!.ageRange![0].toDouble(),
+            user.preferences!.ageRange![1].toDouble(),
+          );
+        }
+        distance = (user.preferences?.maxDistance?.toDouble() ?? 50000) / 1000;
+      }
+    });
+  }
+
+  Future<void> savePreferences() async {
+    await _userController.updatePreference(
+      minAge: ageRange.start.toInt().toString(),
+      maxAge: ageRange.end.toInt().toString(),
+      interestedIn: interestedIn.value,
+      distance: (distance * 1000).toInt().toString(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +66,6 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Gender Preferences
             const Text(
               "Show Me",
               style: TextStyle(
@@ -51,60 +75,37 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
             ),
             Row(
               children: [
-                const Text(
-                  "Men",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                Transform.scale(
-                  scale: 0.7,
-                  child: Switch(
-                    activeColor: AppColors.primaryColor,
-                    value: showMeMen,
+                Expanded(
+                    child: Obx(
+                  () => RadioListTile(
+                    title: const Text("Male"),
+                    value: "Male",
+                    groupValue: interestedIn.value,
                     onChanged: (value) {
-                      setState(() {
-                        showMeMen = value;
-                      });
+                      interestedIn.value = value as String;
                     },
                   ),
-                )
-              ],
-            ),
-            Row(
-              children: [
-                const Text(
-                  "Women",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                )),
+                Expanded(
+                  child: Obx(
+                    () => RadioListTile(
+                      title: const Text("Female"),
+                      value: "Female",
+                      groupValue: interestedIn.value,
+                      onChanged: (value) {
+                        interestedIn.value = value as String;
+                      },
+                    ),
                   ),
                 ),
-                const Spacer(),
-                Transform.scale(
-                  scale: 0.7,
-                  child: Switch(
-                    activeColor: AppColors.primaryColor,
-                    value: showMeWomen,
-                    onChanged: (value) {
-                      setState(() {
-                        showMeWomen = value;
-                      });
-                    },
-                  ),
-                )
               ],
             ),
-            const SizedBox(height: 10),
             const Divider(),
+
+            // Maximum Distance
             Text(
               "Maximum Distance (${distance.toInt()} km)",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Slider(
               activeColor: AppColors.primaryColor,
@@ -141,47 +142,32 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
                 });
               },
             ),
-            const Divider(),
-
-            // Relationship Type Preference
-            // const Text(
-            //   "Looking For",
-            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            // ),
-            // DropdownButtonFormField<String>(
-            //   decoration: InputDecoration(
-            //     border: const OutlineInputBorder(),
-            //     focusedBorder: OutlineInputBorder(
-            //       borderSide: BorderSide(color: AppColors.primaryColor),
-            //     ),
-            //   ),
-            //   value: selectedRelationshipType,
-            //   items: relationshipTypes.map((String type) {
-            //     return DropdownMenuItem<String>(
-            //       value: type,
-            //       child: Text(type),
-            //     );
-            //   }).toList(),
-            //   onChanged: (newValue) {
-            //     setState(() {
-            //       selectedRelationshipType = newValue!;
-            //     });
-            //   },
-            // ),
             const Spacer(),
-
-            // Save Button
-            CustomButton(
-              ontap: () {},
-              child: const Text(
-                "Save",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+            Obx(
+              () => CustomButton(
+                ontap: _userController.isloading.value
+                    ? () {}
+                    : () => savePreferences(),
+                child: _userController.isloading.value
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text(
+                        "Save",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
-            )
+            ),
           ],
         ),
       ),

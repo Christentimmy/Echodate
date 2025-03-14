@@ -1,5 +1,8 @@
+import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -9,14 +12,16 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
-  bool _obscureOldPassword = true;
-  bool _obscureNewPassword = true;
-  bool _obscureConfirmPassword = true;
+  final RxBool _obscureOldPassword = true.obs;
+  final RxBool _obscureNewPassword = true.obs;
+  final RxBool _obscureConfirmPassword = true.obs;
 
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
+  final _authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -40,17 +45,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   bottomRight: Radius.circular(30),
                 ),
               ),
-              child: Column(
+              child: const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.lock_outline, color: Colors.white, size: 80),
-                  const SizedBox(height: 10),
-                  const Text(
+                  Icon(Icons.lock_outline, color: Colors.white, size: 80),
+                  SizedBox(height: 10),
+                  Text(
                     "Change Password",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -58,39 +64,63 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             const SizedBox(height: 30),
 
             // Password Input Fields
-            _buildPasswordField(
-                "Old Password", _oldPasswordController, _obscureOldPassword,
-                () {
-              setState(() => _obscureOldPassword = !_obscureOldPassword);
-            }),
+            Obx(
+              () => _buildPasswordField(
+                label: "Old Password",
+                controller: _oldPasswordController,
+                obscureText: _obscureOldPassword.value,
+                toggleObscure: () {
+                  _obscureOldPassword.value = !_obscureOldPassword.value;
+                },
+              ),
+            ),
+            const SizedBox(height: 15),
+            Obx(
+              () => _buildPasswordField(
+                label: "New Password",
+                controller: _newPasswordController,
+                obscureText: _obscureNewPassword.value,
+                toggleObscure: () {
+                  _obscureNewPassword.value = !_obscureNewPassword.value;
+                },
+              ),
+            ),
             const SizedBox(height: 15),
 
-            _buildPasswordField(
-                "New Password", _newPasswordController, _obscureNewPassword,
-                () {
-              setState(() => _obscureNewPassword = !_obscureNewPassword);
-            }),
-            const SizedBox(height: 15),
-
-            _buildPasswordField("Confirm Password", _confirmPasswordController,
-                _obscureConfirmPassword, () {
-              setState(
-                  () => _obscureConfirmPassword = !_obscureConfirmPassword);
-            }),
+            Obx(
+              () => _buildPasswordField(
+                label: "Confirm Password",
+                controller: _confirmPasswordController,
+                obscureText: _obscureConfirmPassword.value,
+                toggleObscure: () {
+                  _obscureConfirmPassword.value =
+                      !_obscureConfirmPassword.value;
+                },
+              ),
+            ),
             const SizedBox(height: 30),
 
             // Change Password Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: CustomButton(
-                ontap: () {},
-                child: const Text(
-                  "Update Password",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                ontap: _authController.isLoading.value
+                    ? () {}
+                    : () async {
+                        await _authController.changePassword(
+                          oldPassword: _oldPasswordController.text,
+                          newPassword: _newPasswordController.text,
+                        );
+                      },
+                child: _authController.isLoading.value
+                    ? const Loader()
+                    : const Text(
+                        "Update Password",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -100,12 +130,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   // Reusable Password Field Widget
-  Widget _buildPasswordField(
-    String label,
-    TextEditingController controller,
-    bool obscureText,
-    VoidCallback toggleObscure,
-  ) {
+  Widget _buildPasswordField({
+    required String label,
+    required TextEditingController controller,
+    required bool obscureText,
+    required VoidCallback toggleObscure,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: TextField(

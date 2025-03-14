@@ -217,6 +217,7 @@ class AuthController extends GetxController {
         return;
       }
       CustomSnackbar.showSuccessSnackBar(message);
+      Get.offAll(() => RegisterScreen());
     } catch (e) {
       debugPrint(e.toString());
     }
