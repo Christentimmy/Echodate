@@ -1,8 +1,10 @@
 import 'dart:io';
-
+import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
 import 'package:echodate/app/modules/profile/widgets/profile_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/utils/date_converter.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -17,42 +19,47 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  String name = 'John Doe';
-  String gender = 'Male';
-  DateTime birthDate = DateTime(1996, 8, 2);
-  String bio = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
-
-  String relationshipStatus = 'Long-Term Relationship';
-
-  double screenWidth = Get.width;
-  double screenHeight = Get.height;
-
-  List<Map<String, String>> interests = [
-    {"emoji": "⚽", "label": "Football"},
-    {"emoji": "🌿", "label": "Nature"},
-    {"emoji": "🗣️", "label": "Tech"},
-    {"emoji": "📸", "label": "Photography"},
-    {"emoji": "🌱", "label": "Language"},
-  ];
+  final _userController = Get.find<UserController>();
+  final _nameController = TextEditingController();
+  final _bioController = TextEditingController();
+  RxString gender = ''.obs;
 
   File? profileImage;
   List<File?> images = List.filled(5, null);
 
+  double screenWidth = Get.width;
+  double screenHeight = Get.height;
+
+  bool isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    gender.value =
+        _userController.userModel.value?.gender?.capitalizeFirst ?? 'Male';
+    _nameController.text = _userController.userModel.value?.fullName ?? "";
+    _bioController.text = _userController.userModel.value?.bio ?? "";
+  }
+
+  // Image picker function
   Future<void> pickImage(int index, {bool isProfile = false}) async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
+      File image = File(pickedFile.path);
       setState(() {
         if (isProfile) {
-          profileImage = File(pickedFile.path);
+          profileImage = image;
         } else {
-          images[index] = File(pickedFile.path);
+          images[index] = image;
         }
       });
+      // Optionally: You can call the upload functions here if you want immediate upload.
+      // For now, we handle upload in the saveProfile() function.
     }
   }
 
+  // Remove image function
   void removeImage(int index, {bool isProfile = false}) {
     setState(() {
       if (isProfile) {
@@ -63,6 +70,53 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
   }
 
+  Future<void> saveProfile() async {
+    final currentUser = _userController.userModel.value;
+    bool hasGeneralChanges = false;
+
+    if (currentUser != null) {
+      if (_nameController.text.trim() != currentUser.fullName?.trim() ||
+          _bioController.text.trim() != currentUser.bio?.trim() ||
+          gender.value != (currentUser.gender?.capitalizeFirst ?? 'Male')) {
+        hasGeneralChanges = true;
+      }
+    } else {
+      hasGeneralChanges = true;
+    }
+
+    isSaving = true;
+    setState(() {});
+
+    try {
+      if (hasGeneralChanges) {
+        await _userController.editProfile(
+          fullName: _nameController.text,
+          bio: _bioController.text,
+          gender: gender.value,
+        );
+      }
+
+      if (profileImage != null) {
+        await _userController.updateProfilePicture(
+          imageFile: profileImage!,
+        );
+      }
+
+      List<File> photosToUpload =
+          images.where((element) => element != null).cast<File>().toList();
+      if (photosToUpload.isNotEmpty) {
+        await _userController.uploadPhotos(
+          photos: photosToUpload,
+        );
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isSaving = false;
+      setState(() {}); // Refresh UI when done
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,10 +124,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: Colors.white,
         title: const Text(
           'Profile Pictures',
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -83,12 +134,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10.0),
+              // Photo section: Avatar and additional photos
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
+                      // Display avatar/profile image from user model (or local file if new)
                       ProfileImage(
+                        imageUrl: _userController.userModel.value?.avatar,
                         imageFile: profileImage,
                         isLarge: true,
                         index: "1",
@@ -98,47 +152,54 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       SizedBox(width: screenWidth * 0.02),
                       Column(
                         children: [
-                          ProfileImage(
-                            imageFile: images[0],
-                            index: "2",
-                            onPickImage: () => pickImage(0),
-                            onRemove: () => removeImage(0),
-                          ),
-                          SizedBox(height: screenHeight * 0.01),
-                          ProfileImage(
-                            imageFile: images[1],
-                            index: "3",
-                            onPickImage: () => pickImage(1),
-                            onRemove: () => removeImage(1),
-                          ),
+                          // Display first two additional images safely
+                          for (int i = 0; i < 2; i++)
+                            Padding(
+                              padding:
+                                  EdgeInsets.only(bottom: screenHeight * 0.01),
+                              child: ProfileImage(
+                                imageUrl: (_userController.userModel.value
+                                                ?.photos?.length ??
+                                            0) >
+                                        i
+                                    ? _userController
+                                        .userModel.value!.photos![i]
+                                    : null,
+                                imageFile: images.length > i ? images[i] : null,
+                                index: "${i + 2}",
+                                onPickImage: () => pickImage(i),
+                                onRemove: () => removeImage(i),
+                              ),
+                            ),
                         ],
                       ),
                     ],
                   ),
+                  // Display remaining three additional photos safely
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ProfileImage(
-                        imageFile: images[2],
-                        index: "4",
-                        onPickImage: () => pickImage(2),
-                        onRemove: () => removeImage(2),
-                      ),
-                      SizedBox(width: screenWidth * 0.02),
-                      ProfileImage(
-                        imageFile: images[3],
-                        index: "5",
-                        onPickImage: () => pickImage(3),
-                        onRemove: () => removeImage(3),
-                      ),
-                      SizedBox(width: screenWidth * 0.02),
-                      ProfileImage(
-                        imageFile: images[4],
-                        index: "6",
-                        onPickImage: () => pickImage(4),
-                        onRemove: () => removeImage(4),
-                      ),
-                    ],
+                    children: List.generate(3, (index) {
+                      int imgIndex = index + 2;
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.01),
+                        child: ProfileImage(
+                          imageUrl: (_userController
+                                          .userModel.value?.photos?.length ??
+                                      0) >
+                                  imgIndex
+                              ? _userController
+                                  .userModel.value!.photos![imgIndex]
+                              : null,
+                          imageFile: images.length > imgIndex
+                              ? images[imgIndex]
+                              : null,
+                          index: "${imgIndex + 1}",
+                          onPickImage: () => pickImage(imgIndex),
+                          onRemove: () => removeImage(imgIndex),
+                        ),
+                      );
+                    }),
                   ),
                 ],
               ),
@@ -153,96 +214,122 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 10.0),
               CustomTextField(
                 hintText: "Name",
-                onChanged: (value) {
-                  setState(() {
-                    name = value;
-                  });
-                },
+                controller: _nameController,
               ),
               const SizedBox(height: 10.0),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'Gender',
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: AppColors.primaryColor,
-                      width: 2,
+              Obx(
+                () => DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    labelText: 'Gender',
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.primaryColor,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: AppColors.primaryColor,
-                      width: 2,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: AppColors.primaryColor,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    borderRadius: BorderRadius.circular(15),
                   ),
+                  value: gender.value,
+                  onChanged: (value) {
+                    gender.value = value!;
+                  },
+                  items: ['Male', 'Female', 'Other'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
                 ),
-                value: gender,
-                onChanged: (value) {
-                  setState(() {
-                    gender = value!;
-                  });
-                },
-                items: ['Male', 'Female', 'Other'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
               ),
               const SizedBox(height: 10.0),
-              CustomTextField(
-                hintText: "April 12 2000",
-                readOnly: true,
+              Obx(
+                () => CustomTextField(
+                  hintText: convertDateToNormal(
+                    _userController.userModel.value?.dob ?? "",
+                  ),
+                  readOnly: true,
+                ),
               ),
               const SizedBox(height: 10.0),
               CustomTextField(
                 hintText: "Bio",
+                controller: _bioController,
                 maxLines: 3,
               ),
               SizedBox(height: Get.height * 0.04),
-              const Row(
+              // Interests section (left as is)
+              Row(
                 children: [
-                  Text(
+                  const Text(
                     'Interests',
                     style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Spacer(),
-                  Text(
-                    "Edit",
-                    style: TextStyle(
-                      color: Colors.blue,
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () {
+                      Get.to(
+                        () => PickHobbiesScreen(
+                          callback: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Edit",
+                      style: TextStyle(color: Colors.blue),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 10.0),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: interests.map((interest) {
-                  return buildSelectiveCards(
-                    interest: interest,
-                    isSelected: false,
-                    onTap: () {},
-                  );
-                }).toList(),
-              ),
+              Obx(() {
+                if (_userController.userModel.value == null) {
+                  return const SizedBox.shrink();
+                }
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _userController.userModel.value!.hobbies!
+                      .map((interest) => buildInterestCards(interest: interest))
+                      .toList(),
+                );
+              }),
               const SizedBox(height: 20.0),
               CustomButton(
-                ontap: () {},
-                child: const Text(
-                  "Save",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                ontap: isSaving
+                    ? () {}
+                    : () async {
+                        await saveProfile();
+                      },
+                child: isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text(
+                        "Save",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
               ),
             ],
           ),

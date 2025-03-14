@@ -90,18 +90,6 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 trailing: const Icon(Icons.keyboard_arrow_right_rounded),
               ),
-              // const ListTile(
-              //   minTileHeight: 30,
-              //   contentPadding: EdgeInsets.all(5),
-              //   leading: Text(
-              //     "Invite Friends",
-              //     style: TextStyle(
-              //       fontSize: 14,
-              //       fontWeight: FontWeight.bold,
-              //     ),
-              //   ),
-              //   trailing: Icon(Icons.keyboard_arrow_right_rounded),
-              // ),
               ListTile(
                 onTap: () {
                   Get.to(() => const PreferenceSettingScreen());
@@ -161,7 +149,7 @@ class SettingsScreen extends StatelessWidget {
                 minTileHeight: 30,
                 contentPadding: const EdgeInsets.all(5),
                 leading: const Text(
-                  "Recommendation",
+                  "Weekend Vibes",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,

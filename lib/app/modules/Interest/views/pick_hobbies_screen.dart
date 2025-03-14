@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class PickHobbiesScreen extends StatefulWidget {
-  const PickHobbiesScreen({super.key});
+  final VoidCallback? callback;
+  const PickHobbiesScreen({super.key, this.callback});
 
   @override
   State<PickHobbiesScreen> createState() => _PickHobbiesScreenState();
@@ -121,9 +122,10 @@ class _PickHobbiesScreenState extends State<PickHobbiesScreen> {
               const Spacer(),
               CustomButton(
                 ontap: () async {
-                  if (selectedInterests.length >= 5) {
+                  if (widget.callback != null || selectedInterests.length >= 5) {
                     await _userController.updateHobbies(
                       hobbies: selectedInterests,
+                      callback: widget.callback,
                     );
                   } else {
                     CustomSnackbar.showErrorSnackBar("pick 5 interest cards");

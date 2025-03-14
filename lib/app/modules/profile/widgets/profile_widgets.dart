@@ -1,14 +1,10 @@
-
-
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
-// Image Widget
 class ProfileImage extends StatelessWidget {
   final File? imageFile;
+  final String? imageUrl;
   final String index;
   final bool isLarge;
   final VoidCallback onPickImage;
@@ -17,6 +13,7 @@ class ProfileImage extends StatelessWidget {
   const ProfileImage({
     super.key,
     required this.imageFile,
+    required this.imageUrl,
     required this.index,
     required this.onPickImage,
     required this.onRemove,
@@ -40,15 +37,19 @@ class ProfileImage extends StatelessWidget {
           border: isLarge ? Border.all(color: Colors.blue, width: 2) : null,
           image: imageFile != null
               ? DecorationImage(image: FileImage(imageFile!), fit: BoxFit.cover)
-              : const DecorationImage(
-                  image: AssetImage("assets/images/placeholder1.png"),
-                  fit: BoxFit.cover,
-                ),
+              : (imageUrl != null &&
+                      imageUrl!.isNotEmpty) // Use imageUrl if available
+                  ? DecorationImage(
+                      image: NetworkImage(imageUrl!), fit: BoxFit.cover)
+                  : const DecorationImage(
+                      image: AssetImage("assets/images/placeholder1.png"),
+                      fit: BoxFit.cover,
+                    ),
         ),
         child: Stack(
           children: [
             // Close Button (Only show if image exists)
-            if (imageFile != null)
+            if (imageFile != null || (imageUrl != null && imageUrl!.isNotEmpty))
               Positioned(
                 top: 5,
                 right: 5,
@@ -87,7 +88,7 @@ class ProfileImage extends StatelessWidget {
             ),
 
             // "+" Icon for empty upload slots
-            if (imageFile == null)
+            if (imageFile == null && (imageUrl == null || imageUrl!.isEmpty))
               Center(
                 child: Icon(Icons.add_a_photo,
                     size: screenWidth * 0.07, color: Colors.white70),

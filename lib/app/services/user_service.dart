@@ -200,36 +200,94 @@ class UserService {
   Future<http.StreamedResponse?> uploadPhotos({
     required List<File> photos,
     required String token,
+    int? index, // Optional index to replace a photo
   }) async {
     try {
       final url = Uri.parse('$baseUrl/user/upload-photos');
-      var request = http.MultipartRequest('POST', url);
-      request.headers['Authorization'] = 'Bearer $token';
+      var request = http.MultipartRequest('POST', url)
+        ..headers['Authorization'] = 'Bearer $token';
+
+      if (index != null) {
+        // If index is provided, replace the photo at the given index
+        request.fields['index'] = index.toString();
+      }
+
       for (var photo in photos) {
-        final filePath = photo.path;
         var file = await http.MultipartFile.fromPath(
           'photos',
           photo.path,
-          contentType: MediaType.parse(getMimeType(filePath)),
+          contentType: MediaType.parse(getMimeType(photo.path)),
         );
         request.files.add(file);
       }
+
       var response = await request.send();
       return response;
     } on SocketException catch (e) {
       CustomSnackbar.showErrorSnackBar("Check internet connection, $e");
-      debugPrint("No internet connection");
       return null;
     } on TimeoutException {
-      CustomSnackbar.showErrorSnackBar(
-        "Request timeout, probably bad network, try again",
-      );
-      debugPrint("Request timeout");
+      CustomSnackbar.showErrorSnackBar("Request timeout, try again");
       return null;
     } catch (e) {
       debugPrint(e.toString());
+      return null;
     }
-    return null;
+  }
+
+  Future<http.StreamedResponse?> deletePhoto({
+    required String token,
+    required int index,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/user/delete-photo");
+      var request = http.Request("DELETE", url)
+        ..headers['Authorization'] = 'Bearer $token'
+        ..headers['Content-Type'] = 'application/json'
+        ..body = json.encode({"index": index});
+
+      var response = await request.send();
+      return response;
+    } on SocketException catch (e) {
+      CustomSnackbar.showErrorSnackBar("Check internet connection, $e");
+      return null;
+    } on TimeoutException {
+      CustomSnackbar.showErrorSnackBar("Request timeout, try again");
+      return null;
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
+  }
+
+  Future<http.StreamedResponse?> updateProfilePicture({
+    required String token,
+    required File imageFile,
+  }) async {
+    try {
+      var uri = Uri.parse("$baseUrl/user/update-profile-picture");
+
+      var request = http.MultipartRequest('PUT', uri)
+        ..headers['Authorization'] = 'Bearer $token'
+        ..files.add(
+          await http.MultipartFile.fromPath(
+            'avatar', // Corrected field name from "avater"
+            imageFile.path,
+          ),
+        );
+
+      var response = await request.send().timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      CustomSnackbar.showErrorSnackBar("Check internet connection, $e");
+      return null;
+    } on TimeoutException {
+      CustomSnackbar.showErrorSnackBar("Request timeout, try again");
+      return null;
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
   }
 
   Future<http.Response?> updateLocation({
@@ -365,6 +423,36 @@ class UserService {
                 'Content-Type': 'application/json',
               },
               body: jsonEncode({'gender': gender}))
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> editProfile({
+    required String fullName,
+    required String bio,
+    required String token,
+    required String gender,
+  }) async {
+    try {
+      final response = await client
+          .patch(Uri.parse("$baseUrl/user/edit-profile"),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({
+                'gender': gender,
+                'full_name': fullName,
+                'bio': bio,
+              }))
           .timeout(const Duration(seconds: 15));
       return response;
     } on SocketException catch (e) {

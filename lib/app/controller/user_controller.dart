@@ -317,6 +317,7 @@ class UserController extends GetxController {
 
   Future<void> uploadPhotos({
     required List<File> photos,
+    int? index, // New optional parameter for replacing a photo
   }) async {
     isloading.value = true;
     try {
@@ -330,6 +331,7 @@ class UserController extends GetxController {
       final response = await _userService.uploadPhotos(
         photos: photos,
         token: token,
+        index: index, // Pass index if replacing a photo
       );
 
       if (response == null) return;
@@ -339,7 +341,100 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
-      CustomSnackbar.showErrorSnackBar(decoded["message"]);
+      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> deletePhoto(int index) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.deletePhoto(
+        token: token,
+        index: index,
+      );
+
+      if (response == null) return;
+      var responseData = await response.stream.bytesToString();
+      final decoded = json.decode(responseData);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> editProfile({
+    required String fullName,
+    required String bio,
+    required String gender,
+  }) async {
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+      final response = await _userService.editProfile(
+        token: token,
+        fullName: fullName,
+        bio: bio,
+        gender: gender,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      String message = decoded["message"];
+      if (response.statusCode != 200) {
+        debugPrint(message);
+        return;
+      }
+      await getUserDetails();
+      Get.back();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<void> updateProfilePicture({
+    required File imageFile,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.updateProfilePicture(
+        token: token,
+        imageFile: imageFile,
+      );
+      if (response == null) return;
+      var responseData = await response.stream.bytesToString();
+      final decoded = json.decode(responseData);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -383,6 +478,7 @@ class UserController extends GetxController {
 
   Future<void> updateHobbies({
     required List<String> hobbies,
+    VoidCallback? callback,
   }) async {
     isloading.value = true;
     try {
@@ -400,6 +496,11 @@ class UserController extends GetxController {
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
         CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+        return;
+      }
+      if (callback != null) {
+        await getUserDetails();
+        callback();
         return;
       }
       Get.offAll(() => BottomNavigationScreen());
