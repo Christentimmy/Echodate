@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
+import 'package:echodate/app/modules/echocoin/views/all_echo_coins_screen.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
@@ -100,7 +101,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10),
                 Obx(() {
                   String gender = _userController.userModel.value?.gender ?? "";
-                  print(gender);
                   return buildBasicInfoTile(
                     leading: "Gender: ",
                     title: gender.toUpperCase(),
@@ -196,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildProfileSettingTiles(
                   title: "Settings",
                   onTap: () {
-                    Get.to(() => SettingsScreen());
+                    Get.to(() => const SettingsScreen());
                   },
                   bgColor: Colors.blueGrey,
                   iconColor: Colors.white,
@@ -226,7 +226,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10),
                 _buildProfileSettingTiles(
                   title: "Echo Coins",
-                  onTap: () {},
+                  onTap: () {
+                    Get.to(() => const AllEchoCoinsScreen());
+                  },
                   bgColor: Colors.deepPurpleAccent,
                   iconColor: Colors.white,
                   icon: FontAwesomeIcons.coins,

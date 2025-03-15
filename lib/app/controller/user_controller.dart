@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:echodate/app/controller/location_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
+import 'package:echodate/app/models/coin_model.dart';
 import 'package:echodate/app/models/sub_model.dart';
 import 'package:echodate/app/models/transaction_model.dart';
 import 'package:echodate/app/models/user_model.dart';
@@ -27,6 +28,7 @@ class UserController extends GetxController {
   RxList<UserModel> matchesList = <UserModel>[].obs;
   RxList<UserModel> usersWhoLikesMeList = <UserModel>[].obs;
   RxList<SubModel> allSubscriptionPlanList = <SubModel>[].obs;
+  RxList<CoinModel> allEchoCoins = <CoinModel>[].obs;
   RxList<TransactionModel> userTransactionHistory = <TransactionModel>[].obs;
   RxBool isloading = false.obs;
   RxBool isPaymentProcessing = false.obs;
@@ -36,6 +38,7 @@ class UserController extends GetxController {
   RxBool isMatchesListFetched = false.obs;
   RxBool isGetUserWhoLikesMeFetched = false.obs;
   RxBool isSubscriptionPlansFetched = false.obs;
+  RxBool isEchoCoinsListFetched = false.obs;
   final RxList<Map<String, dynamic>> _swipeQueue = <Map<String, dynamic>>[].obs;
   bool _isProcessingQueue = false;
 
@@ -219,13 +222,12 @@ class UserController extends GetxController {
         return;
       }
 
-      String? authorizationUrl = decoded["data"]["authorization_url"];
-      if (authorizationUrl != null) {
-        CustomSnackbar.showErrorSnackBar("Failed to initiate payment");
+      String? authorizationUrl = decoded["data"]["authorization_url"] ?? "";
+      if (authorizationUrl != null && authorizationUrl.isNotEmpty) {
         urlLauncher(authorizationUrl);
-        return;
       }
       await getUserPaymentHistory();
+      await getUserDetails();
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -264,7 +266,7 @@ class UserController extends GetxController {
         return;
       }
 
-      final payments = decoded["payments"] as List;
+      final payments = decoded["payments"] ?? [];
       // final totalPages = decoded["totalPages"];
       // final currentPage = decoded["page"];
       if (payments.isEmpty) return;
@@ -1017,8 +1019,63 @@ class UserController extends GetxController {
     }
   }
 
+  Future<void> getAllEchoCoins() async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _userService.getAllEchoCoins(token: token);
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(decoded["message"].toString());
+        return;
+      }
+      List echocoins = decoded["data"];
+      allEchoCoins.clear();
+      if (echocoins.isEmpty) return;
+      List<CoinModel> mapped =
+          echocoins.map((e) => CoinModel.fromMap(e)).toList();
+      allEchoCoins.value = mapped;
+      allEchoCoins.refresh();
+      if (response.statusCode == 200) isEchoCoinsListFetched.value = true;
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<int?> getEchoCoinBalance() async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return null;
+
+      final response = await _userService.getEchoCoinBalance(token: token);
+      if (response == null) return null;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(decoded["message"].toString());
+        return null;
+      }
+      int balance = decoded["balance"] ?? 0;
+      return balance;
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+    return null;
+  }
+
   void clearUserData() {
     potentialMatchesList.clear();
+    allEchoCoins.clear();
     matchesList.clear();
     userTransactionHistory.clear();
     allSubscriptionPlanList.clear();
@@ -1031,5 +1088,6 @@ class UserController extends GetxController {
     isMatchesListFetched.value = false;
     isGetUserWhoLikesMeFetched.value = false;
     isSubscriptionPlansFetched.value = false;
+    isEchoCoinsListFetched.value = false;
   }
 }
