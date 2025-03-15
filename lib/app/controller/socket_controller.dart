@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
+import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/live_stream_chat_model.dart';
 import 'package:echodate/app/models/live_stream_model.dart';
 import 'package:echodate/app/utils/base_url.dart';
@@ -83,7 +84,8 @@ class SocketController extends GetxController {
     socket?.on("endedStream", (data) async {
       LiveStreamModel endedStream = LiveStreamModel.fromJson(data);
       final liveStreamController = Get.find<LiveStreamController>();
-      liveStreamController.activeStreams.removeWhere((e)=> e.channelName == endedStream.channelName);
+      liveStreamController.activeStreams
+          .removeWhere((e) => e.channelName == endedStream.channelName);
       liveStreamController.activeStreams.refresh();
     });
 
@@ -92,6 +94,11 @@ class SocketController extends GetxController {
       int viewers = data ?? 0;
       liveStreamController.numberOfViewers.value = viewers;
       liveStreamController.numberOfViewers.refresh();
+    });
+
+    socket?.on("refresh", (data) {
+      final userController = Get.find<UserController>();
+      userController.getUserDetails();
     });
   }
 

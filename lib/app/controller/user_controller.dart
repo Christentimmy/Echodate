@@ -33,6 +33,7 @@ class UserController extends GetxController {
   RxList<BankModel> allLinkedBanks = <BankModel>[].obs;
   RxList<TransactionModel> userTransactionHistory = <TransactionModel>[].obs;
   RxBool isloading = false.obs;
+  RxBool isCoinPackageLoading = false.obs;
   RxBool isPaymentProcessing = false.obs;
   RxBool isPaymentHistoryFetched = false.obs;
   RxBool isPotentialMatchFetched = false.obs;
@@ -765,7 +766,7 @@ class UserController extends GetxController {
         debugPrint(decoded["message"].toString());
         return;
       }
-      List matches = decoded["data"];
+      List matches = decoded["data"] ?? [];
       matchesList.clear();
       if (matches.isEmpty) return;
       List<UserModel> mapped =
@@ -795,7 +796,7 @@ class UserController extends GetxController {
         debugPrint(decoded["message"].toString());
         return;
       }
-      List matches = decoded["data"];
+      List matches = decoded["data"] ?? [];
       usersWhoLikesMeList.clear();
       if (matches.isEmpty) return;
       List<UserModel> mapped =
@@ -1023,7 +1024,7 @@ class UserController extends GetxController {
   }
 
   Future<void> getAllEchoCoins() async {
-    isloading.value = true;
+    isCoinPackageLoading.value = true;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
@@ -1048,7 +1049,7 @@ class UserController extends GetxController {
     } catch (e) {
       debugPrint(e.toString());
     } finally {
-      isloading.value = false;
+      isCoinPackageLoading.value = false;
     }
   }
 
@@ -1139,6 +1140,34 @@ class UserController extends GetxController {
       isloading.value = false;
     }
     return;
+  }
+
+  Future<void> withdrawCoin({
+    required String coins,
+    required String recipientCode,
+  }) async {
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+      final response = await _userService.withdrawCoin(
+        token: token,
+        coins: coins,
+        recipientCode: recipientCode,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      String message = decoded["message"] ?? "";
+      if (response.statusCode != 200) {
+        debugPrint(message);
+        return;
+      }
+      await getUserDetails();
+      await getEchoCoinBalance();
+      CustomSnackbar.showSuccessSnackBar(message);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   void clearUserData() {

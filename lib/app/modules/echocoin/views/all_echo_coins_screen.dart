@@ -20,18 +20,12 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      int? balance = (await _userController.getEchoCoinBalance());
-      print(balance);
-      if (balance != null) {
-        _balance.value = balance;
-      }
       if (!_userController.isEchoCoinsListFetched.value) {
         _userController.getAllEchoCoins();
       }
     });
   }
 
-  final RxInt _balance = 0.obs;
   final RxString _selectedCoinPackage = "".obs;
 
   @override
@@ -108,7 +102,10 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen> {
                               const SizedBox(width: 10),
                               Obx(
                                 () => Text(
-                                  _balance.value.toString(),
+                                  _userController
+                                          .userModel.value?.echocoinsBalance
+                                          .toString() ??
+                                      "",
                                   style: const TextStyle(
                                     fontSize: 32,
                                     fontWeight: FontWeight.bold,
@@ -131,7 +128,7 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen> {
                     ),
                     const SizedBox(height: 12),
                     Obx(() {
-                      if (_userController.isloading.value) {
+                      if (_userController.isCoinPackageLoading.value) {
                         return SizedBox(
                           height: Get.height * 0.55,
                           width: Get.width,

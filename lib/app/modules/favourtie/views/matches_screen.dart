@@ -28,7 +28,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Likes",
+          "Matches",
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   return const Expanded(
                     child: Center(
                       child: Text(
-                        "No likes found.",
+                        "No match found.",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
