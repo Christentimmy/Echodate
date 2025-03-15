@@ -1,8 +1,13 @@
+import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/models/bank_model.dart';
+import 'package:echodate/app/modules/withdraw/widgets/withdrawal_widgets.dart';
+import 'package:echodate/app/services/user_service.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
+import 'package:echodate/app/widget/loader.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AddBankScreen extends StatefulWidget {
   const AddBankScreen({super.key});
@@ -12,17 +17,28 @@ class AddBankScreen extends StatefulWidget {
 }
 
 class _AddBankScreenState extends State<AddBankScreen> {
-  RxString selectedBank = 'Select bank'.obs;
-  RxString accountName = ''.obs;
-  RxString accountNumber = ''.obs;
-  RxString selectedAccountType = 'Savings'.obs;
+  RxString selectedBank = 'Select Bank'.obs;
+  // RxString accountName = ''.obs;
+  // RxString accountNumber = ''.obs;
+  RxString bankCode = ''.obs;
+  final _formKey = GlobalKey<FormState>();
+  final UserService _userService = UserService();
+  final _accountNumberController = TextEditingController();
+  final _accountNameController = TextEditingController();
+  final _userController = Get.find<UserController>();
 
-  List<String> banks = [
-    'Select bank',
-    'GTBank',
-    'Access Bank',
-    'FirstBank',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      List allBanks = await _userService.fetchBank();
+      if (allBanks.isNotEmpty) {
+        banks.value = allBanks;
+      }
+    });
+  }
+
+  RxList banks = [].obs;
 
   List<String> accountTypes = [
     'Savings',
@@ -69,114 +85,82 @@ class _AddBankScreenState extends State<AddBankScreen> {
                 ),
               ),
               Obx(
-                () => Container(
-                  height: 60,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1.0,
+                () => InkWell(
+                  onTap: () {
+                    showBankSelectionDialog(
+                      context: context,
+                      banks: banks,
+                      bankCode: bankCode,
+                      selectedBank: selectedBank,
+                    );
+                  },
+                  child: Container(
+                    height: 55,
+                    width: Get.width,
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey, width: 1.0),
                     ),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: selectedBank.value,
-                      isExpanded: true,
-                      icon: const Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Colors.grey,
-                      ),
-                      dropdownColor: Colors.white,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      onChanged: (String? newValue) {
-                        selectedBank.value = newValue!;
-                      },
-                      items:
-                          banks.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                    child: Text(
+                      selectedBank.value,
                     ),
                   ),
                 ),
               ),
               SizedBox(height: Get.height * 0.02),
-              CustomTextField(
-                hintText: "Enter Account Name",
-                onChanged: (value) {
-                  accountName.value = value;
-                },
-              ),
-              SizedBox(height: Get.height * 0.02),
-              CustomTextField(
-                keyboardType: TextInputType.number,
-                hintText: "Enter Account No",
-                onChanged: (value) {
-                  accountNumber.value = value;
-                },
-              ),
-              SizedBox(height: Get.height * 0.02),
-              const Text(
-                'Choose account type',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Obx(
-                () => Container(
-                  height: 60,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1.0,
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      hintText: "Enter Account Name",
+                      controller: _accountNameController,
                     ),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: selectedAccountType.value,
-                      isExpanded: true,
-                      dropdownColor: Colors.white,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      onChanged: (String? newValue) {
-                        selectedAccountType.value = newValue!;
-                      },
-                      items: accountTypes
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                    SizedBox(height: Get.height * 0.02),
+                    CustomTextField(
+                      keyboardType: TextInputType.number,
+                      hintText: "Enter Account No",
+                      controller: _accountNumberController,
                     ),
-                  ),
+                  ],
                 ),
               ),
               SizedBox(height: Get.height * 0.1),
-              CustomButton(
-                ontap: () {},
-                child: const Text(
-                  "Save",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
+              Obx(
+                () => CustomButton(
+                  ontap: () async {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    if (!_formKey.currentState!.validate()) {
+                      return;
+                    }
+                    if (bankCode.isEmpty) {
+                      CustomSnackbar.showErrorSnackBar("Select a bank");
+                      return;
+                    }
+                    BankModel bankModel = BankModel(
+                      bankCode: bankCode.value,
+                      accountNumber: _accountNumberController.text,
+                      accountName: _accountNameController.text,
+                    );
+                    await _userController.addBank(
+                      bankModel: bankModel,
+                      context: context,
+                    );
+                  },
+                  child: _userController.isloading.value
+                      ? const Loader()
+                      : const Text(
+                          "Save",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
-              )
+              ),
             ],
           ),
         ),

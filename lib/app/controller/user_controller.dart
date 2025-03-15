@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:echodate/app/controller/location_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
+import 'package:echodate/app/models/bank_model.dart';
 import 'package:echodate/app/models/coin_model.dart';
 import 'package:echodate/app/models/sub_model.dart';
 import 'package:echodate/app/models/transaction_model.dart';
@@ -29,6 +30,7 @@ class UserController extends GetxController {
   RxList<UserModel> usersWhoLikesMeList = <UserModel>[].obs;
   RxList<SubModel> allSubscriptionPlanList = <SubModel>[].obs;
   RxList<CoinModel> allEchoCoins = <CoinModel>[].obs;
+  RxList<BankModel> allLinkedBanks = <BankModel>[].obs;
   RxList<TransactionModel> userTransactionHistory = <TransactionModel>[].obs;
   RxBool isloading = false.obs;
   RxBool isPaymentProcessing = false.obs;
@@ -39,6 +41,7 @@ class UserController extends GetxController {
   RxBool isGetUserWhoLikesMeFetched = false.obs;
   RxBool isSubscriptionPlansFetched = false.obs;
   RxBool isEchoCoinsListFetched = false.obs;
+  RxBool isAllLinkedBankFetched = false.obs;
   final RxList<Map<String, dynamic>> _swipeQueue = <Map<String, dynamic>>[].obs;
   bool _isProcessingQueue = false;
 
@@ -1073,6 +1076,71 @@ class UserController extends GetxController {
     return null;
   }
 
+  Future<void> addBank({
+    required BankModel bankModel,
+    required BuildContext context,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.addBank(
+        token: token,
+        bankModel: bankModel,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      String message = decoded["message"] ?? "";
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(message);
+        return;
+      }
+      await fetchAllLinkedBanks();
+      CustomSnackbar.showSuccessSnackBar(message);
+      Navigator.pop(context);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> fetchAllLinkedBanks() async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _userService.fetchAllLinkedBanks(token: token);
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(decoded["message"].toString());
+        return;
+      }
+      List allBanks = decoded["linkedBankAccounts"] ?? [];
+      allLinkedBanks.clear();
+      if (allBanks.isEmpty) return;
+      List<BankModel> mapped =
+          allBanks.map((e) => BankModel.fromMap(e)).toList();
+      allLinkedBanks.value = mapped;
+      allLinkedBanks.refresh();
+      if (response.statusCode == 200) isAllLinkedBankFetched.value = true;
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+    return;
+  }
+
   void clearUserData() {
     potentialMatchesList.clear();
     allEchoCoins.clear();
@@ -1081,6 +1149,7 @@ class UserController extends GetxController {
     allSubscriptionPlanList.clear();
     usersWhoLikesMeList.clear();
     userTransactionHistory.clear();
+    allLinkedBanks.clear();
     userModel.value = null;
     isPaymentHistoryFetched.value = false;
     isPotentialMatchFetched.value = false;
@@ -1089,5 +1158,6 @@ class UserController extends GetxController {
     isGetUserWhoLikesMeFetched.value = false;
     isSubscriptionPlansFetched.value = false;
     isEchoCoinsListFetched.value = false;
+    isAllLinkedBankFetched.value = false;
   }
 }

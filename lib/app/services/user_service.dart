@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:echodate/app/models/bank_model.dart';
 import 'package:echodate/app/utils/base_url.dart';
 import 'package:echodate/app/utils/get_file_type.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
@@ -816,6 +817,80 @@ class UserService {
       final response = await client.get(
           Uri.parse(
             "$baseUrl/user/coins/balance",
+          ),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          }).timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<List> fetchBank() async {
+    try {
+      final response = await client.get(
+          Uri.parse("https://api.paystack.co/bank?country=ghana"),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          });
+      if (response.statusCode != 200) {
+        return [];
+      }
+      final decoded = jsonDecode(response.body);
+      List data = decoded["data"] ?? [];
+      if (data.isEmpty) return [];
+      return data;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return [];
+  }
+
+  Future<http.Response?> addBank({
+    required String token,
+    required BankModel bankModel,
+  }) async {
+    try {
+      final response = await client
+          .post(
+            Uri.parse("$baseUrl/paystack/add-bank"),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(bankModel.toMap()),
+          )
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> fetchAllLinkedBanks({
+    required String token,
+  }) async {
+    try {
+      final response = await client.get(
+          Uri.parse(
+            "$baseUrl/paystack/get-linked-bank-accounts",
           ),
           headers: {
             'Authorization': 'Bearer $token',

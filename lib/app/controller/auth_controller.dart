@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
@@ -36,6 +37,8 @@ class AuthController extends GetxController {
       final userController = Get.find<UserController>();
       String token = decoded["token"];
       await _storageController.storeToken(token);
+      final socketController = Get.find<SocketController>();
+      socketController.initializeSocket();
       userController.getUserDetails();
       Get.to(
         () => OTPVerificationScreen(
