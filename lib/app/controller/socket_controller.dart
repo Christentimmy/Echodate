@@ -2,9 +2,11 @@
 
 import 'dart:async';
 import 'package:echodate/app/controller/live_stream_controller.dart';
+import 'package:echodate/app/controller/message_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/live_stream_chat_model.dart';
 import 'package:echodate/app/models/live_stream_model.dart';
 import 'package:echodate/app/utils/base_url.dart';
@@ -38,6 +40,7 @@ class SocketController extends GetxController {
     socket?.connect();
 
     socket?.onConnect((_) async {
+      getOnlineUser();
       const prefs = FlutterSecureStorage();
       final channelName = await prefs.read(key: 'channelName');
       if (channelName != null && channelName.isNotEmpty) {
@@ -100,6 +103,22 @@ class SocketController extends GetxController {
       final userController = Get.find<UserController>();
       userController.getUserDetails();
     });
+
+    socket?.on("update-online-chat-list", (data) {
+      final response = List.from(data);
+      if (response.isEmpty) return;
+      print(response);
+      List<ChatListModel> mapped =
+          response.map((e) => ChatListModel.fromJson(e)).toList();
+      Get.find<MessageController>().activeFriends.value = mapped;
+      Get.find<MessageController>().activeFriends.refresh();
+    });
+  }
+
+  void getOnlineUser() {
+    if (socket != null && socket!.connected) {
+      socket?.emit("user-online");
+    }
   }
 
   void disConnectListeners() async {
