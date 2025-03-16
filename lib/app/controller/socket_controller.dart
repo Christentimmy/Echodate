@@ -10,7 +10,9 @@ import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/live_stream_chat_model.dart';
 import 'package:echodate/app/models/live_stream_model.dart';
 import 'package:echodate/app/models/message_model.dart';
+import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/utils/base_url.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -68,11 +70,10 @@ class SocketController extends GetxController {
   }
 
   void listenToEvents() {
-
-    socket?.on('new-gift', (data) async{
+    socket?.on('new-gift', (data) async {
       Get.find<LiveStreamController>().controllerBottomCenter.play();
-      await Future.delayed(const Duration(seconds: 4)).then((_){
-         Get.find<LiveStreamController>().controllerBottomCenter.stop();
+      await Future.delayed(const Duration(seconds: 4)).then((_) {
+        Get.find<LiveStreamController>().controllerBottomCenter.stop();
       });
     });
 
@@ -153,11 +154,12 @@ class SocketController extends GetxController {
       Get.find<MessageController>().chatHistoryAndLiveMessage.refresh();
     });
 
-    // socket?.on("typing", (data) {
-    //   print(data);
-    //   final mapped = Map<String, dynamic>.from(data);
-    //   print(mapped);
-    // });
+    socket?.on("error", (data) {
+      CustomSnackbar.showErrorSnackBar(data);
+      if (data.contains("limit")) {
+        Get.to(() => const SubscriptionScreen());
+      }
+    });
   }
 
   void getOnlineUser() {

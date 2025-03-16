@@ -3,9 +3,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
+import 'package:echodate/app/modules/chat/views/chat_screen.dart';
 import 'package:echodate/app/modules/live/views/all_streams.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
@@ -336,18 +338,20 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                           ),
                         ),
                         const Spacer(),
-                        Container(
-                          height: 45,
-                          width: 45,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: AppColors.primaryColor,
-                          ),
-                          child: const Icon(
-                            FontAwesomeIcons.wallet,
-                            color: Colors.white,
-                          ),
-                        ),
+                        userModel.value?.isPremium == true
+                            ? Container(
+                                height: 45,
+                                width: 45,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: AppColors.primaryColor,
+                                ),
+                                child: const Icon(
+                                  FontAwesomeIcons.wallet,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                       ],
                     ),
                   ),
@@ -378,12 +382,27 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                             }
                           }),
                           SizedBox(width: Get.width / 4.8),
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: Colors.white.withOpacity(0.8),
-                            child: Icon(
-                              Icons.chat,
-                              color: AppColors.primaryColor,
+                          InkWell(
+                            onTap: () async {
+                              ChatListModel chatHead = ChatListModel(
+                                userId: userModel.value?.id ?? "",
+                                fullName: userModel.value?.fullName ?? "",
+                                lastMessage: "",
+                                avatar: userModel.value?.avatar ?? "",
+                                unreadCount: 0,
+                                online: false,
+                              );
+                              Get.to(
+                                () => ChatScreen(chatHead: chatHead),
+                              );
+                            },
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.white.withOpacity(0.8),
+                              child: Icon(
+                                Icons.chat,
+                                color: AppColors.primaryColor,
+                              ),
                             ),
                           )
                         ],
