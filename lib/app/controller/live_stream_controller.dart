@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:confetti/confetti.dart';
 import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/live_stream_model.dart';
@@ -17,6 +18,7 @@ class LiveStreamController extends GetxController {
   RxBool isEndingLoading = false.obs;
   RxList<LiveStreamModel> activeStreams = <LiveStreamModel>[].obs;
   RxInt numberOfViewers = RxInt(0);
+  final controllerBottomCenter = ConfettiController();
 
   Future<void> startLiveStream({
     required String visibility,
@@ -191,5 +193,11 @@ class LiveStreamController extends GetxController {
     } finally {
       isEndingLoading.value = false;
     }
+  }
+
+  @override
+  void dispose() {
+    controllerBottomCenter.dispose();
+    super.dispose();
   }
 }

@@ -1170,6 +1170,33 @@ class UserController extends GetxController {
     }
   }
 
+  Future<void> sendGift({
+    required String coins,
+    required String streamerId,
+  }) async {
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+      final response = await _userService.sendGift(
+        token: token,
+        coins: coins,
+        streamerId: streamerId,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      String message = decoded["message"] ?? "";
+      if (response.statusCode != 200) {
+        debugPrint(message);
+        return;
+      }
+      await getUserDetails();
+      await getEchoCoinBalance();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   void clearUserData() {
     potentialMatchesList.clear();
     allEchoCoins.clear();

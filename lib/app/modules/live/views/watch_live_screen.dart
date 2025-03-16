@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:confetti/confetti.dart';
 import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
@@ -215,15 +218,36 @@ class _WatchLiveScreenState extends State<WatchLiveScreen> {
             alignment: Alignment.bottomCenter,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              height: Get.height * 0.07,
+              height: Get.height * 0.075,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(
-                    Icons.star,
-                    size: 22,
-                    color: Colors.white,
+                  Column(
+                    children: [
+                      InkWell(
+                        onTap: () async {
+                          await _userController.sendGift(
+                            coins: "50",
+                            streamerId: widget.liveStreamModel.hostId,
+                          );
+                        },
+                        child: const Icon(
+                          Icons.star,
+                          size: 22,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const Text(
+                        "50",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 15),
                   Expanded(
                     child: CustomTextField(
                       fieldHeight: 40,
@@ -253,26 +277,95 @@ class _WatchLiveScreenState extends State<WatchLiveScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 15),
-                  const Icon(
-                    FontAwesomeIcons.fan,
-                    size: 22,
-                    color: Colors.red,
+                  Column(
+                    children: [
+                      InkWell(
+                        onTap: () async {
+                          await _userController.sendGift(
+                            coins: "100",
+                            streamerId: widget.liveStreamModel.hostId,
+                          );
+                        },
+                        child: const Icon(
+                          FontAwesomeIcons.fan,
+                          size: 22,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const Text(
+                        "100",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 15),
-                  const Icon(
-                    FontAwesomeIcons.gift,
-                    size: 22,
-                    color: Colors.red,
+                  Column(
+                    children: [
+                      InkWell(
+                        onTap: () async {
+                          await _userController.sendGift(
+                            coins: "200",
+                            streamerId: widget.liveStreamModel.hostId,
+                          );
+                        },
+                        child: const Icon(
+                          FontAwesomeIcons.gift,
+                          size: 22,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const Text(
+                        "200",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 15),
-                  const Icon(
-                    FontAwesomeIcons.solidHeart,
-                    size: 22,
-                    color: Colors.red,
+                  Column(
+                    children: [
+                      InkWell(
+                        onTap: () async {
+                          await _userController.sendGift(
+                            coins: "300",
+                            streamerId: widget.liveStreamModel.hostId,
+                          );
+                        },
+                        child: const Icon(
+                          FontAwesomeIcons.solidHeart,
+                          size: 22,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const Text(
+                        "300",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: ConfettiWidget(
+              confettiController: _liveStreamController.controllerBottomCenter,
+              blastDirection: -pi / 2,
+              emissionFrequency: 0.01,
+              numberOfParticles: 20,
+              maxBlastForce: 100,
+              minBlastForce: 80,
+              gravity: 0.3,
             ),
           ),
         ],

@@ -1,15 +1,19 @@
 
+import 'dart:io';
+
 class MessageModel {
   String? id;
   String? senderId;
   String? receiverId;
   String? message;
   String? messageType;
+  String? mediaUrl;
   String? status;
   DateTime? timestamp;
   DateTime? createdAt;
   DateTime? updatedAt;
-  int? v;
+  File? tempFile;
+
 
   MessageModel({
     this.id,
@@ -21,7 +25,8 @@ class MessageModel {
     this.timestamp,
     this.createdAt,
     this.updatedAt,
-    this.v,
+    this.mediaUrl,
+    this.tempFile,
   });
 
 
@@ -32,11 +37,11 @@ class MessageModel {
       receiverId: json["receiverId"] ?? "",
       message: json["message"] ?? "",
       messageType: json["messageType"] ?? "text",
+      mediaUrl: json["mediaUrl"] ?? "",
       status: json["status"] ?? "sent",
       timestamp: json["timestamp"] != null ? DateTime.parse(json["timestamp"]) : null,
       createdAt: json["createdAt"] != null ? DateTime.parse(json["createdAt"]) : null,
       updatedAt: json["updatedAt"] != null ? DateTime.parse(json["updatedAt"]) : null,
-      v: json["__v"] ?? 0,
     );
   }
 
@@ -49,11 +54,11 @@ class MessageModel {
     if (receiverId != null) data["receiverId"] = receiverId;
     if (message != null) data["message"] = message;
     if (messageType != null) data["messageType"] = messageType;
+    if (mediaUrl != null) data["mediaUrl"] = mediaUrl;
     if (status != null) data["status"] = status;
     if (timestamp != null) data["timestamp"] = timestamp?.toIso8601String();
     if (createdAt != null) data["createdAt"] = createdAt?.toIso8601String();
     if (updatedAt != null) data["updatedAt"] = updatedAt?.toIso8601String();
-    if (v != null) data["__v"] = v;
 
     return data;
   }

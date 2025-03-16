@@ -9,6 +9,7 @@ import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/live_stream_chat_model.dart';
 import 'package:echodate/app/models/live_stream_model.dart';
+import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/utils/base_url.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -67,6 +68,14 @@ class SocketController extends GetxController {
   }
 
   void listenToEvents() {
+
+    socket?.on('new-gift', (data) async{
+      Get.find<LiveStreamController>().controllerBottomCenter.play();
+      await Future.delayed(const Duration(seconds: 4)).then((_){
+         Get.find<LiveStreamController>().controllerBottomCenter.stop();
+      });
+    });
+
     socket?.on('newChatMessage', (data) {
       final newMessage = LiveStreamChatModel.fromJson(data);
       chatMessages.add(newMessage);
@@ -106,13 +115,49 @@ class SocketController extends GetxController {
 
     socket?.on("update-online-chat-list", (data) {
       final response = List.from(data);
+      Get.find<MessageController>().activeFriends.clear();
       if (response.isEmpty) return;
-      print(response);
       List<ChatListModel> mapped =
           response.map((e) => ChatListModel.fromJson(e)).toList();
       Get.find<MessageController>().activeFriends.value = mapped;
       Get.find<MessageController>().activeFriends.refresh();
     });
+
+    socket?.on("update-chat-list", (data) {
+      Get.find<MessageController>().getChatList();
+    });
+
+    socket?.on("user-offline", (data) {
+      final userId = data["userId"] as String;
+      Get.find<MessageController>()
+          .activeFriends
+          .removeWhere((e) => e.userId == userId);
+      Get.find<MessageController>().activeFriends.refresh();
+      final index = Get.find<MessageController>()
+          .allChattedUserList
+          .indexWhere((e) => e.userId == userId);
+      if (index != -1) {
+        Get.find<MessageController>().allChattedUserList[index].online = false;
+        Get.find<MessageController>().allChattedUserList.refresh();
+      }
+    });
+
+    socket?.on("update-unread-count", (data) {
+      Get.find<MessageController>().getChatList();
+    });
+
+    socket?.on("receive-message", (data) {
+      final message = Map<String, dynamic>.from(data);
+      final messageModel = MessageModel.fromJson(message);
+      Get.find<MessageController>().chatHistoryAndLiveMessage.add(messageModel);
+      Get.find<MessageController>().chatHistoryAndLiveMessage.refresh();
+    });
+
+    // socket?.on("typing", (data) {
+    //   print(data);
+    //   final mapped = Map<String, dynamic>.from(data);
+    //   print(mapped);
+    // });
   }
 
   void getOnlineUser() {
@@ -121,10 +166,42 @@ class SocketController extends GetxController {
     }
   }
 
+  void sendMessage({required MessageModel message}) {
+    if (socket != null && socket!.connected) {
+      socket?.emit("send-message", message.toJson());
+    }
+  }
+
+  void markMessageRead(String receiverId) {
+    if (socket != null && socket!.connected) {
+      socket?.emit("mark-message-read", {"receiverId": receiverId});
+    }
+  }
+
+  void typing({required String receiverId}) {
+    if (socket != null && socket!.connected) {
+      socket?.emit("typing", {"receiverId": receiverId});
+    }
+  }
+
+  void stopTyping({required String receiverId}) {
+    if (socket != null && socket!.connected) {
+      socket?.emit("stop-typing", {"receiverId": receiverId});
+    }
+  }
+
   void disConnectListeners() async {
     if (socket != null) {
-      socket?.off("userDetails");
       socket?.off("newChatMessage");
+      socket?.off("new-story");
+      socket?.off("newstream");
+      socket?.off("endedStream");
+      socket?.off("viewer-count-updated");
+      socket?.off("refresh");
+      socket?.off("update-online-chat-list");
+      socket?.off("receive-message");
+      socket?.off("update-chat-list");
+      socket?.off("update-unread-count");
     }
   }
 
@@ -134,17 +211,6 @@ class SocketController extends GetxController {
     socket = null;
     socket?.close();
     print('Socket disconnected and deleted');
-  }
-
-  void sendMessage({
-    required String message,
-    required String rideId,
-  }) {
-    final payload = {
-      "rideId": rideId,
-      "message": message,
-    };
-    socket?.emit('sendMessage', payload);
   }
 
   void getChatHistory(String rideId) {

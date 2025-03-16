@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/message_model.dart';
@@ -15,6 +14,7 @@ class MessageController extends GetxController {
   final MessageService _messageService = MessageService();
   RxList<ChatListModel> allChattedUserList = <ChatListModel>[].obs;
   RxList<ChatListModel> activeFriends = <ChatListModel>[].obs;
+  RxList<MessageModel> chatHistoryAndLiveMessage = <MessageModel>[].obs;
 
   Future<void> sendMessage({
     required MessageModel messageModel,
@@ -47,7 +47,7 @@ class MessageController extends GetxController {
     }
   }
 
-  Future<List<MessageModel>?> getMessageHistory({
+  Future<void> getMessageHistory({
     required String receiverUserId,
   }) async {
     isloading.value = true;
@@ -56,7 +56,7 @@ class MessageController extends GetxController {
       String? token = await storageController.getToken();
       if (token == null || token.isEmpty) {
         CustomSnackbar.showErrorSnackBar("Authentication required");
-        return null;
+        return;
       }
 
       final response = await _messageService.getMessageHistory(
@@ -64,16 +64,19 @@ class MessageController extends GetxController {
         receiverUserId: receiverUserId,
       );
 
-      if (response == null) return null;
+      if (response == null) return;
       final decoded = json.decode(response.body);
       String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
         CustomSnackbar.showErrorSnackBar(message);
-        return null;
+        return;
       }
       List chatHistory = decoded["data"] ?? [];
-      if (chatHistory.isEmpty) return null;
-      return chatHistory.map((json) => MessageModel.fromJson(json)).toList();
+      if (chatHistory.isEmpty) return;
+      List<MessageModel> mapped =
+          chatHistory.map((json) => MessageModel.fromJson(json)).toList();
+      chatHistoryAndLiveMessage.value = mapped;
+      chatHistoryAndLiveMessage.refresh();
     } catch (e) {
       debugPrint(e.toString());
     } finally {

@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
 import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/models/live_stream_chat_model.dart';
@@ -151,6 +154,13 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
         body: _permissionsGranted
             ? Stack(
                 children: [
+                  Obx(
+                    () => _liveStreamController.isEndingLoading.value
+                        ? LinearProgressIndicator(
+                            color: AppColors.primaryColor,
+                          )
+                        : const SizedBox.shrink(),
+                  ),
                   // Local video preview
                   Center(
                     child: _isBroadcasting
@@ -210,6 +220,20 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
 
                   // Live Chat Overlay (Instagram-style)
                   _buildChatMessages(),
+
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: ConfettiWidget(
+                      confettiController:
+                          _liveStreamController.controllerBottomCenter,
+                      blastDirection: -pi / 2,
+                      emissionFrequency: 0.01,
+                      numberOfParticles: 20,
+                      maxBlastForce: 100,
+                      minBlastForce: 80,
+                      gravity: 0.3,
+                    ),
+                  )
 
                   // _buildEndLiveAndPauseButton(context),
                 ],
@@ -328,8 +352,10 @@ class HostInfoWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 5),
                 Text(
-                  widget.liveStreamModel.hostName,
+                  widget.liveStreamModel.hostName.split(" ")[0],
                   style: const TextStyle(color: Colors.white),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ],
             ),
