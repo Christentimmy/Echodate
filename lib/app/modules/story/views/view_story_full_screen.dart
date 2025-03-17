@@ -27,15 +27,17 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
     if (widget.story.stories?[index].mediaType == 'video') {
       _videoController?.dispose();
       _videoController = VideoPlayerController.networkUrl(
-          Uri.parse(widget.story.stories?[index].mediaUrl ?? ""))
-        ..initialize().then((_) {
-          setState(() {}); // Update the UI once the video is initialized
-          _videoController!.setVolume(1.0); // Set volume to max
-          _videoController!.play(); // Start playing the video
+        Uri.parse(widget.story.stories?[index].mediaUrl ?? ""),
+      )..initialize().then((_) {
+          setState(() {}); // Ensures the widget updates
+          _videoController!.setVolume(1.0);
+          _videoController!.play();
         }).catchError((error) {
-          // Handle video initialization errors
           print("Video initialization error: $error");
         });
+    } else {
+      _videoController?.dispose();
+      _videoController = null; // Reset if switching to an image
     }
   }
 
@@ -68,10 +70,11 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
                 pageController: _pageController,
                 story: widget.story,
                 storiesModel: storiesModel,
+                videoController: _videoController,
               );
             },
           ),
-          
+
           // Close Button (Top Left)
           Positioned(
             top: 40,

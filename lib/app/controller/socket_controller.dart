@@ -90,8 +90,15 @@ class SocketController extends GetxController {
     socket?.on("newstream", (data) async {
       LiveStreamModel newStream = LiveStreamModel.fromJson(data);
       final liveStreamController = Get.find<LiveStreamController>();
-      liveStreamController.activeStreams.add(newStream);
-      liveStreamController.activeStreams.refresh();
+
+      // Check if the stream already exists in the list
+      bool streamExists = liveStreamController.activeStreams
+          .any((stream) => stream.hostId == newStream.hostId);
+
+      if (!streamExists) {
+        liveStreamController.activeStreams.add(newStream);
+        liveStreamController.activeStreams.refresh();
+      }
     });
 
     socket?.on("endedStream", (data) async {
