@@ -153,7 +153,7 @@ class _VerificationStatusScreenState extends State<VerificationStatusScreen> {
                                 //     onVerifiedCallBack: () {
                                 //       Get.back();
                                 //     }));
-                                // await _authController.sendOtp();
+                                // await _authController.sendNumberOTP();
                               },
                             ),
                           ),

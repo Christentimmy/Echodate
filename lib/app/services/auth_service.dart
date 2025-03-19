@@ -109,6 +109,24 @@ class AuthService {
     return null;
   }
 
+  Future<http.Response?> sendNumberOTP({
+    required String token,
+  }) async {
+    try {
+      final response = await client.post(
+        Uri.parse("$baseUrl/auth/send-number-otp"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json"
+        },
+      ).timeout(const Duration(seconds: 15));
+      return response;
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
   Future<http.StreamedResponse?> completeProfile({
     required UserModel userModel,
     required String token,
@@ -269,5 +287,4 @@ class AuthService {
     }
     return null;
   }
-
 }

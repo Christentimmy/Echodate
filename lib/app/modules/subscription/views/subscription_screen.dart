@@ -71,6 +71,22 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       ),
                     );
                   }
+                  if (_userController.userModel.value?.plan != "free") {
+                    final subModel =
+                        subscriptionMap[_userController.userModel.value?.plan];
+
+                    return SubsCard(
+                      title: subModel?.title ?? "",
+                      price: subModel?.price.toString() ?? "",
+                      imagePath: "assets/images/couple.png",
+                      subModel: subModel ?? SubModel(),
+                      features: subModel?.features
+                              ?.map((e) => _buildFeature(e))
+                              .toList() ??
+                          [],
+                    );
+                  }
+
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -80,16 +96,18 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           _userController.allSubscriptionPlanList[index];
                       return InkWell(
                         onTap: () {
-                          Get.to(() => SubPaymentScreen(subModel: subModel));
+                          Get.to(
+                            () => SubPaymentScreen(subModel: subModel),
+                          );
                         },
                         child: SubsCard(
-                          title: subModel.title,
+                          title: subModel.title ?? "",
                           price: subModel.price.toString(),
                           imagePath: "assets/images/couple.png",
                           subModel: subModel,
                           features: subModel.features
-                              .map((e) => _buildFeature(e))
-                              .toList(),
+                              ?.map((e) => _buildFeature(e))
+                              .toList() ?? [],
                         ),
                       );
                     },
@@ -103,6 +121,46 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       ),
     );
   }
+
+  final Map<String, SubModel> subscriptionMap = {
+    "basic": SubModel(
+      id: "basic",
+      title: "Basic Plan",
+      price: 9.99,
+      durationDays: 30,
+      features: [
+        "See who likes you",
+        "Be Seen Faster",
+        "40 Swipes Per Day",
+        "5 Priority Messages Daily",
+      ],
+    ),
+    "budget": SubModel(
+      id: "budget",
+      title: "Budget Plan",
+      price: 24.99,
+      durationDays: 30,
+      features: [
+        "See who likes you",
+        "Be Seen Faster",
+        "80 Swipes Per Day",
+        "10 Priority Messages Daily",
+      ],
+    ),
+    "premium": SubModel(
+      id: "premium",
+      title: "Premium Plan",
+      price: 59.99,
+      durationDays: 30,
+      features: [
+        "See who likes you",
+        "Be Seen Faster",
+        "Unlimited Swipes",
+        "10 Priority Messages Daily",
+        "Unlock Echome",
+      ],
+    ),
+  };
 
   Widget _buildFeature(String text) {
     return Padding(

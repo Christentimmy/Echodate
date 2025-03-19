@@ -30,6 +30,7 @@ class UserModel {
   final Location? location;
   final String? dob;
   final int? matchPercentage;
+  final DateTime? createdAt;
   String? password;
 
   UserModel({
@@ -63,6 +64,7 @@ class UserModel {
     this.dob,
     this.matchPercentage,
     this.password,
+    this.createdAt,
   });
 
   factory UserModel.fromJson(json) {
@@ -84,6 +86,9 @@ class UserModel {
       isPremium: json['is_premium'] as bool?,
       lastActive: json['last_active'] != null
           ? DateTime.tryParse(json['last_active'])
+          : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
           : null,
       gender: json['gender'] as String?,
       interestedIn: json['interested_in'] as String?,

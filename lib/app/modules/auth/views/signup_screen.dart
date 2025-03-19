@@ -19,6 +19,7 @@ class RegisterScreen extends StatelessWidget {
   final _signUpFormKey = GlobalKey<FormState>();
   final _isCheckValue = false.obs;
   final _authController = Get.find<AuthController>();
+  final selectedCountryCode = RxString("");
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +58,7 @@ class RegisterScreen extends StatelessWidget {
                 emailController: _emailController,
                 phoneNUmberController: _phoneNUmberController,
                 passwordController: _passwordController,
+                selectedCountryCode: selectedCountryCode,
               ),
               const SizedBox(height: 10),
               Row(
@@ -88,9 +90,15 @@ class RegisterScreen extends StatelessWidget {
                     );
                     return;
                   }
+                  if (selectedCountryCode.value.isEmpty) {
+                    CustomSnackbar.showErrorSnackBar(
+                      "Select your country code",
+                    );
+                    return;
+                  }
                   final userModel = UserModel(
                     email: _emailController.text,
-                    phoneNumber: _phoneNUmberController.text,
+                    phoneNumber: "$selectedCountryCode${_phoneNUmberController.text}",
                     password: _passwordController.text,
                   );
                   await _authController.signUpUSer(userModel: userModel);

@@ -42,12 +42,6 @@ class AuthController extends GetxController {
       final socketController = Get.find<SocketController>();
       socketController.initializeSocket();
       await userController.getUserDetails();
-      // Get.to(
-      //   () => OTPVerificationScreen(
-      //     email: userModel.email,
-      //     onVerifiedCallBack: () => Get.offAll(() => CompleteProfileScreen()),
-      //   ),
-      // );
       Get.to(() => const VerificationStatusScreen());
     } catch (e) {
       debugPrint("Error From Auth Controller: ${e.toString()}");
@@ -63,6 +57,28 @@ class AuthController extends GetxController {
       String? token = await storageController.getToken();
       if (token == null) return;
       final response = await _authService.sendOtp(token: token);
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(
+          "Failed to get OTP, ${decoded["message"]}",
+        );
+        return;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  
+  Future<void> sendNumberOTP() async {
+    isLoading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null) return;
+      final response = await _authService.sendNumberOTP(token: token);
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {

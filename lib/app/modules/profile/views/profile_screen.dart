@@ -6,6 +6,8 @@ import 'package:echodate/app/modules/echocoin/views/all_echo_coins_screen.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
+import 'package:echodate/app/modules/withdraw/views/coin_history_screen.dart';
+import 'package:echodate/app/modules/withdraw/views/withdraw_history_screen.dart';
 import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/age_calculator.dart';
@@ -75,7 +77,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   }),
                 ),
-
                 Center(
                   child: Obx(
                     () => Text(
@@ -135,50 +136,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     }).toList(),
                   );
                 }),
-
-                // SizedBox(height: Get.height * 0.04),
-                // const Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                //   children: [
-                //     Column(
-                //       children: [
-                //         Text(
-                //           "115",
-                //           style: TextStyle(
-                //             fontSize: 20,
-                //             fontWeight: FontWeight.w600,
-                //           ),
-                //         ),
-                //         Text("Visitor"),
-                //       ],
-                //     ),
-                //     Column(
-                //       children: [
-                //         Text(
-                //           "115",
-                //           style: TextStyle(
-                //             fontSize: 20,
-                //             fontWeight: FontWeight.w600,
-                //           ),
-                //         ),
-                //         Text("Likes"),
-                //       ],
-                //     ),
-                //     Column(
-                //       children: [
-                //         Text(
-                //           "115",
-                //           style: TextStyle(
-                //             fontSize: 20,
-                //             fontWeight: FontWeight.w600,
-                //           ),
-                //         ),
-                //         Text("Matches"),
-                //       ],
-                //     ),
-                //   ],
-                // ),
-
                 SizedBox(height: Get.height * 0.04),
                 Divider(color: Colors.grey.withOpacity(0.2)),
                 const SizedBox(height: 10),
@@ -202,21 +159,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   iconColor: Colors.white,
                   icon: FontAwesomeIcons.gear,
                 ),
-                // Divider(color: Colors.grey.withOpacity(0.2)),
-                // const SizedBox(height: 10),
-                // _buildProfileSettingTiles(
-                //   title: "Billing Address",
-                //   onTap: () {},
-                //   bgColor: Colors.green,
-                //   iconColor: Colors.white,
-                //   icon: FontAwesomeIcons.addressBook,
-                // ),
+                Divider(color: Colors.grey.withOpacity(0.2)),
+                const SizedBox(height: 10),
+                _buildProfileSettingTiles(
+                  title: "Coin History",
+                  onTap: () {
+                    Get.to(() => const CoinHistoryScreen());
+                  },
+                  bgColor: Colors.green,
+                  iconColor: Colors.white,
+                  icon: FontAwesomeIcons.addressBook,
+                ),
+                const SizedBox(height: 10),
+                Divider(color: Colors.grey.withOpacity(0.2)),
+                _buildProfileSettingTiles(
+                  title: "Withdraw History",
+                  onTap: () {
+                    Get.to(() => const WithdrawHistoryScreen());
+                  },
+                  bgColor: Colors.teal,
+                  iconColor: Colors.white,
+                  icon: FontAwesomeIcons.addressBook,
+                ),
                 Divider(color: Colors.grey.withOpacity(0.2)),
                 const SizedBox(height: 10),
                 _buildProfileSettingTiles(
                   title: "Earning and Withdrawal",
                   onTap: () {
-                    Get.to(() => WithdrawalScreen());
+                    Get.to(() => const WithdrawalScreen());
                   },
                   bgColor: Colors.blueGrey,
                   iconColor: Colors.white,

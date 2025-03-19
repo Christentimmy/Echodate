@@ -7,6 +7,7 @@ import 'package:echodate/app/models/coin_model.dart';
 import 'package:echodate/app/models/sub_model.dart';
 import 'package:echodate/app/models/transaction_model.dart';
 import 'package:echodate/app/models/user_model.dart';
+import 'package:echodate/app/models/withdraw_model.dart';
 import 'package:echodate/app/modules/Interest/views/interested_in_screen.dart';
 import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
@@ -32,11 +33,13 @@ class UserController extends GetxController {
   RxList<CoinModel> allEchoCoins = <CoinModel>[].obs;
   RxList<BankModel> allLinkedBanks = <BankModel>[].obs;
   RxList<TransactionModel> userTransactionHistory = <TransactionModel>[].obs;
+  RxList<WithdrawModel> userWithdrawHistory = <WithdrawModel>[].obs;
   RxBool isloading = false.obs;
   RxBool isSendGiftLoading = false.obs;
   RxBool isCoinPackageLoading = false.obs;
   RxBool isPaymentProcessing = false.obs;
   RxBool isPaymentHistoryFetched = false.obs;
+  RxBool isWithdrawHistoryFetched = false.obs;
   RxBool isPotentialMatchFetched = false.obs;
   RxBool isUserDetailsFetched = false.obs;
   RxBool isMatchesListFetched = false.obs;
@@ -46,6 +49,12 @@ class UserController extends GetxController {
   RxBool isAllLinkedBankFetched = false.obs;
   final RxList<Map<String, dynamic>> _swipeQueue = <Map<String, dynamic>>[].obs;
   bool _isProcessingQueue = false;
+
+  //pagination
+  int currentPage = 1;
+  int totalPages = 1; // Keep track of total pages
+  int pageLimit = 10;
+  bool hasNextPage = true; // Track if there's a next page
 
   @override
   void onInit() async {
@@ -247,6 +256,7 @@ class UserController extends GetxController {
 
   Future<void> getUserPaymentHistory({
     String? type,
+    int? page = 1,
     int? limit = 10,
     String? status,
     String? startDate,
@@ -276,14 +286,67 @@ class UserController extends GetxController {
         return;
       }
 
-      final payments = decoded["payments"] ?? [];
-      // final totalPages = decoded["totalPages"];
-      // final currentPage = decoded["page"];
+      final payments = decoded["data"] ?? [];
+      userTransactionHistory.clear();
       if (payments.isEmpty) return;
-      userTransactionHistory.addAll(
-        payments.map((payment) => TransactionModel.fromJson(payment)).toList(),
-      );
+      List<Map<String, dynamic>> paymentList =
+          List<Map<String, dynamic>>.from(payments);
+      List<TransactionModel> mapped = paymentList
+          .map((payment) => TransactionModel.fromJson(payment))
+          .toList();
+      userTransactionHistory.value = mapped;
+      userTransactionHistory.refresh();
       if (response.statusCode == 200) isPaymentHistoryFetched.value = true;
+    } catch (e) {
+      debugPrint("❌ Error fetching payments: $e");
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> getUserWithdawHistory({
+    String? type,
+    int? limit = 10,
+    String? status,
+    String? startDate,
+    String? endDate,
+    int? page = 1,
+  }) async {
+    if (isloading.value) return;
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _userService.getUserWithdawHistory(
+        token: token,
+        type: type,
+        limit: limit,
+        startDate: startDate,
+        endDate: endDate,
+        status: status,
+      );
+
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      String message = decoded["message"];
+      if (response.statusCode != 200) {
+        debugPrint(message);
+        return;
+      }
+
+      final payments = decoded["data"] ?? [];
+      userWithdrawHistory.clear();
+      if (payments.isEmpty) return;
+      List<Map<String, dynamic>> paymentList =
+          List<Map<String, dynamic>>.from(payments);
+      List<WithdrawModel> mapped = paymentList
+          .map((payment) => WithdrawModel.fromJson(payment))
+          .toList();
+      userWithdrawHistory.value = mapped;
+      userWithdrawHistory.refresh();
+      if (response.statusCode == 200) isWithdrawHistoryFetched.value = true;
     } catch (e) {
       debugPrint("❌ Error fetching payments: $e");
     } finally {
@@ -562,25 +625,41 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> getPotentialMatches() async {
+  Future<void> getPotentialMatches({bool loadMore = false}) async {
     try {
+      if (loadMore) {
+        currentPage++;
+      } else {
+        currentPage = 1;
+        potentialMatchesList.clear();
+      }
+
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
       if (token == null || token.isEmpty) return;
-      final response = await _userService.getPotentialMatches(token: token);
+
+      final response = await _userService.getPotentialMatches(
+          token: token, page: currentPage, limit: pageLimit);
+
       if (response == null) return;
+
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
         debugPrint(decoded["message"].toString());
         return;
       }
+
       List matches = decoded["data"];
-      potentialMatchesList.clear();
+      totalPages = decoded[
+          "totalPages"]; // Store the total pages returned by the backend
+      hasNextPage =
+          currentPage < totalPages; // Check if more pages are available
+
       if (matches.isEmpty) return;
+
       List<UserModel> mapped =
           matches.map((e) => UserModel.fromJson(e)).toList();
-      potentialMatchesList.value = mapped;
-      potentialMatchesList.refresh();
+      potentialMatchesList.addAll(mapped);
       isPotentialMatchFetched.value = true;
     } catch (e) {
       debugPrint(e.toString());
@@ -1180,6 +1259,7 @@ class UserController extends GetxController {
       }
       await getUserDetails();
       await getEchoCoinBalance();
+      await getUserPaymentHistory();
       CustomSnackbar.showSuccessSnackBar(message);
     } catch (e) {
       debugPrint(e.toString());
@@ -1212,6 +1292,7 @@ class UserController extends GetxController {
       }
       await getUserDetails();
       await getEchoCoinBalance();
+      await getUserPaymentHistory();
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -1286,6 +1367,7 @@ class UserController extends GetxController {
     usersWhoLikesMeList.clear();
     userTransactionHistory.clear();
     allLinkedBanks.clear();
+    userWithdrawHistory.clear();
     userModel.value = null;
     isPaymentHistoryFetched.value = false;
     isPotentialMatchFetched.value = false;
@@ -1295,5 +1377,6 @@ class UserController extends GetxController {
     isSubscriptionPlansFetched.value = false;
     isEchoCoinsListFetched.value = false;
     isAllLinkedBankFetched.value = false;
+    isWithdrawHistoryFetched.value = false;
   }
 }

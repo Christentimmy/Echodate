@@ -7,6 +7,7 @@ class TransactionModel {
   final int coins;
   final String reference;
   final String status;
+  final String transactionType;
   final DateTime? createdAt;
 
   TransactionModel({
@@ -17,12 +18,14 @@ class TransactionModel {
     required this.status,
     required this.createdAt,
     required this.coins,
+    required this.transactionType,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     return TransactionModel(
       id: json["_id"] ?? "",
       userId: json["user"] ?? "",
+      transactionType: json["transactionType"] ?? "",
       amount: (json["amount"] as num).toDouble(),
       coins: json["coins"] ?? 0,
       reference: json["reference"] ?? "",

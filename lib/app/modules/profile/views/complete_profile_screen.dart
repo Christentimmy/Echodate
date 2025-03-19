@@ -6,6 +6,7 @@ import 'package:echodate/app/utils/image_picker.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:echodate/app/widget/loader.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -139,6 +140,7 @@ class CompleteProfileScreen extends StatelessWidget {
                 // Birthday Date Picker
                 InkWell(
                   onTap: () async {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     DateTime now = DateTime.now();
                     DateTime adultAge =
                         DateTime(now.year - 18, now.month, now.day);
@@ -146,8 +148,7 @@ class CompleteProfileScreen extends StatelessWidget {
                     DateTime? timePicked = await showDatePicker(
                       context: context,
                       firstDate: DateTime(1800),
-                      lastDate:
-                          adultAge, // Prevents selecting dates under 18 years
+                      lastDate: adultAge,
                     );
 
                     if (timePicked != null) {
@@ -193,6 +194,12 @@ class CompleteProfileScreen extends StatelessWidget {
                   ontap: () async {
                     FocusManager.instance.primaryFocus?.unfocus();
                     if (!_formKey.currentState!.validate()) {
+                      return;
+                    }
+                    if (_selectedTime.value == null) {
+                      CustomSnackbar.showErrorSnackBar(
+                        "Please select your birthday date",
+                      );
                       return;
                     }
                     final UserModel userModel = UserModel(

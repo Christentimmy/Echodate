@@ -1,5 +1,6 @@
 import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LoginFormField extends StatelessWidget {
   const LoginFormField({
@@ -53,12 +54,15 @@ class SignUpFormFields extends StatelessWidget {
   final TextEditingController phoneNUmberController;
   final TextEditingController passwordController;
   final GlobalKey<FormState> formKey;
+  final RxString selectedCountryCode;
+
   const SignUpFormFields({
     super.key,
     required this.emailController,
     required this.phoneNUmberController,
     required this.passwordController,
     required this.formKey,
+    required this.selectedCountryCode,
   });
 
   @override
@@ -76,6 +80,7 @@ class SignUpFormFields extends StatelessWidget {
           const SizedBox(height: 20),
           CustomPhoneNumberField(
             phoneNumberController: phoneNUmberController,
+            selectedCountryCode: selectedCountryCode,
           ),
           const SizedBox(height: 20),
           CustomTextField(
@@ -90,22 +95,15 @@ class SignUpFormFields extends StatelessWidget {
   }
 }
 
-class CustomPhoneNumberField extends StatefulWidget {
+class CustomPhoneNumberField extends StatelessWidget {
   final TextEditingController phoneNumberController;
-  final ValueChanged<String>? onCountryChanged;
+  final RxString selectedCountryCode;
 
-  const CustomPhoneNumberField({
+   CustomPhoneNumberField({
     super.key,
     required this.phoneNumberController,
-    this.onCountryChanged,
+    required this.selectedCountryCode,
   });
-
-  @override
-  State<CustomPhoneNumberField> createState() => _CustomPhoneNumberFieldState();
-}
-
-class _CustomPhoneNumberFieldState extends State<CustomPhoneNumberField> {
-  String selectedCountryCode = '+234'; // Default to Nigeria
 
   final List<Map<String, String>> africanCountries = [
     {'name': 'Nigeria', 'code': '+234'},
@@ -118,8 +116,15 @@ class _CustomPhoneNumberFieldState extends State<CustomPhoneNumberField> {
     {'name': 'Algeria', 'code': '+213'},
   ];
 
-  void _showCountryPickerDialog() {
-    showDialog(
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: (){
+              showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -134,12 +139,8 @@ class _CustomPhoneNumberFieldState extends State<CustomPhoneNumberField> {
                 return ListTile(
                   title: Text("${country['name']} (${country['code']})"),
                   onTap: () {
-                    setState(() {
-                      selectedCountryCode = country['code']!;
-                    });
-                    if (widget.onCountryChanged != null) {
-                      widget.onCountryChanged!(selectedCountryCode);
-                    }
+                    selectedCountryCode.value = country['code']!;
+
                     Navigator.pop(context);
                   },
                 );
@@ -149,15 +150,7 @@ class _CustomPhoneNumberFieldState extends State<CustomPhoneNumberField> {
         );
       },
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: GestureDetector(
-            onTap: _showCountryPickerDialog,
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               height: 60,
@@ -166,9 +159,11 @@ class _CustomPhoneNumberFieldState extends State<CustomPhoneNumberField> {
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
-                selectedCountryCode,
-                style: const TextStyle(fontSize: 16),
+              child: Obx(
+                () => Text(
+                  selectedCountryCode.value,
+                  style: const TextStyle(fontSize: 16),
+                ),
               ),
             ),
           ),
@@ -177,7 +172,7 @@ class _CustomPhoneNumberFieldState extends State<CustomPhoneNumberField> {
         Expanded(
           flex: 3,
           child: CustomTextField(
-            controller: widget.phoneNumberController,
+            controller: phoneNumberController,
             hintText: "Phone Number",
             prefixIcon: Icons.phone,
             keyboardType: TextInputType.number,

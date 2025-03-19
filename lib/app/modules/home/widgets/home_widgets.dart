@@ -298,20 +298,33 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                           ),
                         ),
                         const Spacer(),
-                        userModel.value?.isPremium == true
-                            ? Container(
-                                height: 45,
-                                width: 45,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: AppColors.primaryColor,
-                                ),
-                                child: const Icon(
-                                  FontAwesomeIcons.wallet,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
+                        Obx(
+                          () => userModel.value?.isPremium == true
+                              ? InkWell(
+                                  onTap: () {
+                                    Get.to(
+                                      () => CoinTransferScreen(
+                                        recipientName:
+                                            userModel.value?.fullName ?? "",
+                                        recipientId: userModel.value?.id ?? "",
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 45,
+                                    width: 45,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    child: const Icon(
+                                      FontAwesomeIcons.wallet,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
                       ],
                     ),
                   ),
@@ -848,89 +861,6 @@ class UserPostedStoryWidget extends StatelessWidget {
   }
 }
 
-class GetPotentialMatchesBuilder extends StatelessWidget {
-  GetPotentialMatchesBuilder({super.key});
-  final _userController = Get.find<UserController>();
-  final _cardSwipeController = CardSwiperController();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: Get.height * 0.65,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Obx(() {
-            if (_userController.isloading.value) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              );
-            }
-
-            if (_userController.potentialMatchesList.isEmpty) {
-              return const Center(
-                child: Text(
-                  "No matches found",
-                  style: TextStyle(color: Colors.black),
-                ),
-              );
-            }
-
-            return CardSwiper(
-              controller: _cardSwipeController,
-              isLoop: false,
-              cardsCount: _userController.potentialMatchesList.length,
-              numberOfCardsDisplayed:
-                  _userController.potentialMatchesList.length > 1
-                      ? 2
-                      : _userController.potentialMatchesList.length,
-              allowedSwipeDirection: const AllowedSwipeDirection.symmetric(
-                horizontal: true,
-              ),
-              onEnd: () {
-                _userController.potentialMatchesList.clear();
-              },
-              onSwipe: (previousIndex, currentIndex, direction) {
-                if (_userController.potentialMatchesList.isEmpty ||
-                    previousIndex >=
-                        _userController.potentialMatchesList.length) {
-                  return false;
-                }
-                final userId =
-                    _userController.potentialMatchesList[previousIndex].id ??
-                        "";
-                _userController.addSwipeToQueue(userId, direction);
-                return true;
-              },
-              cardBuilder: (
-                context,
-                index,
-                horizontalOffsetPercentage,
-                verticalOffsetPercentage,
-              ) {
-                final profile = _userController.potentialMatchesList[index];
-                return InkWell(
-                  onTap: () {
-                    Get.to(
-                      () => TinderCardDetails(
-                        userModel: profile,
-                      ),
-                    );
-                  },
-                  child: TinderCard(profile: profile),
-                );
-              },
-            );
-          }),
-          SwiperActionButtonsWidget(controller: _cardSwipeController),
-        ],
-      ),
-    );
-  }
-}
-
 class SwiperActionButtonsWidget extends StatelessWidget {
   final CardSwiperController controller;
   SwiperActionButtonsWidget({
@@ -979,6 +909,96 @@ class SwiperActionButtonsWidget extends StatelessWidget {
                 ],
               ),
             ),
+    );
+  }
+}
+
+class GetPotentialMatchesBuilder extends StatelessWidget {
+  GetPotentialMatchesBuilder({super.key});
+  final _userController = Get.find<UserController>();
+  final _cardSwipeController = CardSwiperController();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: Get.height * 0.65,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Obx(() {
+            if (_userController.isloading.value) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              );
+            }
+
+            if (_userController.potentialMatchesList.isEmpty) {
+              return const Center(
+                child: Text(
+                  "No matches found",
+                  style: TextStyle(color: Colors.black),
+                ),
+              );
+            }
+
+            return CardSwiper(
+              controller: _cardSwipeController,
+              isLoop: false,
+              cardsCount: _userController.potentialMatchesList.length,
+              // onSwipe: (previousIndex, currentIndex, direction) {
+              //   if (_userController.potentialMatchesList.isEmpty ||
+              //       previousIndex >=
+              //           _userController.potentialMatchesList.length) {
+              //     return false;
+              //   }
+              //   final userId =
+              //       _userController.potentialMatchesList[previousIndex].id ??
+              //           "";
+              //   _userController.addSwipeToQueue(userId, direction);
+              //   return true;
+              // },
+              numberOfCardsDisplayed:
+                  _userController.potentialMatchesList.length > 1
+                      ? 2
+                      : _userController.potentialMatchesList.length,
+              allowedSwipeDirection: const AllowedSwipeDirection.symmetric(
+                horizontal: true,
+              ),
+              onEnd: () {
+                _userController.potentialMatchesList.clear();
+              },
+              cardBuilder: (
+                context,
+                index,
+                horizontalOffsetPercentage,
+                verticalOffsetPercentage,
+              ) {
+                if (index == _userController.potentialMatchesList.length - 2 &&
+                    _userController.hasNextPage) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _userController.getPotentialMatches(loadMore: true);
+                  });
+                }
+
+                final profile = _userController.potentialMatchesList[index];
+                return InkWell(
+                  onTap: () {
+                    Get.to(
+                      () => TinderCardDetails(
+                        userModel: profile,
+                      ),
+                    );
+                  },
+                  child: TinderCard(profile: profile),
+                );
+              },
+            );
+          }),
+          SwiperActionButtonsWidget(controller: _cardSwipeController),
+        ],
+      ),
     );
   }
 }

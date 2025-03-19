@@ -43,12 +43,14 @@ class SubPaymentScreen extends StatelessWidget {
                 ),
                 SizedBox(height: Get.height * 0.05),
                 SubsCard(
-                  title: subModel.title,
+                  title: subModel.title ?? "",
                   price: subModel.price.toString(),
                   imagePath: "assets/images/couple.png",
                   subModel: subModel,
-                  features:
-                      subModel.features.map((e) => _buildFeature(e)).toList(),
+                  features: subModel.features
+                          ?.map((e) => _buildFeature(e))
+                          .toList() ??
+                      [],
                 ),
                 SizedBox(height: Get.height * 0.05),
                 Text(
@@ -64,7 +66,7 @@ class SubPaymentScreen extends StatelessWidget {
                       ? () {}
                       : () async {
                           await _userController.subscribeToPlan(
-                            planId: subModel.id,
+                            planId: subModel.id ?? "",
                           );
                         },
                   child: Obx(

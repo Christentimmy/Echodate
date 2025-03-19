@@ -371,7 +371,7 @@ class _ViewStoryFullSceenCardState extends State<ViewStoryFullSceenCard> {
                   imageUrl: widget.storiesModel.mediaUrl ?? "",
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
-                  fit: BoxFit.cover,
+                  // fit: BoxFit.cover,
                   placeholder: (context, url) {
                     return const Center(
                       child: CircularProgressIndicator(

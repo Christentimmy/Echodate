@@ -23,6 +23,7 @@ class CustomTextField extends StatelessWidget {
   String? errorText;
   InputBorder? focusedBorder;
   InputBorder? enabledBorder;
+  Function()? onTap;
   CustomTextField({
     super.key,
     this.hintStyle,
@@ -45,6 +46,7 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType,
     this.maxLength,
     this.textStyle,
+    this.onTap,
   });
 
   @override
@@ -62,6 +64,7 @@ class CustomTextField extends StatelessWidget {
               }
               return null;
             },
+        onTap: onTap,
         onChanged: onChanged,
         readOnly: readOnly ?? false,
         onEditingComplete: onEditingComplete,

@@ -161,6 +161,7 @@ class UserService {
     String? status,
     String? startDate,
     String? endDate,
+    int? page = 1,
   }) async {
     try {
       String url = "$baseUrl/user/get-user-payment-history?";
@@ -179,6 +180,7 @@ class UserService {
       if (endDate != null && endDate.isNotEmpty) {
         url += "&endDate=$endDate";
       }
+      url += "&page=$page";
       Uri uri = Uri.parse(url);
       final response = await client.get(
         uri,
@@ -186,7 +188,54 @@ class UserService {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 60));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> getUserWithdawHistory({
+    required String token,
+    String? type,
+    int? limit,
+    String? status,
+    String? startDate,
+    String? endDate,
+    int? page = 1,
+  }) async {
+    try {
+      String url = "$baseUrl/user/get-user-withdraw-history?";
+      if (type != null && type.isNotEmpty) {
+        url += "&type=$type";
+      }
+      if (limit != null && limit != 0) {
+        url += "&limit=$limit";
+      }
+      if (status != null && status.isNotEmpty) {
+        url += "&status=$status";
+      }
+      if (startDate != null && startDate.isNotEmpty) {
+        url += "&startDate=$startDate";
+      }
+      if (endDate != null && endDate.isNotEmpty) {
+        url += "&endDate=$endDate";
+      }
+      url += "&page=$page";
+
+      Uri uri = Uri.parse(url);
+      final response = await client.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 60));
       return response;
     } on SocketException catch (e) {
       debugPrint("No internet connection $e");
@@ -391,11 +440,13 @@ class UserService {
 
   Future<http.Response?> getPotentialMatches({
     required String token,
+    required int page,
+    required int limit,
   }) async {
     try {
       final response = await client.get(
           Uri.parse(
-            "$baseUrl/user/get-potential-matches",
+            "$baseUrl/user/get-potential-matches?page=$page&limit=$limit",
           ),
           headers: {
             'Authorization': 'Bearer $token',

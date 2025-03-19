@@ -1,16 +1,16 @@
 class SubModel {
-  final String id;
-  final String title;
-  final double price;
-  final int durationDays;
-  final List<String> features;
+  String? id;
+  String? title;
+  double? price;
+  int? durationDays;
+  List<String>? features;
 
   SubModel({
-    required this.id,
-    required this.title,
-    required this.price,
-    required this.durationDays,
-    required this.features,
+     this.id,
+     this.title,
+     this.price,
+     this.durationDays,
+     this.features,
   });
 
 
