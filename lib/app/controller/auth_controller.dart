@@ -8,6 +8,7 @@ import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/views/reset_password_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
+import 'package:echodate/app/modules/auth/views/verification_status_screen.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/modules/gender/views/gender_screen.dart';
 import 'package:echodate/app/modules/profile/views/complete_profile_screen.dart';
@@ -18,6 +19,7 @@ import 'package:get/get.dart';
 
 class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
+    final RxBool isOtpVerifyLoading = false.obs;
   final AuthService _authService = AuthService();
   final _storageController = Get.find<StorageController>();
 
@@ -39,13 +41,14 @@ class AuthController extends GetxController {
       await _storageController.storeToken(token);
       final socketController = Get.find<SocketController>();
       socketController.initializeSocket();
-      userController.getUserDetails();
-      Get.to(
-        () => OTPVerificationScreen(
-          email: userModel.email,
-          onVerifiedCallBack: () => Get.offAll(() => CompleteProfileScreen()),
-        ),
-      );
+      await userController.getUserDetails();
+      // Get.to(
+      //   () => OTPVerificationScreen(
+      //     email: userModel.email,
+      //     onVerifiedCallBack: () => Get.offAll(() => CompleteProfileScreen()),
+      //   ),
+      // );
+      Get.to(() => const VerificationStatusScreen());
     } catch (e) {
       debugPrint("Error From Auth Controller: ${e.toString()}");
     } finally {
@@ -80,7 +83,7 @@ class AuthController extends GetxController {
     required String email,
     VoidCallback? whatNext,
   }) async {
-    isLoading.value = true;
+    isOtpVerifyLoading.value = true;
     try {
       final response = await _authService.verifyOtp(
         otpCode: otpCode,
@@ -97,11 +100,10 @@ class AuthController extends GetxController {
         whatNext();
         return;
       }
-      Get.offAll(() => CompleteProfileScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {
-      isLoading.value = false;
+      isOtpVerifyLoading.value = false;
     }
   }
 

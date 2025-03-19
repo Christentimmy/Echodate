@@ -11,7 +11,8 @@ class UserModel {
   final List<String>? hobbies;
   final String? status;
   final bool? profileCompleted;
-  final bool? isVerified;
+  final bool? isEmailVerified;
+  final bool? isPhoneNumberVerified;
   final bool? isPremium;
   final DateTime? lastActive;
   final String? gender;
@@ -42,7 +43,8 @@ class UserModel {
     this.hobbies,
     this.status,
     this.profileCompleted,
-    this.isVerified,
+    this.isEmailVerified,
+    this.isPhoneNumberVerified,
     this.isPremium,
     this.lastActive,
     this.gender,
@@ -77,7 +79,8 @@ class UserModel {
           (json['hobbies'] as List<dynamic>?)?.map((e) => e as String).toList(),
       status: json['status'] as String?,
       profileCompleted: json['profile_completed'] as bool?,
-      isVerified: json['is_verified'] as bool?,
+      isEmailVerified: json['is_email_verified'] as bool?,
+      isPhoneNumberVerified: json['is_phone_number_verified'] as bool?,
       isPremium: json['is_premium'] as bool?,
       lastActive: json['last_active'] != null
           ? DateTime.tryParse(json['last_active'])
@@ -117,7 +120,6 @@ class UserModel {
     if (hobbies != null && hobbies!.isNotEmpty) data['hobbies'] = hobbies;
     if (status != null && status!.isNotEmpty) data['status'] = status;
     if (profileCompleted != null) data['profile_completed'] = profileCompleted;
-    if (isVerified != null) data['is_verified'] = isVerified;
     if (isPremium != null) data['is_premium'] = isPremium;
     if (lastActive != null) data['last_active'] = lastActive!.toIso8601String();
     if (gender != null && gender!.isNotEmpty) data['gender'] = gender;
@@ -201,7 +203,7 @@ class Location {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    if (address!= null && address!.isNotEmpty) data['address'] = address;
+    if (address != null && address!.isNotEmpty) data['address'] = address;
     if (coordinates != null && coordinates!.isNotEmpty) {
       data['coordinates'] = coordinates;
     }

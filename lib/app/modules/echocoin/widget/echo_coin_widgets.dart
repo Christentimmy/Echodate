@@ -82,7 +82,7 @@ class BuildCoinGridWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "₦${currencyFormat.format(coinOption.price)}",
+                    "₵${currencyFormat.format(coinOption.price)}",
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[700],

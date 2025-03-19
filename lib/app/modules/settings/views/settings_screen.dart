@@ -1,6 +1,7 @@
 import 'package:echodate/app/controller/location_controller.dart';
 import 'package:echodate/app/controller/notification_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
 import 'package:echodate/app/modules/auth/views/change_password_screen.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
@@ -116,6 +117,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 contentPadding: const EdgeInsets.all(5),
                 leading: const Text(
                   "Your Preferences",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+              ),
+              ListTile(
+                onTap: () {
+                  Get.to(() => RelationtionshipPreferenceScreen(
+                        callback: () {
+                          Get.back();
+                        },
+                      ));
+                },
+                minTileHeight: 30,
+                contentPadding: const EdgeInsets.all(5),
+                leading: const Text(
+                  "Relationship Preference",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,

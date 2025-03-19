@@ -25,6 +25,15 @@ class LoginFormField extends StatelessWidget {
             controller: _emailController,
             hintText: "Email",
             prefixIcon: Icons.email,
+            validator: (value) {
+              if (value!.isEmpty) {
+                return "";
+              }
+              if (!value.contains("@")) {
+                return "";
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 10),
           CustomTextField(
@@ -65,11 +74,8 @@ class SignUpFormFields extends StatelessWidget {
             prefixIcon: Icons.email,
           ),
           const SizedBox(height: 20),
-          CustomTextField(
-            controller: phoneNUmberController,
-            hintText: "Phone Number",
-            prefixIcon: Icons.phone,
-            keyboardType: TextInputType.number,
+          CustomPhoneNumberField(
+            phoneNumberController: phoneNUmberController,
           ),
           const SizedBox(height: 20),
           CustomTextField(
@@ -80,6 +86,104 @@ class SignUpFormFields extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class CustomPhoneNumberField extends StatefulWidget {
+  final TextEditingController phoneNumberController;
+  final ValueChanged<String>? onCountryChanged;
+
+  const CustomPhoneNumberField({
+    super.key,
+    required this.phoneNumberController,
+    this.onCountryChanged,
+  });
+
+  @override
+  State<CustomPhoneNumberField> createState() => _CustomPhoneNumberFieldState();
+}
+
+class _CustomPhoneNumberFieldState extends State<CustomPhoneNumberField> {
+  String selectedCountryCode = '+234'; // Default to Nigeria
+
+  final List<Map<String, String>> africanCountries = [
+    {'name': 'Nigeria', 'code': '+234'},
+    {'name': 'South Africa', 'code': '+27'},
+    {'name': 'Kenya', 'code': '+254'},
+    {'name': 'Ghana', 'code': '+233'},
+    {'name': 'Egypt', 'code': '+20'},
+    {'name': 'Morocco', 'code': '+212'},
+    {'name': 'Ethiopia', 'code': '+251'},
+    {'name': 'Algeria', 'code': '+213'},
+  ];
+
+  void _showCountryPickerDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Select Country"),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: africanCountries.length,
+              itemBuilder: (context, index) {
+                final country = africanCountries[index];
+                return ListTile(
+                  title: Text("${country['name']} (${country['code']})"),
+                  onTap: () {
+                    setState(() {
+                      selectedCountryCode = country['code']!;
+                    });
+                    if (widget.onCountryChanged != null) {
+                      widget.onCountryChanged!(selectedCountryCode);
+                    }
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: _showCountryPickerDialog,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              height: 60,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                selectedCountryCode,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          flex: 3,
+          child: CustomTextField(
+            controller: widget.phoneNumberController,
+            hintText: "Phone Number",
+            prefixIcon: Icons.phone,
+            keyboardType: TextInputType.number,
+          ),
+        ),
+      ],
     );
   }
 }

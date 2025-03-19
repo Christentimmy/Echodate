@@ -80,10 +80,9 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   Future<void> _initAgora() async {
     // Initialize Agora RTC Engine
     _agoraEngine = createAgoraRtcEngine();
-    await _agoraEngine.initialize(const RtcEngineContext(
-      appId:
-          '3f2d4f1858c2486096f6007138a48e46', // Replace with your Agora App ID
-    ));
+    await _agoraEngine.initialize(
+      const RtcEngineContext(appId: '3f2d4f1858c2486096f6007138a48e46'),
+    );
 
     // Enable video
     await _agoraEngine.enableVideo();
@@ -127,6 +126,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   void dispose() async {
     _agoraEngine.leaveChannel();
     _agoraEngine.release();
+    _socketController.chatMessages.clear();
     super.dispose();
   }
 
@@ -146,8 +146,16 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     context,
                   );
                 },
-                child: Icon(
-                  _isLocalVideoEnabled ? Icons.videocam_off : Icons.videocam,
+                child: Obx(
+                  () => _liveStreamController.isEndingLoading.value
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : Icon(
+                          _isLocalVideoEnabled
+                              ? Icons.videocam_off
+                              : Icons.videocam,
+                        ),
                 ),
               )
             : const SizedBox.shrink(),
@@ -235,7 +243,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     ),
                   )
 
-                  // _buildEndLiveAndPauseButton(context),
                 ],
               )
             : const Center(

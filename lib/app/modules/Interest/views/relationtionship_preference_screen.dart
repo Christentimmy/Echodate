@@ -7,7 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RelationtionshipPreferenceScreen extends StatefulWidget {
-  const RelationtionshipPreferenceScreen({super.key});
+  final VoidCallback? callback;
+  const RelationtionshipPreferenceScreen({
+    super.key,
+    this.callback,
+  });
 
   @override
   State<RelationtionshipPreferenceScreen> createState() =>
@@ -16,6 +20,13 @@ class RelationtionshipPreferenceScreen extends StatefulWidget {
 
 class _RelationtionshipPreferenceScreenState
     extends State<RelationtionshipPreferenceScreen> {
+  @override
+  void initState() {
+    super.initState();
+    selectedPreference.value =
+        _userController.userModel.value?.relationshipPreference ?? "";
+  }
+
   RxString selectedPreference = "".obs;
   final _userController = Get.find<UserController>();
 
@@ -37,7 +48,7 @@ class _RelationtionshipPreferenceScreenState
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
-                      onTap: () {},
+                      onTap: () => Get.back(),
                       child: Container(
                         height: 50,
                         width: 50,
@@ -99,6 +110,7 @@ class _RelationtionshipPreferenceScreenState
                     }
                     await _userController.updateRelationshipPreference(
                       relationshipPreference: selectedPreference.value,
+                      callback: widget.callback,
                     );
                   },
                   child: Obx(

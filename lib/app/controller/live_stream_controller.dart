@@ -122,7 +122,7 @@ class LiveStreamController extends GetxController {
       Get.to(
         () => WatchLiveScreen(
           channelName: channelName,
-          token: token,
+          token: joinToken,
           uid: uid,
           liveStreamModel: liveStreamModel,
         ),
@@ -181,10 +181,15 @@ class LiveStreamController extends GetxController {
         channelName,
         token,
       );
-      if (response == null) return;
+      if (response == null) {
+        return;
+      }
       final decoded = json.decode(response.body);
+      const prefs = FlutterSecureStorage();
+      await prefs.delete(key: 'channelName');
       if (response.statusCode != 200) {
         debugPrint(decoded["message"].toString());
+        Get.back();
         return;
       }
       Get.back();

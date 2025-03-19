@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:confetti/confetti.dart';
 import 'package:echodate/app/controller/live_stream_controller.dart';
@@ -47,328 +46,287 @@ class _WatchLiveScreenState extends State<WatchLiveScreen> {
     _socketController.joinStream(widget.channelName);
   }
 
-  void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+  Future<void> _initAgora() async {
+    try {
+      _agoraEngine = createAgoraRtcEngine();
+      await _agoraEngine.initialize(const RtcEngineContext(
+        appId: '3f2d4f1858c2486096f6007138a48e46',
+      ));
+
+      await _agoraEngine.enableVideo(); // Ensure video is enabled
+
+      _agoraEngine.registerEventHandler(RtcEngineEventHandler(
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+          print("✅ Joined channel: ${connection.channelId}");
+          setState(() {
+            _isJoined = true;
+          });
+        },
+        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+          print("🎥 Remote user joined: $remoteUid");
+          setState(() {
+            _remoteUid = remoteUid;
+          });
+          _agoraEngine.setRemoteVideoStreamType(
+            streamType: VideoStreamType.videoStreamHigh,
+            uid: remoteUid,
+          );
+        },
+        onUserOffline: (RtcConnection connection, int remoteUid,
+            UserOfflineReasonType reason) {
+          print("❌ Remote user left: $remoteUid, Reason: $reason");
+          setState(() {
+            _remoteUid = null;
+          });
+        },
+        onError: (err, msg) {
+          print("❗ Agora Error: $err, Message: $msg");
+        },
+      ));
+
+      await _agoraEngine.joinChannel(
+        token: widget.token,
+        channelId: widget.channelName,
+        uid: widget.uid,
+        options: const ChannelMediaOptions(
+          channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
+          clientRoleType: ClientRoleType.clientRoleAudience,
+        ),
+      );
+    } catch (e) {
+      print("❌ Error initializing Agora: $e");
+    }
   }
 
-  Future<void> _initAgora() async {
-    _agoraEngine = createAgoraRtcEngine();
-    await _agoraEngine.initialize(const RtcEngineContext(
-      appId: '3f2d4f1858c2486096f6007138a48e46',
-    ));
+  @override
+  void dispose()  {
+    print("🚪 Leaving channel...");
+    _agoraEngine.leaveChannel();
+    _agoraEngine.release();
+    print("✅ Agora Engine released");
+    _commentController.clear();
+    super.dispose();
+    super.dispose();
+  }
 
-    _agoraEngine.registerEventHandler(RtcEngineEventHandler(
-      onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-        setState(() {
-          _isJoined = true;
-        });
-      },
-      onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-        setState(() {
-          _remoteUid = remoteUid;
-        });
-      },
-      onUserOffline: (RtcConnection connection, int remoteUid,
-          UserOfflineReasonType reason) {
-        setState(() {
-          _remoteUid = null;
-        });
-      },
-    ));
+  Widget _buildVideoView() {
+    if (!_isJoined) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-    await _agoraEngine.joinChannel(
-      token: widget.token,
-      channelId: widget.channelName,
-      uid: widget.uid,
-      options: const ChannelMediaOptions(
-        channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
-        clientRoleType: ClientRoleType.clientRoleAudience,
+    if (_remoteUid == null) {
+      return const Center(
+        child: Text(
+          'Waiting for the host to start streaming...',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
+    return AgoraVideoView(
+      controller: VideoViewController.remote(
+        rtcEngine: _agoraEngine,
+        canvas: VideoCanvas(uid: _remoteUid),
+        connection: RtcConnection(channelId: widget.channelName),
       ),
     );
   }
 
   @override
-  void dispose() {
-    _agoraEngine.leaveChannel();
-    _agoraEngine.release();
-    _commentController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          _isJoined
-              ? _remoteUid != null
-                  ? AgoraVideoView(
-                      controller: VideoViewController.remote(
-                        rtcEngine: _agoraEngine,
-                        canvas: VideoCanvas(uid: _remoteUid),
-                        connection:
-                            RtcConnection(channelId: widget.channelName),
-                      ),
-                    )
-                  : const Center(
-                      child: Text(
-                        'Waiting for the host to start streaming...',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )
-              : const Center(child: CircularProgressIndicator()),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: const [0.5, 1.0],
-                colors: [
-                  Colors.black.withOpacity(0.1),
-                  Colors.black,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          children: [
+            _buildVideoView(),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: const [0.5, 1.0],
+                  colors: [
+                    Colors.black.withOpacity(0.1),
+                    Colors.black,
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: Get.height * 0.05,
+                horizontal: 15,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    height: 45,
+                    width: Get.width * 0.5,
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.black.withOpacity(0.6),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundImage: NetworkImage(
+                            widget.liveStreamModel.hostAvater,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          widget.liveStreamModel.hostName,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () async {
+                      await _liveStreamController.leaveStream(
+                        widget.channelName,
+                        context,
+                      );
+                    },
+                    icon: const Icon(
+                      FontAwesomeIcons.x,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: Get.height * 0.05,
-              horizontal: 15,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  height: 45,
-                  width: Get.width * 0.5,
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.black.withOpacity(0.6),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: NetworkImage(
-                          widget.liveStreamModel.hostAvater,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        widget.liveStreamModel.hostName,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.black.withOpacity(0.6),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.person, color: Colors.white),
-                      Obx(
-                        () => Text(
-                          "${_liveStreamController.numberOfViewers.value}",
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+            _buildChatMessages(),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                height: Get.height * 0.075,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            showGiftConfirmationDialog(context, "50");
+                          },
+                          child: const Icon(
+                            Icons.star,
+                            size: 22,
                             color: Colors.white,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: () async {
-                    await _liveStreamController.leaveStream(
-                      widget.channelName,
-                      context,
-                    );
-                  },
-                  icon: const Icon(
-                    FontAwesomeIcons.x,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          _buildChatMessages(),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              height: Get.height * 0.075,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Column(
-                    children: [
-                      InkWell(
-                        onTap: () async {
-                          await _userController.sendGift(
-                            coins: "50",
-                            streamerId: widget.liveStreamModel.hostId,
+                        const Text(
+                          "50",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      width: Get.width * 0.45,
+                      child: CustomTextField(
+                        fieldHeight: 40,
+                        textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                        ),
+                        suffixIcon: Icons.send,
+                        onSuffixTap: () {
+                          _socketController.sendChatMessage(
+                            widget.channelName,
+                            _commentController.text,
+                            _userController.userModel.value?.id ?? "",
                           );
+                          _commentController.clear();
                         },
-                        child: const Icon(
-                          Icons.star,
-                          size: 22,
-                          color: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
                         ),
-                      ),
-                      const Text(
-                        "50",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                        bgColor: const Color.fromARGB(255, 31, 31, 31),
+                        controller: _commentController,
+                        hintText: "Type here..",
+                        hintStyle: const TextStyle(
                           color: Colors.white,
+                          fontSize: 10,
                         ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: CustomTextField(
-                      fieldHeight: 40,
-                      textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                      ),
-                      suffixIcon: Icons.send,
-                      onSuffixTap: () {
-                        _socketController.sendChatMessage(
-                          widget.channelName,
-                          _commentController.text,
-                          _userController.userModel.value?.id ?? "",
-                        );
-                        _commentController.clear();
-                      },
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
-                      ),
-                      bgColor: const Color.fromARGB(255, 31, 31, 31),
-                      controller: _commentController,
-                      hintText: "Type here..",
-                      hintStyle: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
                       ),
                     ),
-                  ),
-                  Column(
-                    children: [
-                      InkWell(
-                        onTap: () async {
-                          await _userController.sendGift(
-                            coins: "100",
-                            streamerId: widget.liveStreamModel.hostId,
-                          );
-                        },
-                        child: const Icon(
-                          FontAwesomeIcons.fan,
-                          size: 22,
-                          color: Colors.red,
+                    Column(
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            showGiftConfirmationDialog(context, "100");
+                          },
+                          child: const Icon(
+                            FontAwesomeIcons.fan,
+                            size: 22,
+                            color: Colors.red,
+                          ),
                         ),
-                      ),
-                      const Text(
-                        "100",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        const Text(
+                          "100",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      InkWell(
-                        onTap: () async {
-                          await _userController.sendGift(
-                            coins: "200",
-                            streamerId: widget.liveStreamModel.hostId,
-                          );
-                        },
-                        child: const Icon(
-                          FontAwesomeIcons.gift,
-                          size: 22,
-                          color: Colors.red,
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            showGiftConfirmationDialog(context, "200");
+                          },
+                          child: const Icon(
+                            FontAwesomeIcons.gift,
+                            size: 22,
+                            color: Colors.red,
+                          ),
                         ),
-                      ),
-                      const Text(
-                        "200",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        const Text(
+                          "200",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      InkWell(
-                        onTap: () async {
-                          await _userController.sendGift(
-                            coins: "300",
-                            streamerId: widget.liveStreamModel.hostId,
-                          );
-                        },
-                        child: const Icon(
-                          FontAwesomeIcons.solidHeart,
-                          size: 22,
-                          color: Colors.red,
-                        ),
-                      ),
-                      const Text(
-                        "300",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: ConfettiWidget(
-              confettiController: _liveStreamController.controllerBottomCenter,
-              blastDirection: -pi / 2,
-              emissionFrequency: 0.01,
-              numberOfParticles: 20,
-              maxBlastForce: 100,
-              minBlastForce: 80,
-              gravity: 0.3,
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: ConfettiWidget(
+                confettiController:
+                    _liveStreamController.controllerBottomCenter,
+                blastDirection: -pi / 2,
+                emissionFrequency: 0.01,
+                numberOfParticles: 20,
+                maxBlastForce: 100,
+                minBlastForce: 80,
+                gravity: 0.3,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -383,14 +341,10 @@ class _WatchLiveScreenState extends State<WatchLiveScreen> {
         margin: const EdgeInsets.only(bottom: 40),
         child: Obx(
           () => ListView.builder(
-            reverse: false,
             controller: _scrollController,
             itemCount: _socketController.chatMessages.length,
             padding: EdgeInsets.zero,
             itemBuilder: (context, index) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) => _scrollToBottom(),
-              );
               final message = _socketController.chatMessages[index];
               return _buildChatMessageBubble(message);
             },
@@ -439,6 +393,52 @@ class _WatchLiveScreenState extends State<WatchLiveScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void showGiftConfirmationDialog(BuildContext context, String giftAmount) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text("Confirm Gift"),
+          content: Text(
+            "Are you sure you want to send $giftAmount to the streamer?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(dialogContext);
+                await _userController.sendGift(
+                  coins: giftAmount,
+                  streamerId: widget.liveStreamModel.hostId,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+              ),
+              child: Obx(
+                () => _userController.isloading.value
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : const Text(
+                        "Yes, Send",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

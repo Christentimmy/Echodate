@@ -139,11 +139,17 @@ class CompleteProfileScreen extends StatelessWidget {
                 // Birthday Date Picker
                 InkWell(
                   onTap: () async {
+                    DateTime now = DateTime.now();
+                    DateTime adultAge =
+                        DateTime(now.year - 18, now.month, now.day);
+
                     DateTime? timePicked = await showDatePicker(
                       context: context,
                       firstDate: DateTime(1800),
-                      lastDate: DateTime.now(),
+                      lastDate:
+                          adultAge, // Prevents selecting dates under 18 years
                     );
+
                     if (timePicked != null) {
                       _selectedTime.value = timePicked;
                     }
@@ -161,8 +167,10 @@ class CompleteProfileScreen extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_today,
-                            color: AppColors.primaryColor),
+                        Icon(
+                          Icons.calendar_today,
+                          color: AppColors.primaryColor,
+                        ),
                         const SizedBox(width: 10),
                         Obx(
                           () => Text(

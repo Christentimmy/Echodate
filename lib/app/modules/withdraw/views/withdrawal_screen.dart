@@ -21,6 +21,8 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_userController.isAllLinkedBankFetched.value) {
+        // coins.value =
+        //     _userController.userModel.value?.echocoinsBalance.toString() ?? "";
         _userController.fetchAllLinkedBanks();
       }
     });
@@ -163,15 +165,10 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
                       ),
                       child: TextFormField(
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^(?!\.)\d*\.?\d{0,2}$'),
-                          ),
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
                         onChanged: (value) {
-                          if (value.isNotEmpty &&
-                              double.tryParse(value) == null) {
-                            coins.value = value;
-                          }
+                          coins.value = value;
                         },
                         style: const TextStyle(
                           fontSize: 14,
@@ -323,10 +320,12 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
                     ontap: _userController.isloading.value
                         ? () {}
                         : () async {
+                            print(coins.value);
                             if (coins.value.isEmpty ||
                                 recipientCode.value.isEmpty) {
                               CustomSnackbar.showErrorSnackBar(
-                                  "Choose your bank and coins");
+                                "Choose your bank and coins",
+                              );
                               return;
                             }
                             await _userController.withdrawCoin(
@@ -335,7 +334,7 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
                             );
                           },
                     child: Obx(
-                      () => _userController.isloading.value
+                      () => _userController.isPaymentProcessing.value
                           ? const Loader()
                           : const Text(
                               "Withdraw",

@@ -16,7 +16,7 @@ class BottomNavigationScreen extends StatelessWidget {
     const HomeScreen(),
     const FavouriteScreen(),
     const MatchesScreen(),
-    ChatListScreen(),
+    const ChatListScreen(),
     const ProfileScreen(),
   ];
 

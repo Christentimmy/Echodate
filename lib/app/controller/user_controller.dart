@@ -10,8 +10,8 @@ import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/Interest/views/interested_in_screen.dart';
 import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
-import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
+import 'package:echodate/app/modules/auth/views/verification_status_screen.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/modules/profile/views/complete_profile_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
@@ -33,6 +33,7 @@ class UserController extends GetxController {
   RxList<BankModel> allLinkedBanks = <BankModel>[].obs;
   RxList<TransactionModel> userTransactionHistory = <TransactionModel>[].obs;
   RxBool isloading = false.obs;
+  RxBool isSendGiftLoading = false.obs;
   RxBool isCoinPackageLoading = false.obs;
   RxBool isPaymentProcessing = false.obs;
   RxBool isPaymentHistoryFetched = false.obs;
@@ -136,7 +137,6 @@ class UserController extends GetxController {
         return true;
       }
       final decoded = json.decode(response.body);
-      print("decoded: $decoded");
       String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
         Get.offAll(() => RegisterScreen());
@@ -144,8 +144,9 @@ class UserController extends GetxController {
         return true;
       }
       String status = decoded["data"]["status"];
-      String email = decoded["data"]["email"];
-      bool isEmailVerified = decoded["data"]["is_verified"] ?? false;
+      bool isEmailVerified = decoded["data"]["is_email_verified"] ?? false;
+      bool isPhonNumberVerified =
+          decoded["data"]["is_phone_number_verified"] ?? false;
       bool isProfileCompleted = decoded["data"]["profile_completed"] ?? false;
       String address = decoded["data"]["location"]?["address"];
       if (status == "banned" || status == "blocked") {
@@ -153,14 +154,19 @@ class UserController extends GetxController {
         Get.offAll(() => RegisterScreen());
         return true;
       }
-      if (!isEmailVerified) {
+      if (!isEmailVerified && !isPhonNumberVerified) {
         CustomSnackbar.showErrorSnackBar("Your account email is not verified.");
-        Get.offAll(() => OTPVerificationScreen(
-            email: email,
-            onVerifiedCallBack: () {
-              getUserStatus();
-              // Get.offAll(() => BottomNavigationScreen());
-            }));
+        Get.offAll(
+          () => VerificationStatusScreen(
+            callback: () => getUserStatus(),
+          ),
+        );
+        // Get.offAll(() => OTPVerificationScreen(
+        //     email: email,
+        //     onVerifiedCallBack: () {
+        //       getUserStatus();
+        //       // Get.offAll(() => BottomNavigationScreen());
+        //     }));
         return true;
       }
       if (!isProfileCompleted) {
@@ -512,6 +518,7 @@ class UserController extends GetxController {
         callback();
         return;
       }
+      await getUserDetails();
       Get.offAll(() => BottomNavigationScreen());
     } catch (e) {
       debugPrint(e.toString());
@@ -789,7 +796,6 @@ class UserController extends GetxController {
       if (token == null || token.isEmpty) return;
 
       final response = await _userService.getUserWhoLikesMe(token: token);
-
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
@@ -797,6 +803,7 @@ class UserController extends GetxController {
         return;
       }
       List matches = decoded["data"] ?? [];
+
       usersWhoLikesMeList.clear();
       if (matches.isEmpty) return;
       List<UserModel> mapped =
@@ -909,6 +916,7 @@ class UserController extends GetxController {
 
   Future<void> updateRelationshipPreference({
     required String relationshipPreference,
+    VoidCallback? callback,
   }) async {
     isloading.value = true;
     try {
@@ -930,6 +938,12 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"].toString());
         return;
       }
+      if (callback != null) {
+        await getUserDetails();
+        callback();
+        return;
+      }
+
       Get.to(() => const PickHobbiesScreen());
     } catch (e) {
       debugPrint(e.toString());
@@ -1146,6 +1160,7 @@ class UserController extends GetxController {
     required String coins,
     required String recipientCode,
   }) async {
+    isPaymentProcessing.value = true;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
@@ -1159,6 +1174,7 @@ class UserController extends GetxController {
       final decoded = json.decode(response.body);
       String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(message);
         debugPrint(message);
         return;
       }
@@ -1167,6 +1183,8 @@ class UserController extends GetxController {
       CustomSnackbar.showSuccessSnackBar(message);
     } catch (e) {
       debugPrint(e.toString());
+    } finally {
+      isPaymentProcessing.value = false;
     }
   }
 
@@ -1174,6 +1192,7 @@ class UserController extends GetxController {
     required String coins,
     required String streamerId,
   }) async {
+    isSendGiftLoading.value = true;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
@@ -1187,6 +1206,7 @@ class UserController extends GetxController {
       final decoded = json.decode(response.body);
       String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(message);
         debugPrint(message);
         return;
       }
@@ -1194,6 +1214,66 @@ class UserController extends GetxController {
       await getEchoCoinBalance();
     } catch (e) {
       debugPrint(e.toString());
+    } finally {
+      isSendGiftLoading.value = false;
+    }
+  }
+
+  Future<void> deleteBankAccount({
+    required String recipientCode,
+  }) async {
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+      final response = await _userService.deleteBankAccount(
+        token: token,
+        recipientCode: recipientCode,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      String message = decoded["message"] ?? "";
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(message);
+        debugPrint(message);
+        return;
+      }
+      await fetchAllLinkedBanks();
+      CustomSnackbar.showSuccessSnackBar(message);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<void> sendCoins({
+    required String coins,
+    required String recipientUserId,
+  }) async {
+    isSendGiftLoading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+      final response = await _userService.sendCoins(
+        token: token,
+        coins: coins,
+        recipientUserId: recipientUserId,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      String message = decoded["message"] ?? "";
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(message);
+        debugPrint(message);
+        return;
+      }
+      await getUserDetails();
+      await getEchoCoinBalance();
+      CustomSnackbar.showSuccessSnackBar(message);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isSendGiftLoading.value = false;
     }
   }
 

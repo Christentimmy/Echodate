@@ -34,7 +34,9 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
             user.preferences!.ageRange![1].toDouble(),
           );
         }
-        distance = (user.preferences?.maxDistance?.toDouble() ?? 50000) / 1000;
+        print(user.preferences?.maxDistance);
+        distance = ((user.preferences?.maxDistance?.toDouble() ?? 50000) / 1000)
+            .clamp(1.0, 100.0);
       }
     });
   }
@@ -73,32 +75,47 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Row(
-              children: [
-                Expanded(
-                    child: Obx(
-                  () => RadioListTile(
-                    title: const Text("Male"),
-                    value: "Male",
-                    groupValue: interestedIn.value,
-                    onChanged: (value) {
-                      interestedIn.value = value as String;
-                    },
-                  ),
-                )),
-                Expanded(
-                  child: Obx(
-                    () => RadioListTile(
-                      title: const Text("Female"),
-                      value: "Female",
-                      groupValue: interestedIn.value,
-                      onChanged: (value) {
-                        interestedIn.value = value as String;
-                      },
-                    ),
-                  ),
-                ),
-              ],
+            Obx(
+              () => RadioListTile(
+                activeColor: AppColors.primaryColor,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+                contentPadding: EdgeInsets.zero,
+                title: const Text("Male"),
+                value: "Male",
+                groupValue: interestedIn.value,
+                onChanged: (value) {
+                  interestedIn.value = value as String;
+                },
+              ),
+            ),
+            Obx(
+              () => RadioListTile(
+                activeColor: AppColors.primaryColor,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+                contentPadding: EdgeInsets.zero,
+                title: const Text("Female"),
+                value: "Female",
+                groupValue: interestedIn.value,
+                onChanged: (value) {
+                  interestedIn.value = value as String;
+                },
+              ),
+            ),
+            Obx(
+              () => RadioListTile(
+                activeColor: AppColors.primaryColor,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+                contentPadding: EdgeInsets.zero,
+                title: const Text("Others"),
+                value: "Others",
+                groupValue: interestedIn.value,
+                onChanged: (value) {
+                  interestedIn.value = value as String;
+                },
+              ),
             ),
             const Divider(),
 
@@ -109,7 +126,7 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
             ),
             Slider(
               activeColor: AppColors.primaryColor,
-              value: distance,
+              value: distance.clamp(1.0, 100.0),
               min: 1,
               max: 100,
               divisions: 99,

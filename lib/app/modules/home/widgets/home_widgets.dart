@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
@@ -8,6 +7,7 @@ import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
 import 'package:echodate/app/modules/chat/views/chat_screen.dart';
+import 'package:echodate/app/modules/home/views/send_coins_screen.dart';
 import 'package:echodate/app/modules/live/views/all_streams.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
@@ -53,56 +53,6 @@ Widget actionButton(
       ),
     ),
   );
-}
-
-class AnimatedSwitcherWidget extends StatelessWidget {
-  const AnimatedSwitcherWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomSlidingSegmentedControl<int>(
-      fixedWidth: MediaQuery.of(context).size.width / 2.2,
-      innerPadding: const EdgeInsets.all(3),
-      children: const {
-        1: Text(
-          'Search Partners',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Color.fromARGB(255, 39, 28, 6),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        2: Text(
-          'Watch Live',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Color.fromARGB(255, 39, 28, 6),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      },
-      decoration: BoxDecoration(
-        color: AppColors.primaryColor,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      thumbDecoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.3),
-            blurRadius: 4.0,
-            spreadRadius: 1.0,
-            offset: const Offset(
-              0.0,
-              2.0,
-            ),
-          ),
-        ],
-      ),
-      onValueChanged: (int value) {},
-    );
-  }
 }
 
 class TinderCard extends StatelessWidget {
@@ -161,16 +111,26 @@ class TinderCard extends StatelessWidget {
             ? Positioned(
                 top: 20,
                 right: 10,
-                child: Container(
-                  height: 45,
-                  width: 45,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: AppColors.primaryColor,
-                  ),
-                  child: const Icon(
-                    FontAwesomeIcons.wallet,
-                    color: Colors.white,
+                child: InkWell(
+                  onTap: () {
+                    Get.to(
+                      () => CoinTransferScreen(
+                        recipientName: profile.fullName ?? "",
+                        recipientId: profile.id ?? "",
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 45,
+                    width: 45,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.primaryColor,
+                    ),
+                    child: const Icon(
+                      FontAwesomeIcons.wallet,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               )

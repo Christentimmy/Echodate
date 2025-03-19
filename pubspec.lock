@@ -9,14 +9,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.5.0"
-  appinio_swiper:
-    dependency: "direct main"
-    description:
-      name: appinio_swiper
-      sha256: "2e86baa65c776a93a3fdf6e973591f3e494631afd979b0e11d1137f82c3c1319"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.1"
   archive:
     dependency: transitive
     description:
@@ -121,14 +113,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
-  custom_sliding_segmented_control:
-    dependency: "direct main"
-    description:
-      name: custom_sliding_segmented_control
-      sha256: bc747b1500284bff36fc8c61774c9a3ca35c1dca4d570141c8a2569b4f984bf3
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.5"
   device_info_plus:
     dependency: transitive
     description:
@@ -528,6 +512,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.2"
+  intl_phone_field:
+    dependency: "direct main"
+    description:
+      name: intl_phone_field
+      sha256: "73819d3dfcb68d2c85663606f6842597c3ddf6688ac777f051b17814fe767bbf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.0"
   iris_method_channel:
     dependency: transitive
     description:

@@ -9,11 +9,13 @@ import 'package:pinput/pinput.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
   final String? email;
+  final String? phoneNumber;
   final VoidCallback onVerifiedCallBack;
   const OTPVerificationScreen({
     super.key,
     this.email,
     required this.onVerifiedCallBack,
+    this.phoneNumber,
   });
 
   @override
@@ -25,20 +27,18 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
     _timerController.startTimer();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _timerController.startTimer();
-      _animationController = AnimationController(
-        vsync: this,
-        duration: const Duration(seconds: 5),
-      )..repeat();
-      _scaleAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
-        CurvedAnimation(
-          parent: _animationController,
-          curve: Curves.easeInOut,
-        ),
-      );
-    });
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..repeat();
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   @override
@@ -64,7 +64,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
             // Main Content
             SafeArea(
               child: Opacity(
-                opacity: _authController.isLoading.value ? 0.2 : 1.0,
+                opacity: _authController.isOtpVerifyLoading.value ? 0.2 : 1.0,
                 child: AbsorbPointer(
                   absorbing: false,
                   child: SingleChildScrollView(
@@ -80,7 +80,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
                           richTextWidget(),
                           const SizedBox(height: 15),
                           Text(
-                            "A Verification code has been sent to\n${widget.email}",
+                            "A Verification code has been sent to\n${widget.email ?? widget.phoneNumber}",
                             style: TextStyle(
                               fontSize: 16,
                               color: const Color(0xff000000).withOpacity(0.5),
@@ -128,7 +128,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
               ),
             ),
             // Preloader with Rotation and Bounce
-            if (_authController.isLoading.value)
+            if (_authController.isOtpVerifyLoading.value)
               Padding(
                 padding: EdgeInsets.only(bottom: Get.height * 0.1),
                 child: Center(
