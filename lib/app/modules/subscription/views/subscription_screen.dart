@@ -143,7 +143,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       features: [
         "See who likes you",
         "Be Seen Faster",
-        "80 Swipes Per Day",
+        "100 Swipes Per Day",
         "10 Priority Messages Daily",
       ],
     ),
@@ -156,7 +156,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         "See who likes you",
         "Be Seen Faster",
         "Unlimited Swipes",
-        "10 Priority Messages Daily",
+        "Unlimited Messages Daily",
         "Unlock Echome",
       ],
     ),

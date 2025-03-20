@@ -34,12 +34,6 @@ class _MatchesScreenState extends State<MatchesScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.filter_alt_rounded),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Padding(

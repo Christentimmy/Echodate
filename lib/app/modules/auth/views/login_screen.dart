@@ -96,69 +96,69 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(child: Divider(color: Colors.grey.shade300)),
-                  const SizedBox(width: 5),
-                  const Text("OR"),
-                  const SizedBox(width: 5),
-                  Expanded(child: Divider(color: Colors.grey.shade300)),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Expanded(child: Divider(color: Colors.grey.shade300)),
+              //     const SizedBox(width: 5),
+              //     const Text("OR"),
+              //     const SizedBox(width: 5),
+              //     Expanded(child: Divider(color: Colors.grey.shade300)),
+              //   ],
+              // ),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      border: Border.all(
-                        width: 0.3,
-                        color: Colors.grey.shade400,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(FontAwesomeIcons.google),
-                    ),
-                  ),
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      border: Border.all(
-                        width: 0.3,
-                        color: Colors.grey.shade400,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(FontAwesomeIcons.facebook),
-                    ),
-                  ),
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      border: Border.all(
-                        width: 0.3,
-                        color: Colors.grey.shade400,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(FontAwesomeIcons.apple),
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+              //   children: [
+              //     Container(
+              //       height: 50,
+              //       width: 50,
+              //       decoration: BoxDecoration(
+              //         color: Colors.transparent,
+              //         border: Border.all(
+              //           width: 0.3,
+              //           color: Colors.grey.shade400,
+              //         ),
+              //         shape: BoxShape.circle,
+              //       ),
+              //       child: IconButton(
+              //         onPressed: () {},
+              //         icon: const Icon(FontAwesomeIcons.google),
+              //       ),
+              //     ),
+              //     Container(
+              //       height: 50,
+              //       width: 50,
+              //       decoration: BoxDecoration(
+              //         color: Colors.transparent,
+              //         border: Border.all(
+              //           width: 0.3,
+              //           color: Colors.grey.shade400,
+              //         ),
+              //         shape: BoxShape.circle,
+              //       ),
+              //       child: IconButton(
+              //         onPressed: () {},
+              //         icon: const Icon(FontAwesomeIcons.facebook),
+              //       ),
+              //     ),
+              //     Container(
+              //       height: 50,
+              //       width: 50,
+              //       decoration: BoxDecoration(
+              //         color: Colors.transparent,
+              //         border: Border.all(
+              //           width: 0.3,
+              //           color: Colors.grey.shade400,
+              //         ),
+              //         shape: BoxShape.circle,
+              //       ),
+              //       child: IconButton(
+              //         onPressed: () {},
+              //         icon: const Icon(FontAwesomeIcons.apple),
+              //       ),
+              //     ),
+              //   ],
+              // ),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () => Get.to(() => RegisterScreen()),

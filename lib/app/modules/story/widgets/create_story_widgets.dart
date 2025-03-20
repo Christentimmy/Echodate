@@ -352,6 +352,7 @@ class _ViewStoryFullSceenCardState extends State<ViewStoryFullSceenCard> {
         }
       },
       child: Stack(
+        alignment: Alignment.center,
         // fit: StackFit.expand,
         children: [
           widget.storiesModel.mediaType == 'video'

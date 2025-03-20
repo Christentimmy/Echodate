@@ -1,12 +1,14 @@
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:location/location.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 
 class LocationController extends GetxController {
-  RxBool _isLocation = false.obs;
+  final RxBool _isLocation = false.obs;
   RxBool get isLocation => _isLocation;
+  Location location = Location();
+
   @override
   void onInit() {
     super.onInit();
@@ -14,9 +16,14 @@ class LocationController extends GetxController {
   }
 
   Future<void> checkLocationPermission() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse) {
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+    }
+
+    PermissionStatus permission = await location.hasPermission();
+    if (permission == PermissionStatus.granted ||
+        permission == PermissionStatus.grantedLimited) {
       _isLocation.value = true;
     } else {
       _isLocation.value = false;
@@ -24,9 +31,9 @@ class LocationController extends GetxController {
   }
 
   Future<void> requestLocationPermission() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse) {
+    PermissionStatus permission = await location.requestPermission();
+    if (permission == PermissionStatus.granted ||
+        permission == PermissionStatus.grantedLimited) {
       _isLocation.value = true;
     } else {
       _isLocation.value = false;
@@ -35,24 +42,22 @@ class LocationController extends GetxController {
 
   Future<void> getCurrentCity() async {
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+      PermissionStatus permission = await location.hasPermission();
+      if (permission == PermissionStatus.denied) {
+        permission = await location.requestPermission();
       }
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.low,
-      );
 
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
+      LocationData locationData = await location.getLocation();
+      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
+        locationData.latitude ?? 0.0,
+        locationData.longitude ?? 0.0,
       );
       String? city = placemarks[0].subAdministrativeArea;
       if (city == null || city.isEmpty) return;
       final userController = Get.find<UserController>();
       await userController.updateLocation(
-        latitude: position.latitude,
-        longitude: position.longitude,
+        latitude: locationData.latitude ?? 0.0,
+        longitude: locationData.longitude ?? 0.0,
         address: city,
       );
     } catch (e, stackTrace) {

@@ -19,7 +19,7 @@ class RegisterScreen extends StatelessWidget {
   final _signUpFormKey = GlobalKey<FormState>();
   final _isCheckValue = false.obs;
   final _authController = Get.find<AuthController>();
-  final selectedCountryCode = RxString("");
+  final selectedCountryCode = RxString("+233");
 
   @override
   Widget build(BuildContext context) {

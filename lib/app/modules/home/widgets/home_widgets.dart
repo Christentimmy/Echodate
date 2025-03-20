@@ -947,18 +947,18 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
               controller: _cardSwipeController,
               isLoop: false,
               cardsCount: _userController.potentialMatchesList.length,
-              // onSwipe: (previousIndex, currentIndex, direction) {
-              //   if (_userController.potentialMatchesList.isEmpty ||
-              //       previousIndex >=
-              //           _userController.potentialMatchesList.length) {
-              //     return false;
-              //   }
-              //   final userId =
-              //       _userController.potentialMatchesList[previousIndex].id ??
-              //           "";
-              //   _userController.addSwipeToQueue(userId, direction);
-              //   return true;
-              // },
+              onSwipe: (previousIndex, currentIndex, direction) {
+                if (_userController.potentialMatchesList.isEmpty ||
+                    previousIndex >=
+                        _userController.potentialMatchesList.length) {
+                  return false;
+                }
+                final userId =
+                    _userController.potentialMatchesList[previousIndex].id ??
+                        "";
+                _userController.addSwipeToQueue(userId, direction);
+                return true;
+              },
               numberOfCardsDisplayed:
                   _userController.potentialMatchesList.length > 1
                       ? 2

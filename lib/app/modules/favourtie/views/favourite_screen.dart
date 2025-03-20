@@ -34,13 +34,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.filter_alt_rounded),
-          ),
-        ],
-      ),
+    ),
       body: SafeArea(
         child: RefreshIndicator(
           color: AppColors.primaryColor,
