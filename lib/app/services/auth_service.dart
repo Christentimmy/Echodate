@@ -287,4 +287,26 @@ class AuthService {
     }
     return null;
   }
+
+  Future<http.Response?> verifyFace({
+    required String token,
+  }) async {
+    try {
+      final response = await client.post(
+        Uri.parse("$baseUrl/auth/verify-face"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      ).timeout(const Duration(seconds: 60));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
 }

@@ -42,3 +42,15 @@ android {
 flutter {
     source = "../.."
 }
+
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:32.7.1')
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.mlkit:face-detection:16.1.5'
+
+    // Add global exclusion for firebase-iid
+    configurations.all {
+        exclude group: 'com.google.firebase', module: 'firebase-iid'
+    }
+}

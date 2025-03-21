@@ -2,6 +2,7 @@ import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/widget/animations.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,8 @@ class LoginScreen extends StatelessWidget {
             horizontal: 20,
             vertical: 20,
           ),
-          child: Column(
+          child: AnimatedListWrapper(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: Get.height * 0.09),
               Image.asset(
@@ -94,71 +96,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                 ),
               ),
-              const SizedBox(height: 20),
-              // Row(
-              //   children: [
-              //     Expanded(child: Divider(color: Colors.grey.shade300)),
-              //     const SizedBox(width: 5),
-              //     const Text("OR"),
-              //     const SizedBox(width: 5),
-              //     Expanded(child: Divider(color: Colors.grey.shade300)),
-              //   ],
-              // ),
-              const SizedBox(height: 20),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-              //   children: [
-              //     Container(
-              //       height: 50,
-              //       width: 50,
-              //       decoration: BoxDecoration(
-              //         color: Colors.transparent,
-              //         border: Border.all(
-              //           width: 0.3,
-              //           color: Colors.grey.shade400,
-              //         ),
-              //         shape: BoxShape.circle,
-              //       ),
-              //       child: IconButton(
-              //         onPressed: () {},
-              //         icon: const Icon(FontAwesomeIcons.google),
-              //       ),
-              //     ),
-              //     Container(
-              //       height: 50,
-              //       width: 50,
-              //       decoration: BoxDecoration(
-              //         color: Colors.transparent,
-              //         border: Border.all(
-              //           width: 0.3,
-              //           color: Colors.grey.shade400,
-              //         ),
-              //         shape: BoxShape.circle,
-              //       ),
-              //       child: IconButton(
-              //         onPressed: () {},
-              //         icon: const Icon(FontAwesomeIcons.facebook),
-              //       ),
-              //     ),
-              //     Container(
-              //       height: 50,
-              //       width: 50,
-              //       decoration: BoxDecoration(
-              //         color: Colors.transparent,
-              //         border: Border.all(
-              //           width: 0.3,
-              //           color: Colors.grey.shade400,
-              //         ),
-              //         shape: BoxShape.circle,
-              //       ),
-              //       child: IconButton(
-              //         onPressed: () {},
-              //         icon: const Icon(FontAwesomeIcons.apple),
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              const SizedBox(height: 10),
+              SizedBox(height: Get.height * 0.1),
               TextButton(
                 onPressed: () => Get.to(() => RegisterScreen()),
                 child: const Text("Don't have an account? Register"),

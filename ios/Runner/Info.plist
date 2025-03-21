@@ -47,6 +47,15 @@
 	// uses APIs that access the user’s location information at all times,
 	// even if the app isn't running.
 	NSLocationAlwaysAndWhenInUseUsageDescription
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone to record audio.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need access to your location to provide location-based services.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to save photos.</string>
+	<!-- Add other permissions as needed -->
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>

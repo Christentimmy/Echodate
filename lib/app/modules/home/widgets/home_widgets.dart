@@ -13,7 +13,9 @@ import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/age_calculator.dart';
+import 'package:echodate/app/widget/animations.dart';
 import 'package:echodate/app/widget/delete_dialog.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -22,6 +24,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:video_compress/video_compress.dart';
+import 'package:motion/motion.dart';
+import 'package:animate_do/animate_do.dart';
 
 Widget actionButton(
   IconData icon,
@@ -57,133 +61,149 @@ Widget actionButton(
 
 class TinderCard extends StatelessWidget {
   final UserModel profile;
-
   const TinderCard({super.key, required this.profile});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(width: 3, color: Colors.orange),
+    return FadeIn(
+      duration: const Duration(milliseconds: 500),
+      child: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(width: 3, color: Colors.orange),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(17),
+              child: CachedNetworkImage(
+                width: double.infinity,
+                height: double.infinity,
+                imageUrl: profile.avatar ?? "",
+                fit: BoxFit.cover,
+                placeholder: (context, url) {
+                  return ShimmerEffect(
+                    child: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  );
+                },
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(17),
-            child: CachedNetworkImage(
-              width: double.infinity,
-              height: double.infinity,
-              imageUrl: profile.avatar ?? "",
-              fit: BoxFit.cover,
-              placeholder: (context, url) {
-                return ShimmerEffect(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: const [0.6, 1.0],
+                colors: [
+                  Colors.black.withOpacity(0.1),
+                  Colors.black.withOpacity(0.8),
+                ],
+              ),
+            ),
+          ),
+          profile.plan != "free"
+              ? Positioned(
+                  top: 20,
+                  right: 10,
+                  child: InkWell(
+                    onTap: () {
+                      Get.to(
+                        () => CoinTransferScreen(
+                          recipientName: profile.fullName ?? "",
+                          recipientId: profile.id ?? "",
+                        ),
+                      );
+                    },
+                    child: Bounce(
+                      from: 10,
+                      duration: const Duration(milliseconds: 500),
+                      child: Container(
+                        height: 45,
+                        width: 45,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: AppColors.primaryColor,
+                        ),
+                        child: const Icon(
+                          FontAwesomeIcons.wallet,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                );
-              },
-              errorWidget: (context, url, error) => const Icon(Icons.error),
+                )
+              : const SizedBox.shrink(),
+          Positioned(
+            top: 0,
+            left: MediaQuery.of(context).size.width * 0.32,
+            child: FadeInDown(
+              from: 20,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  "${profile.matchPercentage.toString()}% Match",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: const [0.6, 1.0],
-              colors: [
-                Colors.black.withOpacity(0.1),
-                Colors.black.withOpacity(0.8),
-              ],
-            ),
-          ),
-        ),
-        profile.isPremium == true
-            ? Positioned(
-                top: 20,
-                right: 10,
-                child: InkWell(
-                  onTap: () {
-                    Get.to(
-                      () => CoinTransferScreen(
-                        recipientName: profile.fullName ?? "",
-                        recipientId: profile.id ?? "",
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 45,
-                    width: 45,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: AppColors.primaryColor,
-                    ),
-                    child: const Icon(
-                      FontAwesomeIcons.wallet,
+          Positioned(
+            bottom: Get.height * 0.12,
+            left: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FadeInLeft(
+                  from: 20,
+                  child: Text(
+                    profile.fullName ?? "",
+                    style: GoogleFonts.poppins(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                 ),
-              )
-            : const SizedBox.shrink(),
-        Positioned(
-          top: 0,
-          left: MediaQuery.of(context).size.width * 0.32,
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 5,
-            ),
-            decoration: const BoxDecoration(
-              color: Colors.orange,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10),
-              ),
-            ),
-            child: Text(
-              "${profile.matchPercentage.toString()}% Match",
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+                FadeInLeft(
+                  from: 40,
+                  delay: const Duration(milliseconds: 300),
+                  child: Text(
+                    profile.location?.address ?? "",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        Positioned(
-          bottom: Get.height * 0.12,
-          left: 20,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                profile.fullName ?? "",
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                profile.location?.address ?? "",
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -205,7 +225,9 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
   @override
   void initState() {
     super.initState();
-    getUserDetails();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getUserDetails();
+    });
   }
 
   void getUserDetails() async {
@@ -224,197 +246,208 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: Get.height * 0.6,
-              width: Get.width,
-              child: Stack(
-                children: [
-                  Obx(() {
-                    if (_userController.isloading.value) {
-                      return ShimmerEffect(
-                        child: SizedBox(
-                          height: Get.height * 0.6,
-                          width: Get.width,
-                        ),
-                      );
-                    }
-                    if (userModel.value?.photos != null &&
-                        userModel.value!.photos!.isNotEmpty) {
-                      return PageView.builder(
-                        onPageChanged: (value) {
-                          _activeIndex.value = value;
-                        },
-                        itemCount: widget.userModel.photos?.length,
-                        itemBuilder: (context, index) {
-                          String picture =
-                              userModel.value?.photos?[index] ?? "";
-                          return Image.network(
-                            picture,
-                            fit: BoxFit.cover,
-                            alignment: Alignment.topCenter,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: AnimatedListWrapper(
+              children: [
+                SizedBox(
+                  height: Get.height * 0.6,
+                  width: Get.width,
+                  child: Stack(
+                    children: [
+                      Obx(() {
+                        if (_userController.isloading.value) {
+                          return SizedBox(
                             height: Get.height * 0.6,
                             width: Get.width,
-                          );
-                        },
-                      );
-                    } else {
-                      return CachedNetworkImage(
-                        imageUrl: widget.userModel.avatar ?? "",
-                        fit: BoxFit.cover,
-                        height: Get.height * 0.6,
-                        width: Get.width,
-                        placeholder: (context, url) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
-                      );
-                    }
-                  }),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: Get.height * 0.08,
-                    ),
-                    child: Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Get.back();
-                          },
-                          child: CircleAvatar(
-                            radius: 18,
-                            backgroundColor: Colors.grey.withOpacity(0.8),
-                            child: const Icon(
-                              FontAwesomeIcons.x,
-                              size: 15,
+                            child: const Center(
+                              child: Loader(),
                             ),
-                          ),
-                        ),
-                        const Spacer(),
-                        Obx(
-                          () => userModel.value?.isPremium == true
-                              ? InkWell(
-                                  onTap: () {
-                                    Get.to(
-                                      () => CoinTransferScreen(
-                                        recipientName:
-                                            userModel.value?.fullName ?? "",
-                                        recipientId: userModel.value?.id ?? "",
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    height: 45,
-                                    width: 45,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: AppColors.primaryColor,
-                                    ),
-                                    child: const Icon(
-                                      FontAwesomeIcons.wallet,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    bottom: Get.height * 0.02,
-                    child: Container(
-                      padding: const EdgeInsets.only(right: 10),
-                      height: 50,
-                      width: Get.width,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Obx(() {
-                            if (userModel.value?.photos != null &&
-                                userModel.value?.photos?.isNotEmpty == true) {
-                              return AnimatedSmoothIndicator(
-                                activeIndex: _activeIndex.value,
-                                count: userModel.value?.photos?.length ?? 0,
-                                effect: ExpandingDotsEffect(
-                                  dotWidth: 10,
-                                  dotHeight: 10,
-                                  activeDotColor: AppColors.primaryColor,
-                                ),
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          }),
-                          SizedBox(width: Get.width / 4.8),
-                          InkWell(
-                            onTap: () async {
-                              ChatListModel chatHead = ChatListModel(
-                                userId: userModel.value?.id ?? "",
-                                fullName: userModel.value?.fullName ?? "",
-                                lastMessage: "",
-                                avatar: userModel.value?.avatar ?? "",
-                                unreadCount: 0,
-                                online: false,
-                              );
-                              Get.to(
-                                () => ChatScreen(chatHead: chatHead),
+                          );
+                        }
+                        if (userModel.value?.photos != null &&
+                            userModel.value!.photos!.isNotEmpty) {
+                          return PageView.builder(
+                            onPageChanged: (value) {
+                              _activeIndex.value = value;
+                            },
+                            itemCount: widget.userModel.photos?.length,
+                            itemBuilder: (context, index) {
+                              String picture =
+                                  userModel.value?.photos?[index] ?? "";
+                              return Image.network(
+                                picture,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.topCenter,
+                                height: Get.height * 0.6,
+                                width: Get.width,
                               );
                             },
-                            child: CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.white.withOpacity(0.8),
-                              child: Icon(
-                                Icons.chat,
-                                color: AppColors.primaryColor,
+                          );
+                        } else {
+                          return CachedNetworkImage(
+                            imageUrl: widget.userModel.avatar ?? "",
+                            fit: BoxFit.cover,
+                            height: Get.height * 0.6,
+                            width: Get.width,
+                            placeholder: (context, url) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          );
+                        }
+                      }),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: Get.height * 0.08,
+                        ),
+                        child: Row(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Get.back();
+                              },
+                              child: CircleAvatar(
+                                radius: 18,
+                                backgroundColor: Colors.grey.withOpacity(0.8),
+                                child: const Icon(
+                                  FontAwesomeIcons.x,
+                                  size: 15,
+                                ),
                               ),
                             ),
-                          )
-                        ],
+                            const Spacer(),
+                            Obx(
+                              () => _userController.isloading.value
+                                  ? const SizedBox.shrink()
+                                  : userModel.value?.plan != "free"
+                                      ? InkWell(
+                                          onTap: () {
+                                            Get.to(
+                                              () => CoinTransferScreen(
+                                                recipientName:
+                                                    userModel.value?.fullName ??
+                                                        "",
+                                                recipientId:
+                                                    userModel.value?.id ?? "",
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            height: 45,
+                                            width: 45,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: AppColors.primaryColor,
+                                            ),
+                                            child: const Icon(
+                                              FontAwesomeIcons.wallet,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        bottom: Get.height * 0.02,
+                        child: Container(
+                          padding: const EdgeInsets.only(right: 10),
+                          height: 50,
+                          width: Get.width,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Obx(() {
+                                if (userModel.value?.photos != null &&
+                                    userModel.value?.photos?.isNotEmpty ==
+                                        true) {
+                                  return AnimatedSmoothIndicator(
+                                    activeIndex: _activeIndex.value,
+                                    count: userModel.value?.photos?.length ?? 0,
+                                    effect: ExpandingDotsEffect(
+                                      dotWidth: 10,
+                                      dotHeight: 10,
+                                      activeDotColor: AppColors.primaryColor,
+                                    ),
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              }),
+                              SizedBox(width: Get.width / 4.8),
+                              InkWell(
+                                onTap: () async {
+                                  ChatListModel chatHead = ChatListModel(
+                                    userId: userModel.value?.id ?? "",
+                                    fullName: userModel.value?.fullName ?? "",
+                                    lastMessage: "",
+                                    avatar: userModel.value?.avatar ?? "",
+                                    unreadCount: 0,
+                                    online: false,
+                                  );
+                                  Get.to(
+                                    () => ChatScreen(chatHead: chatHead),
+                                  );
+                                },
+                                child: Motion(
+                                  shadow: null,
+                                  glare: null,
+                                  child: CircleAvatar(
+                                    radius: 30,
+                                    backgroundColor:
+                                        Colors.white.withOpacity(0.8),
+                                    child: Icon(
+                                      Icons.chat,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 25,
+                      vertical: 5,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Text(
+                      "${widget.userModel.matchPercentage}% match",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 25,
-                  vertical: 5,
                 ),
-                decoration: const BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                ),
-                child: Text(
-                  "${widget.userModel.matchPercentage}% match",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Obx(
                         () => Column(
@@ -432,114 +465,127 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                           ],
                         ),
                       ),
-                      const Spacer(),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.blueGrey.withOpacity(0.3),
-                        child: const Icon(Icons.more_vert_sharp),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "About",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Obx(
-                    () {
-                      if (userModel.value == null) {
-                        return const SizedBox.shrink();
-                      }
-                      bool shouldTruncate =
-                          userModel.value!.bio!.length > maxBioLength;
-                      String displayBio = shouldTruncate && !isExpanded.value
-                          ? "${userModel.value!.bio!.substring(0, maxBioLength)}..."
-                          : userModel.value!.bio!;
+                      const SizedBox(height: 20),
+                      const Text(
+                        "About",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Obx(
+                        () {
+                          if (userModel.value == null) {
+                            return const SizedBox.shrink();
+                          }
+                          bool shouldTruncate =
+                              userModel.value!.bio!.length > maxBioLength;
+                          String displayBio = shouldTruncate &&
+                                  !isExpanded.value
+                              ? "${userModel.value!.bio!.substring(0, maxBioLength)}..."
+                              : userModel.value!.bio!;
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            displayBio,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          if (shouldTruncate)
-                            GestureDetector(
-                              onTap: () => isExpanded.toggle(),
-                              child: Text(
-                                isExpanded.value ? "Show less" : "Show more",
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.orange,
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                displayBio,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
                                 ),
                               ),
-                            ),
-                        ],
-                      );
-                    },
+                              if (shouldTruncate)
+                                GestureDetector(
+                                  onTap: () => isExpanded.toggle(),
+                                  child: Text(
+                                    isExpanded.value
+                                        ? "Show less"
+                                        : "Show more",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Basic Information",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Obx(
+                        () => buildBasicInfoTile(
+                          leading: "Gender: ",
+                          title: userModel.value?.gender?.toUpperCase() ?? "",
+                        ),
+                      ),
+                      Obx(() {
+                        String dob = userModel.value?.dob ?? "";
+                        if (dob.isEmpty) return const SizedBox.shrink();
+                        int age = calculateAge(dob);
+                        return buildBasicInfoTile(
+                          leading: "Age: ",
+                          title: "${age.toString()} Years Old",
+                        );
+                      }),
+                      const SizedBox(height: 30),
+                      const Text(
+                        "Hobbies",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Obx(() {
+                        List? hobbies =
+                            _userController.userModel.value?.hobbies;
+                        if (hobbies == null || hobbies.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        return Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: hobbies.map((interest) {
+                            return buildInterestCards(interest: interest);
+                          }).toList(),
+                        );
+                      }),
+                      const SizedBox(height: 10),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Basic Information",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Obx(
-                    () => buildBasicInfoTile(
-                      leading: "Gender: ",
-                      title: userModel.value?.gender?.toUpperCase() ?? "",
-                    ),
-                  ),
-                  Obx(() {
-                    String dob = userModel.value?.dob ?? "";
-                    if (dob.isEmpty) return const SizedBox.shrink();
-                    int age = calculateAge(dob);
-                    return buildBasicInfoTile(
-                      leading: "Age: ",
-                      title: "${age.toString()} Years Old",
-                    );
-                  }),
-                  const SizedBox(height: 30),
-                  const Text(
-                    "Hobbies",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Obx(() {
-                    List? hobbies = _userController.userModel.value?.hobbies;
-                    if (hobbies == null || hobbies.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    return Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: hobbies.map((interest) {
-                        return buildInterestCards(interest: interest);
-                      }).toList(),
-                    );
-                  }),
-                  const SizedBox(height: 10),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Obx(() {
+            if (_userController.isloading.value) {
+              return SizedBox(
+                height: Get.height * 1,
+                width: Get.width,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              );
+            }else{
+              return const SizedBox.shrink();
+            }
+          })
+        ],
       ),
     );
   }
@@ -673,17 +719,19 @@ class HeaderHomeWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Image.asset(
-            "assets/images/ECHODATE.png",
-            width: Get.width * 0.2,
-            height: 30,
-            fit: BoxFit.fitWidth,
+          Text(
+            "ECHODATE",
+            style: GoogleFonts.acme(
+              fontSize: 20,
+              color: AppColors.primaryColor,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Row(
             children: [
               InkWell(
                 onTap: () async {
-                  Get.to(() => LiveStreamListScreen());
+                  Get.to(() => const LiveStreamListScreen());
                 },
                 child: const Icon(
                   FontAwesomeIcons.hive,
@@ -863,12 +911,35 @@ class UserPostedStoryWidget extends StatelessWidget {
 
 class SwiperActionButtonsWidget extends StatelessWidget {
   final CardSwiperController controller;
-  SwiperActionButtonsWidget({
-    super.key,
-    required this.controller,
-  });
+
+  SwiperActionButtonsWidget({super.key, required this.controller});
 
   final _userController = Get.find<UserController>();
+
+  // State variables to track animation triggers
+  final RxBool isLiking = false.obs;
+  final RxBool isDisliking = false.obs;
+  final RxBool isSuperLiking = false.obs;
+
+  void _triggerAnimation(CardSwiperDirection direction,
+      {bool isSuperLike = false}) {
+    if (direction == CardSwiperDirection.right) {
+      if (isSuperLike) {
+        isSuperLiking.value = true;
+      } else {
+        isLiking.value = true;
+      }
+    } else if (direction == CardSwiperDirection.left) {
+      isDisliking.value = true;
+    }
+
+    // Reset animation after a short delay
+    Future.delayed(const Duration(milliseconds: 300), () {
+      isLiking.value = false;
+      isDisliking.value = false;
+      isSuperLiking.value = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -880,31 +951,70 @@ class SwiperActionButtonsWidget extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  actionButton(
-                    FontAwesomeIcons.xmark,
-                    Colors.white,
-                    false,
-                    () {
-                      controller.swipe(CardSwiperDirection.left);
-                    },
+                  // DISLIKE BUTTON (❌) - Swipes Left
+                  Obx(
+                    () => AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: isDisliking.value ? 1.0 : 0.7,
+                      child: Bounce(
+                        from: isDisliking.value ? 20 : 10,
+                        child: actionButton(
+                          FontAwesomeIcons.xmark,
+                          Colors.white,
+                          false,
+                          () {
+                            _triggerAnimation(CardSwiperDirection.left);
+                            controller.swipe(CardSwiperDirection.left);
+                          },
+                        ),
+                      ),
+                    ),
                   ),
+
                   const SizedBox(width: 20),
-                  actionButton(
-                    FontAwesomeIcons.solidHeart,
-                    Colors.orange,
-                    true,
-                    () {
-                      controller.swipe(CardSwiperDirection.right);
-                    },
+
+                  // LIKE BUTTON (❤️) - Swipes Right
+                  Obx(
+                    () => AnimatedScale(
+                      scale: isLiking.value ? 1.2 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Bounce(
+                        from: isLiking.value ? 30 : 15,
+                        child: actionButton(
+                          FontAwesomeIcons.solidHeart,
+                          Colors.orange,
+                          true,
+                          () {
+                            _triggerAnimation(CardSwiperDirection.right);
+                            controller.swipe(CardSwiperDirection.right);
+                          },
+                        ),
+                      ),
+                    ),
                   ),
+
                   const SizedBox(width: 20),
-                  actionButton(
-                    Icons.star_border,
-                    Colors.white,
-                    false,
-                    () {
-                      controller.swipe(CardSwiperDirection.right);
-                    },
+
+                  // SUPER LIKE BUTTON (⭐) - Swipes Right
+                  Obx(
+                    () => AnimatedScale(
+                      scale: isSuperLiking.value ? 1.2 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Bounce(
+                        from: isSuperLiking.value ? 25 : 10,
+                        delay: const Duration(milliseconds: 400),
+                        child: actionButton(
+                          Icons.star_border,
+                          Colors.white,
+                          false,
+                          () {
+                            _triggerAnimation(CardSwiperDirection.right,
+                                isSuperLike: true);
+                            controller.swipe(CardSwiperDirection.right);
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -935,10 +1045,13 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
             }
 
             if (_userController.potentialMatchesList.isEmpty) {
-              return const Center(
-                child: Text(
-                  "No matches found",
-                  style: TextStyle(color: Colors.black),
+              return FadeIn(
+                duration: const Duration(milliseconds: 500),
+                child: const Center(
+                  child: Text(
+                    "No matches found",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               );
             }
@@ -983,15 +1096,17 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
                 }
 
                 final profile = _userController.potentialMatchesList[index];
-                return InkWell(
-                  onTap: () {
-                    Get.to(
-                      () => TinderCardDetails(
-                        userModel: profile,
-                      ),
-                    );
-                  },
-                  child: TinderCard(profile: profile),
+                return ElasticIn(
+                  child: InkWell(
+                    onTap: () {
+                      Get.to(
+                        () => TinderCardDetails(
+                          userModel: profile,
+                        ),
+                      );
+                    },
+                    child: TinderCard(profile: profile),
+                  ),
                 );
               },
             );

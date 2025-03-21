@@ -19,7 +19,7 @@ import 'package:get/get.dart';
 
 class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
-    final RxBool isOtpVerifyLoading = false.obs;
+  final RxBool isOtpVerifyLoading = false.obs;
   final AuthService _authService = AuthService();
   final _storageController = Get.find<StorageController>();
 
@@ -71,7 +71,7 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
-  
+
   Future<void> sendNumberOTP() async {
     isLoading.value = true;
     try {
@@ -347,6 +347,28 @@ class AuthController extends GetxController {
       }
       CustomSnackbar.showSuccessSnackBar("Password changed successfully.");
       Get.offAll(() => RegisterScreen());
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> verifyFace() async {
+    isLoading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      final String? token = await storageController.getToken();
+      if (token == null) return;
+
+      final response = await _authService.verifyFace(token: token);
+      if (response == null) return;
+      final data = jsonDecode(response.body);
+      if (response.statusCode != 200) {
+        debugPrint(data["message"].toString());
+        return;
+      }
+      Get.offAll(() => BottomNavigationScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {

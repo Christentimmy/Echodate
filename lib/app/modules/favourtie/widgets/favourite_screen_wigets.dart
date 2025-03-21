@@ -57,32 +57,6 @@ class LikeAndMatchCard extends StatelessWidget {
                 ),
               ),
             ),
-
-            // Align(
-            //   alignment: Alignment.topCenter,
-            //   child: Container(
-            //     padding: const EdgeInsets.symmetric(
-            //       horizontal: 5,
-            //       vertical: 5,
-            //     ),
-            //     decoration: const BoxDecoration(
-            //       color: Colors.orange,
-            //       borderRadius: BorderRadius.only(
-            //         bottomLeft: Radius.circular(10),
-            //         bottomRight: Radius.circular(10),
-            //       ),
-            //     ),
-            //     child: Text(
-            //       "80% Match",
-            //       style: TextStyle(
-            //         fontSize: 10,
-            //         color: Colors.white,
-            //         fontWeight: FontWeight.bold,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-
             Padding(
               padding: const EdgeInsets.only(
                 bottom: 12.0,
@@ -133,7 +107,7 @@ class DisplaySubCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(15),
+      borderRadius: BorderRadius.circular(13),
       child: CachedNetworkImage(
         imageUrl: matchUserModel.avatar ?? "",
         width: double.infinity,

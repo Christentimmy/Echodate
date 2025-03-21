@@ -11,6 +11,7 @@ import 'package:echodate/app/models/withdraw_model.dart';
 import 'package:echodate/app/modules/Interest/views/interested_in_screen.dart';
 import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
+import 'package:echodate/app/modules/auth/views/face_detection_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/auth/views/verification_status_screen.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
@@ -582,7 +583,7 @@ class UserController extends GetxController {
         return;
       }
       await getUserDetails();
-      Get.offAll(() => BottomNavigationScreen());
+      Get.offAll(() => const FaceDetectionScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -1031,7 +1032,10 @@ class UserController extends GetxController {
     }
   }
 
-  Future<UserModel?> getUserWithId({required String userId}) async {
+  Future<UserModel?> getUserWithId({
+    required String userId,
+  }) async {
+    isloading.value = true;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
@@ -1050,6 +1054,8 @@ class UserController extends GetxController {
       return UserModel.fromJson(decoded["data"]);
     } catch (e) {
       debugPrint(e.toString());
+    }finally{
+      isloading.value = false;
     }
     return null;
   }

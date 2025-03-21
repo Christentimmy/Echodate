@@ -11,6 +11,7 @@ import 'package:echodate/app/modules/withdraw/views/withdraw_history_screen.dart
 import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/age_calculator.dart';
+import 'package:echodate/app/widget/animations.dart';
 import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -52,8 +53,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: AnimatedListWrapper(
+              duration: const Duration(milliseconds: 150),
               children: [
                 SizedBox(height: Get.height * 0.01),
                 Center(

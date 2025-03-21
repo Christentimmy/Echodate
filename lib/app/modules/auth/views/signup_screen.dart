@@ -3,6 +3,7 @@ import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/widget/animations.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
@@ -27,7 +28,8 @@ class RegisterScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
+          child: AnimatedListWrapper(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: Get.height * 0.15),
               Image.asset(
@@ -98,17 +100,11 @@ class RegisterScreen extends StatelessWidget {
                   }
                   final userModel = UserModel(
                     email: _emailController.text,
-                    phoneNumber: "$selectedCountryCode${_phoneNUmberController.text}",
+                    phoneNumber:
+                        "$selectedCountryCode${_phoneNUmberController.text}",
                     password: _passwordController.text,
                   );
                   await _authController.signUpUSer(userModel: userModel);
-                  // Get.to(
-                  //   () => OTPVerificationScreen(
-                  //     onVerifiedCallBack: () {
-                  //       Get.to(() => CompleteProfileScreen());
-                  //     },
-                  //   ),
-                  // );
                 },
                 child: Obx(
                   () => _authController.isLoading.value
