@@ -153,12 +153,13 @@ class UserController extends GetxController {
         debugPrint(message);
         return true;
       }
-      String status = decoded["data"]["status"];
+      String status = decoded["data"]["status"] ?? "";
       bool isEmailVerified = decoded["data"]["is_email_verified"] ?? false;
+      bool isVerified = decoded["data"]["isVerified"] ?? false;
       bool isPhonNumberVerified =
           decoded["data"]["is_phone_number_verified"] ?? false;
       bool isProfileCompleted = decoded["data"]["profile_completed"] ?? false;
-      String address = decoded["data"]["location"]?["address"];
+      String address = decoded["data"]["location"]?["address"] ?? "";
       if (status == "banned" || status == "blocked") {
         CustomSnackbar.showErrorSnackBar("Your account has been banned.");
         Get.offAll(() => RegisterScreen());
@@ -168,24 +169,23 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar("Your account email is not verified.");
         Get.offAll(
           () => VerificationStatusScreen(
-            callback: () => getUserStatus(),
+            callback: () async => await getUserStatus(),
           ),
         );
-        // Get.offAll(() => OTPVerificationScreen(
-        //     email: email,
-        //     onVerifiedCallBack: () {
-        //       getUserStatus();
-        //       // Get.offAll(() => BottomNavigationScreen());
-        //     }));
+        return true;
+      }
+      if (!isVerified) {
+        CustomSnackbar.showErrorSnackBar("Your account is not verified.");
+        Get.offAll(() => const FaceDetectionScreen());
         return true;
       }
       if (!isProfileCompleted) {
         CustomSnackbar.showErrorSnackBar("Your profile is not completed.");
-        Get.offAll(() => CompleteProfileScreen(
-              nextScreen: () {
-                getUserStatus();
-              },
-            ));
+        Get.offAll(
+          () => CompleteProfileScreen(nextScreen: () async {
+            await getUserStatus();
+          }),
+        );
         return true;
       }
       final locationController = Get.find<LocationController>();
@@ -618,6 +618,7 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
+      await getUserDetails();
       CustomSnackbar.showSuccessSnackBar(decoded["message"]);
     } catch (e) {
       debugPrint(e.toString());
@@ -1054,7 +1055,7 @@ class UserController extends GetxController {
       return UserModel.fromJson(decoded["data"]);
     } catch (e) {
       debugPrint(e.toString());
-    }finally{
+    } finally {
       isloading.value = false;
     }
     return null;

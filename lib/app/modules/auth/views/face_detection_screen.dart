@@ -44,34 +44,46 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.inactive) {
       _stopCamera();
-    } else if (state == AppLifecycleState.resumed) {
+    } else if (state == AppLifecycleState.resumed && !_isCameraInitialized) {
       _initializeCamera();
     }
   }
 
   void _setupStreams() {
     _faceDetectionService.directionStream.listen((direction) {
-      setState(() {
-        _currentDirection = direction;
-      });
+      if (mounted) {
+        setState(() {
+          _currentDirection = direction;
+        });
+      }
     });
 
     _faceDetectionService.verificationStream.listen((status) {
-      setState(() {
-        _verificationStatus = status;
-      });
+      if (mounted) {
+        setState(() {
+          _verificationStatus = status;
+        });
+      }
     });
 
     _faceDetectionService.progressStream.listen((progress) {
-      setState(() {
-        _progress = progress;
-      });
+      if (mounted) {
+        setState(() {
+          _progress = progress;
+        });
+      }
     });
   }
 
   Future<void> _initializeCamera() async {
     try {
       _cameras = await availableCameras();
+      if (_cameras.isEmpty) {
+        // Handle case where no cameras are available
+        print("No cameras available");
+        return;
+      }
+      
       // Use front camera for face verification
       final frontCamera = _cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front,
@@ -92,9 +104,11 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
         _faceDetectionService.processImage(image, frontCamera);
       });
 
-      setState(() {
-        _isCameraInitialized = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isCameraInitialized = true;
+        });
+      }
     } catch (e) {
       print("Error initializing camera: $e");
     }
@@ -102,13 +116,17 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
 
   void _stopCamera() {
     if (_cameraController != null) {
-      _cameraController!.stopImageStream();
+      if (_cameraController!.value.isStreamingImages) {
+        _cameraController!.stopImageStream();
+      }
       _cameraController!.dispose();
       _cameraController = null;
     }
-    setState(() {
-      _isCameraInitialized = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isCameraInitialized = false;
+      });
+    }
   }
 
   void _startVerification() {
@@ -203,7 +221,13 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
   }
 
   Widget _buildCircularCameraView() {
-    if (!_isCameraInitialized) {
+    if (!_isCameraInitialized || _cameraController == null || !_cameraController!.value.isInitialized) {
+      return _buildLoadingCircle();
+    }
+
+    // Additional null check for preview size
+    final previewSize = _cameraController!.value.previewSize;
+    if (previewSize == null) {
       return _buildLoadingCircle();
     }
 
@@ -226,8 +250,8 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
             child: FittedBox(
               fit: BoxFit.cover, // Ensures proper fitting
               child: SizedBox(
-                width: _cameraController!.value.previewSize!.height,
-                height: _cameraController!.value.previewSize!.width,
+                width: previewSize.height,
+                height: previewSize.width,
                 child: Transform.scale(
                   scaleX: -1,
                   child: CameraPreview(_cameraController!),

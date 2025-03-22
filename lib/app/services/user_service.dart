@@ -412,7 +412,7 @@ class UserService {
         body['maxAge'] = int.parse(maxAge);
       }
       if (interestedIn != null && interestedIn.isNotEmpty) {
-        body['interestedIn'] = interestedIn;
+        body['interested_in'] = interestedIn.toLowerCase();
       }
       if (distance != null && distance.isNotEmpty) {
         body['distance'] = int.parse(distance);

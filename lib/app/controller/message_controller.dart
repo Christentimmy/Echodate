@@ -82,7 +82,6 @@ class MessageController extends GetxController {
     } finally {
       isloading.value = false;
     }
-    return null;
   }
 
   Future<void> getChatList() async {
@@ -155,4 +154,12 @@ class MessageController extends GetxController {
     }
     return;
   }
+
+  clearChatHistory() {
+    isChattedListFetched.value = false;
+    activeFriends.clear();
+    allChattedUserList.clear();
+    chatHistoryAndLiveMessage.refresh();
+  }
 }
+

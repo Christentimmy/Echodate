@@ -248,326 +248,353 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
     return Scaffold(
       body: Stack(
         children: [
-          SingleChildScrollView(
-            child: AnimatedListWrapper(
-              children: [
-                SizedBox(
-                  height: Get.height * 0.6,
-                  width: Get.width,
-                  child: Stack(
-                    children: [
-                      Obx(() {
-                        if (_userController.isloading.value) {
-                          return SizedBox(
-                            height: Get.height * 0.6,
-                            width: Get.width,
-                            child: const Center(
-                              child: Loader(),
-                            ),
-                          );
-                        }
-                        if (userModel.value?.photos != null &&
-                            userModel.value!.photos!.isNotEmpty) {
-                          return PageView.builder(
-                            onPageChanged: (value) {
-                              _activeIndex.value = value;
-                            },
-                            itemCount: widget.userModel.photos?.length,
-                            itemBuilder: (context, index) {
-                              String picture =
-                                  userModel.value?.photos?[index] ?? "";
-                              return Image.network(
-                                picture,
-                                fit: BoxFit.cover,
-                                alignment: Alignment.topCenter,
+          Obx(
+            () => Opacity(
+              opacity: _userController.isloading.value ? 0.4 : 1,
+              child: SingleChildScrollView(
+                child: AnimatedListWrapper(
+                  children: [
+                    SizedBox(
+                      height: Get.height * 0.6,
+                      width: Get.width,
+                      child: Stack(
+                        children: [
+                          Obx(() {
+                            if (_userController.isloading.value) {
+                              return SizedBox(
                                 height: Get.height * 0.6,
                                 width: Get.width,
-                              );
-                            },
-                          );
-                        } else {
-                          return CachedNetworkImage(
-                            imageUrl: widget.userModel.avatar ?? "",
-                            fit: BoxFit.cover,
-                            height: Get.height * 0.6,
-                            width: Get.width,
-                            placeholder: (context, url) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                          );
-                        }
-                      }),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: Get.height * 0.08,
-                        ),
-                        child: Row(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Get.back();
-                              },
-                              child: CircleAvatar(
-                                radius: 18,
-                                backgroundColor: Colors.grey.withOpacity(0.8),
-                                child: const Icon(
-                                  FontAwesomeIcons.x,
-                                  size: 15,
+                                child: const Center(
+                                  child: Loader(),
                                 ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Obx(
-                              () => _userController.isloading.value
-                                  ? const SizedBox.shrink()
-                                  : userModel.value?.plan != "free"
-                                      ? InkWell(
-                                          onTap: () {
-                                            Get.to(
-                                              () => CoinTransferScreen(
-                                                recipientName:
-                                                    userModel.value?.fullName ??
-                                                        "",
-                                                recipientId:
-                                                    userModel.value?.id ?? "",
-                                              ),
-                                            );
-                                          },
-                                          child: Container(
-                                            height: 45,
-                                            width: 45,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              color: AppColors.primaryColor,
-                                            ),
-                                            child: const Icon(
-                                              FontAwesomeIcons.wallet,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        bottom: Get.height * 0.02,
-                        child: Container(
-                          padding: const EdgeInsets.only(right: 10),
-                          height: 50,
-                          width: Get.width,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Obx(() {
-                                if (userModel.value?.photos != null &&
-                                    userModel.value?.photos?.isNotEmpty ==
-                                        true) {
-                                  return AnimatedSmoothIndicator(
-                                    activeIndex: _activeIndex.value,
-                                    count: userModel.value?.photos?.length ?? 0,
-                                    effect: ExpandingDotsEffect(
-                                      dotWidth: 10,
-                                      dotHeight: 10,
-                                      activeDotColor: AppColors.primaryColor,
-                                    ),
-                                  );
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              }),
-                              SizedBox(width: Get.width / 4.8),
-                              InkWell(
-                                onTap: () async {
-                                  ChatListModel chatHead = ChatListModel(
-                                    userId: userModel.value?.id ?? "",
-                                    fullName: userModel.value?.fullName ?? "",
-                                    lastMessage: "",
-                                    avatar: userModel.value?.avatar ?? "",
-                                    unreadCount: 0,
-                                    online: false,
-                                  );
-                                  Get.to(
-                                    () => ChatScreen(chatHead: chatHead),
+                              );
+                            }
+                            if (userModel.value?.photos != null &&
+                                userModel.value!.photos!.isNotEmpty) {
+                              return PageView.builder(
+                                onPageChanged: (value) {
+                                  _activeIndex.value = value;
+                                },
+                                itemCount: widget.userModel.photos?.length,
+                                itemBuilder: (context, index) {
+                                  String picture =
+                                      userModel.value?.photos?[index] ?? "";
+                                  return Image.network(
+                                    picture,
+                                    fit: BoxFit.cover,
+                                    alignment: Alignment.topCenter,
+                                    height: Get.height * 0.6,
+                                    width: Get.width,
                                   );
                                 },
-                                child: Motion(
-                                  shadow: null,
-                                  glare: null,
+                              );
+                            } else {
+                              return CachedNetworkImage(
+                                imageUrl: widget.userModel.avatar ?? "",
+                                fit: BoxFit.cover,
+                                height: Get.height * 0.6,
+                                width: Get.width,
+                                placeholder: (context, url) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                },
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
+                              );
+                            }
+                          }),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: Get.height * 0.08,
+                            ),
+                            child: Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    Get.back();
+                                  },
                                   child: CircleAvatar(
-                                    radius: 30,
+                                    radius: 18,
                                     backgroundColor:
-                                        Colors.white.withOpacity(0.8),
-                                    child: Icon(
-                                      Icons.chat,
-                                      color: AppColors.primaryColor,
+                                        Colors.grey.withOpacity(0.8),
+                                    child: const Icon(
+                                      FontAwesomeIcons.x,
+                                      size: 15,
                                     ),
                                   ),
                                 ),
-                              )
-                            ],
+                                const Spacer(),
+                                Obx(
+                                  () => _userController.isloading.value
+                                      ? const SizedBox.shrink()
+                                      : userModel.value?.plan != "free"
+                                          ? InkWell(
+                                              onTap: () {
+                                                Get.to(
+                                                  () => CoinTransferScreen(
+                                                    recipientName: userModel
+                                                            .value?.fullName ??
+                                                        "",
+                                                    recipientId:
+                                                        userModel.value?.id ??
+                                                            "",
+                                                  ),
+                                                );
+                                              },
+                                              child: Container(
+                                                height: 45,
+                                                width: 45,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  color: AppColors.primaryColor,
+                                                ),
+                                                child: const Icon(
+                                                  FontAwesomeIcons.wallet,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            )
+                                          : const SizedBox.shrink(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            bottom: Get.height * 0.02,
+                            child: Container(
+                              padding: const EdgeInsets.only(right: 10),
+                              height: 50,
+                              width: Get.width,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Obx(() {
+                                    if (userModel.value?.photos != null &&
+                                        userModel.value?.photos?.isNotEmpty ==
+                                            true) {
+                                      return AnimatedSmoothIndicator(
+                                        activeIndex: _activeIndex.value,
+                                        count:
+                                            userModel.value?.photos?.length ??
+                                                0,
+                                        effect: ExpandingDotsEffect(
+                                          dotWidth: 10,
+                                          dotHeight: 10,
+                                          activeDotColor:
+                                              AppColors.primaryColor,
+                                        ),
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  }),
+                                  SizedBox(width: Get.width / 4.8),
+                                  InkWell(
+                                    onTap: () async {
+                                      ChatListModel chatHead = ChatListModel(
+                                        userId: userModel.value?.id ?? "",
+                                        fullName:
+                                            userModel.value?.fullName ?? "",
+                                        lastMessage: "",
+                                        avatar: userModel.value?.avatar ?? "",
+                                        unreadCount: 0,
+                                        online: false,
+                                      );
+                                      Get.to(
+                                        () => ChatScreen(chatHead: chatHead),
+                                      );
+                                    },
+                                    child: Motion(
+                                      shadow: null,
+                                      glare: null,
+                                      child: CircleAvatar(
+                                        radius: 30,
+                                        backgroundColor:
+                                            Colors.white.withOpacity(0.8),
+                                        child: Icon(
+                                          Icons.chat,
+                                          color: AppColors.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 25,
+                          vertical: 5,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: Text(
+                          "${widget.userModel.matchPercentage}% match",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 25,
-                      vertical: 5,
                     ),
-                    decoration: const BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                    ),
-                    child: Text(
-                      "${widget.userModel.matchPercentage}% match",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Obx(
-                        () => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "${widget.userModel.fullName} (${calculateAge(userModel.value?.dob ?? "").toString()})",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(widget.userModel.location?.address ?? ""),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        "About",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Obx(
-                        () {
-                          if (userModel.value == null) {
-                            return const SizedBox.shrink();
-                          }
-                          bool shouldTruncate =
-                              userModel.value!.bio!.length > maxBioLength;
-                          String displayBio = shouldTruncate &&
-                                  !isExpanded.value
-                              ? "${userModel.value!.bio!.substring(0, maxBioLength)}..."
-                              : userModel.value!.bio!;
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                displayBio,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              if (shouldTruncate)
-                                GestureDetector(
-                                  onTap: () => isExpanded.toggle(),
-                                  child: Text(
-                                    isExpanded.value
-                                        ? "Show less"
-                                        : "Show more",
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.orange,
-                                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Obx(
+                            () => Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${widget.userModel.fullName} (${calculateAge(userModel.value?.dob ?? "").toString()})",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                            ],
-                          );
-                        },
+                                Text(widget.userModel.location?.address ?? ""),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            "About",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Obx(
+                            () {
+                              if (userModel.value == null) {
+                                return const SizedBox.shrink();
+                              }
+                              bool shouldTruncate =
+                                  userModel.value!.bio!.length > maxBioLength;
+                              String displayBio = shouldTruncate &&
+                                      !isExpanded.value
+                                  ? "${userModel.value!.bio!.substring(0, maxBioLength)}..."
+                                  : userModel.value!.bio!;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    displayBio,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  if (shouldTruncate)
+                                    GestureDetector(
+                                      onTap: () => isExpanded.toggle(),
+                                      child: Text(
+                                        isExpanded.value
+                                            ? "Show less"
+                                            : "Show more",
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            "Basic Information",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Obx(
+                            () => buildBasicInfoTile(
+                              leading: "Gender: ",
+                              title:
+                                  userModel.value?.gender?.toUpperCase() ?? "",
+                            ),
+                          ),
+                          Obx(() {
+                            String dob = userModel.value?.dob ?? "";
+                            if (dob.isEmpty) return const SizedBox.shrink();
+                            int age = calculateAge(dob);
+                            return buildBasicInfoTile(
+                              leading: "Age: ",
+                              title: "${age.toString()} Years Old",
+                            );
+                          }),
+                          const SizedBox(height: 30),
+                          const Text(
+                            "Hobbies",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black,
+                            ),
+                          ),
+                          Obx(() {
+                            List? hobbies =
+                                _userController.userModel.value?.hobbies;
+                            if (hobbies == null || hobbies.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            return Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: hobbies.map((interest) {
+                                return buildInterestCards(interest: interest);
+                              }).toList(),
+                            );
+                          }),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.flag, color: Colors.white),
+                              label: const Text("Report"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                textStyle: const TextStyle(fontSize: 18),
+                              ),
+                              onPressed: () => _showReportBottomSheet(context),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        "Basic Information",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Obx(
-                        () => buildBasicInfoTile(
-                          leading: "Gender: ",
-                          title: userModel.value?.gender?.toUpperCase() ?? "",
-                        ),
-                      ),
-                      Obx(() {
-                        String dob = userModel.value?.dob ?? "";
-                        if (dob.isEmpty) return const SizedBox.shrink();
-                        int age = calculateAge(dob);
-                        return buildBasicInfoTile(
-                          leading: "Age: ",
-                          title: "${age.toString()} Years Old",
-                        );
-                      }),
-                      const SizedBox(height: 30),
-                      const Text(
-                        "Hobbies",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Obx(() {
-                        List? hobbies =
-                            _userController.userModel.value?.hobbies;
-                        if (hobbies == null || hobbies.isEmpty) {
-                          return const SizedBox.shrink();
-                        }
-                        return Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: hobbies.map((interest) {
-                            return buildInterestCards(interest: interest);
-                          }).toList(),
-                        );
-                      }),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           Obx(() {
@@ -581,12 +608,24 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                   ),
                 ),
               );
-            }else{
+            } else {
               return const SizedBox.shrink();
             }
           })
         ],
       ),
+    );
+  }
+
+  void _showReportBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return ReportBottomSheet();
+      },
     );
   }
 }
@@ -1114,6 +1153,78 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
           SwiperActionButtonsWidget(controller: _cardSwipeController),
         ],
       ),
+    );
+  }
+}
+
+class ReportBottomSheet extends StatefulWidget {
+  @override
+  _ReportBottomSheetState createState() => _ReportBottomSheetState();
+}
+
+class _ReportBottomSheetState extends State<ReportBottomSheet> {
+  bool _isLoading = false;
+
+  final List<String> _reportReasons = [
+    "No reason",
+    "I'm not interested in this person",
+    "Profile is fake, spam, or scammer",
+    "Inappropriate content",
+    "Underage or minor",
+    "Off-Hinge behavior",
+    "Someone is in danger"
+  ];
+
+  void _reportUser(String reason) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Simulate a network request delay
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    // Close the bottom sheet after reporting
+    Navigator.pop(context);
+
+    // Show confirmation message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Report submitted: $reason"),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: _isLoading
+          ? const Center(child: CircularProgressIndicator()) // Show loading
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _reportReasons
+                  .map((reason) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[200],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
+                          onPressed: () => _reportUser(reason),
+                          child: Text(reason),
+                        ),
+                      ))
+                  .toList(),
+            ),
     );
   }
 }

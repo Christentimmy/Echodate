@@ -162,8 +162,9 @@ class SocketController extends GetxController {
     });
 
     socket?.on("error", (data) {
-      CustomSnackbar.showErrorSnackBar(data);
-      if (data.contains("limit")) {
+      String error = data["message"] ?? "";
+      CustomSnackbar.showErrorSnackBar(error);
+      if (error.contains("limit")) {
         Get.to(() => const SubscriptionScreen());
       }
     });

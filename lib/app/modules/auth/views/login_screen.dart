@@ -1,4 +1,5 @@
 import 'package:echodate/app/controller/auth_controller.dart';
+import 'package:echodate/app/modules/auth/views/reset_password_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
@@ -61,7 +62,9 @@ class LoginScreen extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.to(() => const ResetPasswordScreen());
+                  },
                   child: Text(
                     "Forgot password?",
                     style: TextStyle(

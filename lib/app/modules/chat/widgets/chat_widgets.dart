@@ -1,21 +1,21 @@
-import 'dart:typed_data';
+import 'dart:io';
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/views/view_medial_full_screen.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:video_compress/video_compress.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
+import 'package:http/http.dart' as http;
 
 class SenderCard extends StatefulWidget {
   final MessageModel messageModel;
 
-  const SenderCard({
-    super.key,
-    required this.messageModel,
-  });
+  const SenderCard({super.key, required this.messageModel});
 
   @override
   State<SenderCard> createState() => _SenderCardState();
@@ -23,27 +23,22 @@ class SenderCard extends StatefulWidget {
 
 class _SenderCardState extends State<SenderCard> {
   VideoPlayerController? _videoController;
-  Rxn<Uint8List> uint8list = Rxn<Uint8List>();
+  PlayerController? _audioController;
+  bool isPlaying = false;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.messageModel.messageType == 'video' &&
-          widget.messageModel.status != 'sending' &&
-          widget.messageModel.mediaUrl != null) {
-        _initializeVideoController();
-      }
-      if (widget.messageModel.messageType == 'video' &&
-          widget.messageModel.status == 'sending' &&
-          widget.messageModel.tempFile != null) {
-        uint8list.value = await VideoCompress.getByteThumbnail(
-          widget.messageModel.tempFile?.path ?? "",
-          quality: 50,
-          position: -1,
-        );
-      }
-    });
+    if (widget.messageModel.messageType == 'video' &&
+        widget.messageModel.mediaUrl != null) {
+      _initializeVideoController();
+    } else if (widget.messageModel.messageType == 'audio' &&
+        widget.messageModel.mediaUrl != null) {
+      _initializeAudioController();
+    } else {
+      print('Invalid message type or media URL');
+    }
   }
 
   void _initializeVideoController() {
@@ -56,6 +51,43 @@ class _SenderCardState extends State<SenderCard> {
       }).catchError((error) {
         print("Video initialization error: $error");
       });
+  }
+
+  Future<String> _downloadAudio(String url) async {
+    final response = await http.get(Uri.parse(url));
+    Directory tempDir = await getTemporaryDirectory();
+    String savePath = '${tempDir.path}/audiofile.mp3';
+    File saveFile = File(savePath);
+    await saveFile.writeAsBytes(response.bodyBytes);
+    return savePath;
+  }
+
+  void _initializeAudioController() async {
+    setState(() => isLoading = true);
+    try {
+      String localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
+
+      _audioController = PlayerController();
+      await _audioController!.preparePlayer(
+        path: localPath,
+        shouldExtractWaveform: true,
+        noOfSamples: 100, // Reduced from 44100 for better performance
+      );
+
+      _audioController!.onPlayerStateChanged.listen((state) {
+        if (state == PlayerState.stopped) {
+          setState(() {
+            isPlaying = false; // Reset the play button after audio finishes
+          });
+        } else {
+          setState(() => isPlaying = state == PlayerState.playing);
+        }
+      });
+    } catch (e) {
+      print("Audio initialization error: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   @override
@@ -74,6 +106,7 @@ class _SenderCardState extends State<SenderCard> {
   @override
   void dispose() {
     _videoController?.dispose();
+    _audioController?.dispose();
     super.dispose();
   }
 
@@ -94,12 +127,11 @@ class _SenderCardState extends State<SenderCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Handle different message types and states
             if (widget.messageModel.messageType == "image" ||
                 widget.messageModel.messageType == "video")
               _buildMediaContent(),
-
-            // Text message content
+            if (widget.messageModel.messageType == "audio")
+              _buildAudioContent(),
             if (widget.messageModel.message?.isNotEmpty == true)
               Text(
                 widget.messageModel.message ?? "",
@@ -109,122 +141,134 @@ class _SenderCardState extends State<SenderCard> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
             const SizedBox(height: 3),
-
-            // Message timestamp or sending status
-            widget.messageModel.status == 'sending'
-                ? const Text(
-                    "Sending...",
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.white70,
-                    ),
-                  )
-                : Text(
-                    widget.messageModel.createdAt != null
-                        ? DateFormat("hh:mm a")
-                            .format(widget.messageModel.createdAt!)
-                        : "",
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.white70,
-                    ),
-                  ),
+            Text(
+              widget.messageModel.createdAt != null
+                  ? DateFormat("hh:mm a").format(widget.messageModel.createdAt!)
+                  : "",
+              style: const TextStyle(fontSize: 10, color: Colors.white70),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMediaContent() {
-    // If message is in sending state with a temporary file
-    if (widget.messageModel.status == 'sending' &&
-        widget.messageModel.tempFile != null) {
-      return Stack(
-        alignment: Alignment.center,
+  Widget _buildAudioContent() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Show the temporary file
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+          // Play/Pause button with loading state
+          InkWell(
+            onTap: _audioController == null || isLoading
+                ? null
+                : () async {
+                    setState(() => isLoading = true);
+                    try {
+                      if (isPlaying) {
+                        await _audioController?.pausePlayer();
+                      } else {
+                        await _audioController?.startPlayer();
+                      }
+                    } finally {
+                      setState(() => isLoading = false);
+                    }
+                  },
             child: SizedBox(
-              width: Get.width * 0.558,
-              height: Get.height * 0.32,
-              child: widget.messageModel.messageType == "video"
-                  ? Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Obx(() {
-                          if (uint8list.value == null) {
-                            return const SizedBox.shrink();
-                          } else {
-                            return Image.memory(
-                              uint8list.value!,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            );
-                          }
-                        }),
-                        Icon(
-                          Icons.play_circle_fill,
-                          size: 40,
-                          color: Colors.white.withOpacity(0.8),
-                        ),
-                      ],
+              width: 30,
+              height: 30,
+              child: isLoading
+                  ? const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
                     )
-                  : Image.file(
-                      widget.messageModel.tempFile!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
+                  : Icon(
+                      isPlaying
+                          ? Icons.pause_circle_filled
+                          : Icons.play_circle_fill,
+                      color: Colors.white,
+                      size: 30,
                     ),
             ),
           ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _audioController == null
+                ? const SizedBox(
+                    height: 40,
+                    width: 100,
+                    child: Center(child: Loader()),
+                  )
+                : AudioFileWaveforms(
+                    playerController: _audioController!,
+                    size: Size(Get.width * 0.4, 40),
+                    playerWaveStyle: const PlayerWaveStyle(
+                      fixedWaveColor: Colors.white54,
+                      liveWaveColor: Colors.white,
+                      spacing: 6,
+                      waveThickness: 2,
+                    ),
+                    enableSeekGesture: true,
+                    continuousWaveform: true,
+                    waveformType: WaveformType.long,
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
 
-          // Show loading overlay
-          Container(
-            width: Get.width * 0.558,
-            height: Get.height * 0.32,
-            color: Colors.black.withOpacity(0.3),
-            child: const Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 3,
-              ),
+  Widget _buildMediaContent() {
+    if (widget.messageModel.status == "sending" &&
+        widget.messageModel.messageType == "image") {
+      return Stack(
+        alignment: Alignment.center,
+        children: [
+          Opacity(
+            opacity: 0.4,
+            child: Image.file(
+              widget.messageModel.tempFile!,
+              width: Get.width * 0.558,
+              height: Get.height * 0.32,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const Center(
+            child: SizedBox(
+              width: 100,
+              child: Loader(),
             ),
           ),
         ],
       );
     }
-
-    // For image message
-    else if (widget.messageModel.messageType == "image" &&
-        widget.messageModel.mediaUrl?.isNotEmpty == true) {
+    if (widget.messageModel.messageType == "image") {
       return InkWell(
         onTap: () {
-          Get.to(() => ViewMedialFullScreen(
-                message: widget.messageModel,
-              ));
+          Get.to(
+            () => ViewMedialFullScreen(message: widget.messageModel),
+          );
         },
         child: CachedNetworkImage(
           imageUrl: widget.messageModel.mediaUrl ?? "",
           width: Get.width * 0.558,
           height: Get.height * 0.32,
           fit: BoxFit.cover,
-          placeholder: (context, url) {
-            return ShimmerEffect(
-              child: SizedBox(
-                width: Get.width * 0.558,
-                height: Get.height * 0.32,
-              ),
-            );
-          },
+          placeholder: (context, url) => ShimmerEffect(
+            child: SizedBox(
+              width: Get.width * 0.558,
+              height: Get.height * 0.32,
+            ),
+          ),
         ),
       );
-    }
-
-    // For video message
-    else if (widget.messageModel.messageType == "video") {
+    } else if (widget.messageModel.messageType == "video") {
       return _videoController != null && _videoController!.value.isInitialized
           ? InkWell(
               onTap: () {
@@ -249,12 +293,9 @@ class _SenderCardState extends State<SenderCard> {
               ),
             )
           : const Center(
-              child: CircularProgressIndicator(
-                color: Colors.orange,
-              ),
+              child: CircularProgressIndicator(color: Colors.orange),
             );
     }
-
     return const SizedBox.shrink();
   }
 }
@@ -273,16 +314,57 @@ class ReceiverCard extends StatefulWidget {
 
 class _ReceiverCardState extends State<ReceiverCard> {
   VideoPlayerController? _videoController;
+  PlayerController? _audioController;
+  bool isPlaying = false;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.messageModel.messageType == 'video' &&
-          widget.messageModel.mediaUrl != null) {
-        _initializeVideoController();
-      }
-    });
+    if (widget.messageModel.messageType == 'audio' &&
+        widget.messageModel.mediaUrl != null) {
+      _initializeAudioController();
+    } else if (widget.messageModel.messageType == 'video' &&
+        widget.messageModel.mediaUrl != null) {
+      _initializeVideoController();
+    }
+  }
+
+  Future<String> _downloadAudio(String url) async {
+    final response = await http.get(Uri.parse(url));
+    Directory tempDir = await getTemporaryDirectory();
+    String savePath = '${tempDir.path}/audiofile.mp3';
+    File saveFile = File(savePath);
+    await saveFile.writeAsBytes(response.bodyBytes);
+    return savePath;
+  }
+
+  void _initializeAudioController() async {
+    setState(() => isLoading = true);
+    try {
+      String localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
+
+      _audioController = PlayerController();
+      await _audioController!.preparePlayer(
+        path: localPath,
+        shouldExtractWaveform: true,
+        noOfSamples: 100, // Reduced from 44100 for better performance
+      );
+
+      _audioController!.onPlayerStateChanged.listen((state) {
+        if (state == PlayerState.stopped) {
+          setState(() {
+            isPlaying = false; // Reset the play button after audio finishes
+          });
+        } else {
+          setState(() => isPlaying = state == PlayerState.playing);
+        }
+      });
+    } catch (e) {
+      print("Audio initialization error: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   void _initializeVideoController() {
@@ -298,17 +380,8 @@ class _ReceiverCardState extends State<ReceiverCard> {
   }
 
   @override
-  void didUpdateWidget(ReceiverCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.messageModel.mediaUrl != widget.messageModel.mediaUrl &&
-        widget.messageModel.messageType == 'video' &&
-        widget.messageModel.mediaUrl != null) {
-      _initializeVideoController();
-    }
-  }
-
-  @override
   void dispose() {
+    _audioController?.dispose();
     _videoController?.dispose();
     super.dispose();
   }
@@ -320,9 +393,7 @@ class _ReceiverCardState extends State<ReceiverCard> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5),
         padding: const EdgeInsets.all(10),
-        constraints: BoxConstraints(
-          maxWidth: Get.width * 0.6,
-        ),
+        constraints: BoxConstraints(maxWidth: Get.width * 0.6),
         decoration: BoxDecoration(
           color: Colors.grey.shade300,
           borderRadius: BorderRadius.circular(10),
@@ -331,6 +402,8 @@ class _ReceiverCardState extends State<ReceiverCard> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             // Build media content based on message type
+            if (widget.messageModel.messageType == "audio")
+              _buildAudioContent(),
             if (widget.messageModel.messageType == "image" ||
                 widget.messageModel.messageType == "video")
               _buildMediaContent(),
@@ -345,7 +418,6 @@ class _ReceiverCardState extends State<ReceiverCard> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
             const SizedBox(height: 3),
 
             // Timestamp
@@ -353,10 +425,7 @@ class _ReceiverCardState extends State<ReceiverCard> {
               widget.messageModel.createdAt != null
                   ? DateFormat("hh:mm a").format(widget.messageModel.createdAt!)
                   : "",
-              style: const TextStyle(
-                fontSize: 10,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
           ],
         ),
@@ -364,8 +433,77 @@ class _ReceiverCardState extends State<ReceiverCard> {
     );
   }
 
+  Widget _buildAudioContent() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Play/Pause button with loading state
+          InkWell(
+            onTap: _audioController == null || isLoading
+                ? null
+                : () async {
+                    setState(() => isLoading = true);
+                    try {
+                      if (isPlaying) {
+                        await _audioController?.pausePlayer();
+                      } else {
+                        await _audioController?.startPlayer();
+                      }
+                    } finally {
+                      setState(() => isLoading = false);
+                    }
+                  },
+            child: SizedBox(
+              width: 30,
+              height: 30,
+              child: isLoading
+                  ? const CircularProgressIndicator(
+                      color: Colors.black54,
+                      strokeWidth: 2,
+                    )
+                  : Icon(
+                      isPlaying
+                          ? Icons.pause_circle_filled
+                          : Icons.play_circle_fill,
+                      color: Colors.black54,
+                      size: 30,
+                    ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _audioController == null
+                ? const SizedBox(
+                    height: 40,
+                    width: 100,
+                    child: Center(child: Loader()),
+                  )
+                : AudioFileWaveforms(
+                    playerController: _audioController!,
+                    size: Size(Get.width * 0.4, 40),
+                    playerWaveStyle: const PlayerWaveStyle(
+                      fixedWaveColor: Colors.black38,
+                      liveWaveColor: Colors.black87,
+                      spacing: 6,
+                      waveThickness: 2,
+                    ),
+                    enableSeekGesture: true,
+                    continuousWaveform: true,
+                    waveformType: WaveformType.long,
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMediaContent() {
-    // For image message
     if (widget.messageModel.messageType == "image" &&
         widget.messageModel.mediaUrl?.isNotEmpty == true) {
       return InkWell(
@@ -391,8 +529,7 @@ class _ReceiverCardState extends State<ReceiverCard> {
       );
     }
 
-    // For video message
-    else if (widget.messageModel.messageType == "video") {
+    if (widget.messageModel.messageType == "video") {
       return _videoController != null && _videoController!.value.isInitialized
           ? InkWell(
               onTap: () {
@@ -405,7 +542,14 @@ class _ReceiverCardState extends State<ReceiverCard> {
                 height: Get.height * 0.32,
                 child: FittedBox(
                   fit: BoxFit.cover,
-                  child: VideoPlayer(_videoController!),
+                  child: SizedBox(
+                    width: Get.width * 0.558,
+                    height: Get.height * 0.32,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: VideoPlayer(_videoController!),
+                    ),
+                  ),
                 ),
               ),
             )

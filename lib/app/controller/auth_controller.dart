@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:echodate/app/controller/message_controller.dart';
 import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
+import 'package:echodate/app/modules/auth/views/create_new_password.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
-import 'package:echodate/app/modules/auth/views/reset_password_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/auth/views/verification_status_screen.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
@@ -262,6 +263,8 @@ class AuthController extends GetxController {
       final userController = Get.find<UserController>();
       final storyController = Get.find<StoryController>();
       final storage = Get.find<StorageController>();
+      final messageController = Get.find<MessageController>();
+      messageController.clearChatHistory();
       await storage.deleteToken();
       userController.clearUserData();
       storyController.clearUserData();
@@ -314,11 +317,15 @@ class AuthController extends GetxController {
         return;
       }
       CustomSnackbar.showSuccessSnackBar("OTP sent to your email.");
-      Get.offAll(
+      Get.to(
         () => OTPVerificationScreen(
           email: email,
           onVerifiedCallBack: () {
-            Get.to(() => const ResetPasswordScreen());
+            Get.to(
+              () => CreateNewPasswordScreen(
+                email: email,
+              ),
+            );
           },
         ),
       );
@@ -329,7 +336,7 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> forgotPassword({
+  Future<String?> forgotPassword({
     required String email,
     required String password,
   }) async {
@@ -339,19 +346,19 @@ class AuthController extends GetxController {
         email: email,
         password: password,
       );
-      if (response == null) return;
+      if (response == null) return null;
       final data = jsonDecode(response.body);
       if (response.statusCode != 200) {
         debugPrint(data["message"].toString());
-        return;
+        return null;
       }
-      CustomSnackbar.showSuccessSnackBar("Password changed successfully.");
-      Get.offAll(() => RegisterScreen());
+      return data["message"].toString();
     } catch (e) {
       debugPrint(e.toString());
     } finally {
       isLoading.value = false;
     }
+    return null;
   }
 
   Future<void> verifyFace() async {

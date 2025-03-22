@@ -109,8 +109,8 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 visualDensity: VisualDensity.compact,
                 contentPadding: EdgeInsets.zero,
-                title: const Text("Others"),
-                value: "Others",
+                title: const Text("Both"),
+                value: "Both",
                 groupValue: interestedIn.value,
                 onChanged: (value) {
                   interestedIn.value = value as String;
@@ -126,9 +126,9 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
             ),
             Slider(
               activeColor: AppColors.primaryColor,
-              value: distance.clamp(1.0, 100.0),
+              value: distance.clamp(1.0, 1000.0),
               min: 1,
-              max: 100,
+              max: 1000,
               divisions: 99,
               onChanged: (value) {
                 setState(() {

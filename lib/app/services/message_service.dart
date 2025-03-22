@@ -30,8 +30,8 @@ class MessageService {
           .timeout(const Duration(seconds: 15));
       return response;
     } on SocketException catch (e) {
-      CustomSnackbar.showErrorSnackBar("Check internet connection, $e");
-      debugPrint("No internet connection");
+      CustomSnackbar.showErrorSnackBar("Check internet connection");
+      debugPrint("No internet connection $e");
       return null;
     } on TimeoutException {
       CustomSnackbar.showErrorSnackBar(
@@ -58,8 +58,8 @@ class MessageService {
       ).timeout(const Duration(seconds: 60));
       return response;
     } on SocketException catch (e) {
-      CustomSnackbar.showErrorSnackBar("Check internet connection, $e");
-      debugPrint("No internet connection");
+      CustomSnackbar.showErrorSnackBar("Check internet connection");
+      debugPrint("No internet connection $e");
       return null;
     } on TimeoutException {
       CustomSnackbar.showErrorSnackBar(
@@ -85,8 +85,8 @@ class MessageService {
       ).timeout(const Duration(seconds: 60));
       return response;
     } on SocketException catch (e) {
-      CustomSnackbar.showErrorSnackBar("Check internet connection, $e");
-      debugPrint("No internet connection");
+      CustomSnackbar.showErrorSnackBar("Check internet connection");
+      debugPrint("No internet connection $e");
       return null;
     } on TimeoutException {
       debugPrint("Request timeout");
@@ -96,7 +96,7 @@ class MessageService {
     }
   }
 
-  Future<String?> uploadMedia(File file) async {
+  Future<dynamic> uploadMedia(File file) async {
     final token = await Get.find<StorageController>().getToken();
     var request = http.MultipartRequest(
       "POST",
@@ -108,13 +108,23 @@ class MessageService {
       'Content-Type': 'multipart/form-data',
     });
 
+    // Determine the media type based on file extension
+    String fileExtension = file.path.split('.').last.toLowerCase();
+    MediaType mediaType;
+
+    if (fileExtension == 'mp4') {
+      mediaType = MediaType("video", "mp4");
+    } else if (['mp3', 'aac', 'wav', 'm4a', 'ogg'].contains(fileExtension)) {
+      mediaType = MediaType("audio", fileExtension);
+    } else {
+      mediaType = MediaType("image", "jpeg");
+    }
+
     request.files.add(
       await http.MultipartFile.fromPath(
         'file',
         file.path,
-        contentType: file.path.endsWith('.mp4')
-            ? MediaType("video", "mp4")
-            : MediaType("image", "jpeg"),
+        contentType: mediaType,
       ),
     );
 
@@ -123,9 +133,10 @@ class MessageService {
     if (response.statusCode == 200) {
       var responseData = await response.stream.bytesToString();
       var jsonResponse = jsonDecode(responseData);
-      return jsonResponse["mediaUrl"];
+      return jsonResponse;
     } else {
       return null; // Upload failed
     }
   }
+
 }

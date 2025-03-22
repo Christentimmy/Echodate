@@ -42,30 +42,38 @@ class _ViewMedialFullScreenState extends State<ViewMedialFullScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: widget.message.messageType == 'video'
-          ? (_videoController != null && _videoController!.value.isInitialized
-              ? AspectRatio(
-                  aspectRatio: _videoController!.value.aspectRatio,
-                  child: Center(child: VideoPlayer(_videoController!)),
-                )
-              : const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.orange,
-                  ),
-                ))
-          : CachedNetworkImage(
-              imageUrl: widget.message.mediaUrl ?? "",
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              fit: BoxFit.fitWidth,
-              placeholder: (context, url) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
-                );
-              },
-            ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          widget.message.messageType == 'video'
+              ? (_videoController != null &&
+                      _videoController!.value.isInitialized
+                  ? AspectRatio(
+                      aspectRatio: _videoController!.value.aspectRatio,
+                      child: Center(
+                        child: VideoPlayer(_videoController!),
+                      ),
+                    )
+                  : const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.orange,
+                      ),
+                    ))
+              : CachedNetworkImage(
+                  imageUrl: widget.message.mediaUrl ?? "",
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  fit: BoxFit.fitWidth,
+                  placeholder: (context, url) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    );
+                  },
+                ),
+        ],
+      ),
     );
   }
 }
