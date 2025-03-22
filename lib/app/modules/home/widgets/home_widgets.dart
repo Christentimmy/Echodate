@@ -17,6 +17,7 @@ import 'package:echodate/app/widget/animations.dart';
 import 'package:echodate/app/widget/delete_dialog.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/shimmer_effect.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -574,6 +575,10 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                             );
                           }),
                           const SizedBox(height: 20),
+                          TinderCardDetailsButton(
+                            userId: widget.userModel.id ?? "",
+                          ),
+                          const SizedBox(height: 20),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
@@ -582,7 +587,9 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 12),
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
                                 textStyle: const TextStyle(fontSize: 18),
                               ),
                               onPressed: () => _showReportBottomSheet(context),
@@ -1158,6 +1165,8 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
 }
 
 class ReportBottomSheet extends StatefulWidget {
+  const ReportBottomSheet({super.key});
+
   @override
   _ReportBottomSheetState createState() => _ReportBottomSheetState();
 }
@@ -1225,6 +1234,175 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
                       ))
                   .toList(),
             ),
+    );
+  }
+}
+
+class TinderCardDetailsButton extends StatelessWidget {
+  final String userId;
+
+  TinderCardDetailsButton({
+    super.key,
+    required this.userId,
+  });
+
+  final _userController = Get.find<UserController>();
+
+  // State variables to track animation triggers
+  final RxBool isLiking = false.obs;
+  final RxBool isDisliking = false.obs;
+  final RxBool isSuperLiking = false.obs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => _userController.potentialMatchesList.isEmpty
+          ? const SizedBox.shrink()
+          : Container(
+              width: double.infinity,
+              padding: EdgeInsets.only(bottom: Get.height * 0.02),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // DISLIKE BUTTON (X)
+                  buildAnimatedButton(
+                    icon: FontAwesomeIcons.xmark,
+                    color: Colors.red,
+                    size: 28,
+                    animationTrigger: isDisliking,
+                    onPressed: () async {
+                      isDisliking.value = true;
+                      await Future.delayed(const Duration(milliseconds: 300));
+                      isDisliking.value = false;
+                      bool isSwiped = await _userController.swipeDislike(
+                          swipedUserId: userId);
+                      if (isSwiped) {
+                        CustomSnackbar.showSuccessSnackBar(
+                          "Profile Disliked successfully",
+                        );
+                      }
+                    },
+                    rotationEffect: true,
+                  ),
+
+                  const SizedBox(width: 24),
+
+                  // SUPER LIKE BUTTON (⭐)
+                  buildAnimatedButton(
+                    icon: Icons.star,
+                    color: Colors.blue,
+                    size: 32,
+                    animationTrigger: isSuperLiking,
+                    onPressed: () async {
+                      isSuperLiking.value = true;
+                      await Future.delayed(const Duration(milliseconds: 300));
+
+                      isSuperLiking.value = false;
+                      bool isSwiped = await _userController.swipeSuperLike(
+                        swipedUserId: userId,
+                      );
+                      if (isSwiped) {
+                        CustomSnackbar.showSuccessSnackBar(
+                          "Profile Super-like successfully",
+                        );
+                      }
+                    },
+                    pulseEffect: true,
+                    glowEffect: true,
+                  ),
+
+                  const SizedBox(width: 24),
+
+                  // LIKE BUTTON (❤️)
+                  buildAnimatedButton(
+                    icon: FontAwesomeIcons.heart,
+                    color: Colors.green,
+                    size: 28,
+                    animationTrigger: isLiking,
+                    onPressed: () async {
+                      isLiking.value = true;
+                      await Future.delayed(const Duration(milliseconds: 300));
+
+                      isLiking.value = false;
+                      bool isSwiped = await _userController.swipeLike(
+                        swipedUserId: userId,
+                      );
+                      if (isSwiped) {
+                        CustomSnackbar.showSuccessSnackBar(
+                          "Profile liked successfully",
+                        );
+                      }
+                    },
+                    floatEffect: true,
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget buildAnimatedButton({
+    required IconData icon,
+    required Color color,
+    required double size,
+    required RxBool animationTrigger,
+    required VoidCallback onPressed,
+    bool rotationEffect = false,
+    bool floatEffect = false,
+    bool pulseEffect = false,
+    bool glowEffect = false,
+  }) {
+    return Obx(
+      () => GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          height: 64,
+          width: 64,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: glowEffect && animationTrigger.value
+                    ? color.withOpacity(0.5)
+                    : Colors.black12,
+                blurRadius: glowEffect && animationTrigger.value ? 15 : 5,
+                spreadRadius: glowEffect && animationTrigger.value ? 3 : 1,
+              ),
+            ],
+          ),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            transform: Matrix4.identity()
+              ..scale(
+                pulseEffect && animationTrigger.value ? 1.2 : 1.0,
+              )
+              ..translate(
+                0.0,
+                floatEffect && animationTrigger.value ? -10.0 : 0.0,
+                0.0,
+              ),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(
+                begin: 0,
+                end: rotationEffect && animationTrigger.value ? 1.0 : 0.0,
+              ),
+              duration: const Duration(milliseconds: 300),
+              builder: (context, value, child) {
+                return Transform.rotate(
+                  angle: value * 0.5 * 3.14,
+                  child: Icon(
+                    icon,
+                    color:
+                        animationTrigger.value ? color : color.withOpacity(0.7),
+                    size: animationTrigger.value ? size * 1.2 : size,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
