@@ -102,18 +102,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         );
       }
 
-      List<File> photosToUpload =
-          images.where((element) => element != null).cast<File>().toList();
-      if (photosToUpload.isNotEmpty) {
-        await _userController.uploadPhotos(
-          photos: photosToUpload,
-        );
+      for (int i = 0; i < images.length; i++) {
+        if (images[i] != null) {
+          await _userController.uploadPhotos(
+            photos: [images[i]!],
+            index: i, 
+          );
+        }
       }
     } catch (e) {
       debugPrint(e.toString());
     } finally {
       isSaving = false;
-      setState(() {}); // Refresh UI when done
+      setState(() {});
     }
   }
 

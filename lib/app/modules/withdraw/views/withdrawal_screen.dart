@@ -131,7 +131,7 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
                                   ),
                                 );
                               }
-                              num price = int.parse(coins.value) * 24;
+                              num price = int.parse(coins.value);
                               return Text(
                                 "GHS ${price.toStringAsFixed(2)}",
                                 style: const TextStyle(

@@ -250,7 +250,7 @@ class UserService {
   Future<http.StreamedResponse?> uploadPhotos({
     required List<File> photos,
     required String token,
-    int? index, // Optional index to replace a photo
+    int? index,
   }) async {
     try {
       final url = Uri.parse('$baseUrl/user/upload-photos');
@@ -258,7 +258,6 @@ class UserService {
         ..headers['Authorization'] = 'Bearer $token';
 
       if (index != null) {
-        // If index is provided, replace the photo at the given index
         request.fields['index'] = index.toString();
       }
 
@@ -321,7 +320,7 @@ class UserService {
         ..headers['Authorization'] = 'Bearer $token'
         ..files.add(
           await http.MultipartFile.fromPath(
-            'avatar', // Corrected field name from "avater"
+            'avatar', 
             imageFile.path,
           ),
         );

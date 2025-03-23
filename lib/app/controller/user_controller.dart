@@ -126,7 +126,10 @@ class UserController extends GetxController {
       }
 
       var userData = decoded["data"];
-      userModel.value = UserModel.fromJson(userData);
+      print(userData);
+      UserModel mapped = UserModel.fromJson(userData);
+      userModel.value = mapped;
+      print(userModel.value?.fullName);
       userModel.refresh();
       if (response.statusCode == 200) isUserDetailsFetched.value = true;
     } catch (e) {
@@ -394,9 +397,41 @@ class UserController extends GetxController {
     }
   }
 
+  Future<void> updateProfilePicture({
+    required File imageFile,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Authentication required");
+        return;
+      }
+
+      final response = await _userService.updateProfilePicture(
+        token: token,
+        imageFile: imageFile,
+      );
+      if (response == null) return;
+      var responseData = await response.stream.bytesToString();
+      final decoded = json.decode(responseData);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      await getUserDetails();
+      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
   Future<void> uploadPhotos({
     required List<File> photos,
-    int? index, // New optional parameter for replacing a photo
+    int? index,
   }) async {
     isloading.value = true;
     try {
@@ -410,7 +445,7 @@ class UserController extends GetxController {
       final response = await _userService.uploadPhotos(
         photos: photos,
         token: token,
-        index: index, // Pass index if replacing a photo
+        index: index,
       );
 
       if (response == null) return;
@@ -420,6 +455,7 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
+      await getUserDetails();
       CustomSnackbar.showSuccessSnackBar(decoded["message"]);
     } catch (e) {
       debugPrint(e.toString());
@@ -487,37 +523,6 @@ class UserController extends GetxController {
       Get.back();
     } catch (e) {
       debugPrint(e.toString());
-    }
-  }
-
-  Future<void> updateProfilePicture({
-    required File imageFile,
-  }) async {
-    isloading.value = true;
-    try {
-      final storageController = Get.find<StorageController>();
-      String? token = await storageController.getToken();
-      if (token == null || token.isEmpty) {
-        CustomSnackbar.showErrorSnackBar("Authentication required");
-        return;
-      }
-
-      final response = await _userService.updateProfilePicture(
-        token: token,
-        imageFile: imageFile,
-      );
-      if (response == null) return;
-      var responseData = await response.stream.bytesToString();
-      final decoded = json.decode(responseData);
-      if (response.statusCode != 200) {
-        CustomSnackbar.showErrorSnackBar(decoded["message"]);
-        return;
-      }
-      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
-    } catch (e) {
-      debugPrint(e.toString());
-    } finally {
-      isloading.value = false;
     }
   }
 

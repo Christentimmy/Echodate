@@ -160,7 +160,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (_socketController.socket != null ||
-          _socketController.socket!.connected) {
+          _socketController.socket?.connected == true) {
         _socketController.initializeSocket();
         _socketController.markMessageRead(widget.chatHead.userId ?? "");
         await _messageController.getMessageHistory(

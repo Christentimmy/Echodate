@@ -286,11 +286,8 @@ class _CoinTransferScreenState extends State<CoinTransferScreen> {
               // Send button
               ElevatedButton(
                 onPressed: _selectedAmount > 0
-                    ? () async {
-                        await _userController.sendCoins(
-                          coins: _selectedAmount.toString(),
-                          recipientUserId: widget.recipientId,
-                        );
+                    ? () {
+                        showCoinDisclaimerDialog(context);
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -300,25 +297,69 @@ class _CoinTransferScreenState extends State<CoinTransferScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Obx(
-                  () => _userController.isSendGiftLoading.value
-                      ? const CircularProgressIndicator(
-                          color: Colors.white,
-                        )
-                      : const Text(
-                          'Send Coins',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                child: const Text(
+                  'Send Coins',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void showCoinDisclaimerDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            "Important Disclaimer",
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.warning_amber_rounded, size: 50, color: Colors.orange),
+              SizedBox(height: 10),
+              Text(
+                "Sending coins does not guarantee that the receiver will like you automatically.\n\n"
+                "However, your profile will be pushed to their top likes, and they will be notified.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await _userController.sendCoins(
+                  coins: _selectedAmount.toString(),
+                  recipientUserId: widget.recipientId,
+                );
+                Navigator.pop(context);
+              },
+              child: Obx(
+                () => _userController.isSendGiftLoading.value
+                    ? const CircularProgressIndicator(
+                        color: Colors.orange,
+                      )
+                    : const Text(
+                        "Got it",
+                        style: TextStyle(color: Colors.orange),
+                      ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

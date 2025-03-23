@@ -94,7 +94,7 @@ class UserModel {
       interestedIn: json['interested_in'] as String?,
       relationshipPreference: json['relationship_preference'] as String?,
       weekendAvailability: json['weekend_availability'] as bool?,
-      echocoinsBalance: json['echocoins_balance'] as int?,
+      echocoinsBalance: (json['echocoins_balance'] as num?)?.toInt() ?? 0,
       oneSignalId: json['one_signal_id'] as String?,
       transactions: json['transactions'] ?? [],
       recipientCode: json['recipient_code'] as String?,

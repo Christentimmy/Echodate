@@ -90,8 +90,11 @@ class ProfileImage extends StatelessWidget {
             // "+" Icon for empty upload slots
             if (imageFile == null && (imageUrl == null || imageUrl!.isEmpty))
               Center(
-                child: Icon(Icons.add_a_photo,
-                    size: screenWidth * 0.07, color: Colors.white70),
+                child: Icon(
+                  Icons.add_a_photo,
+                  size: screenWidth * 0.07,
+                  color: Colors.white70,
+                ),
               ),
           ],
         ),

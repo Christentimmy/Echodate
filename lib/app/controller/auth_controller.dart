@@ -7,6 +7,7 @@ import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/auth/views/create_new_password.dart';
+import 'package:echodate/app/modules/auth/views/face_detection_screen.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/auth/views/verification_status_screen.dart';
@@ -201,6 +202,11 @@ class AuthController extends GetxController {
       if (response.statusCode == 400) {
         CustomSnackbar.showErrorSnackBar(message);
         Get.offAll(() => CompleteProfileScreen());
+        return;
+      }
+      if (response.statusCode == 407) {
+        CustomSnackbar.showErrorSnackBar(message);
+        Get.to(() => const FaceDetectionScreen());
         return;
       }
       final userController = Get.find<UserController>();
