@@ -60,12 +60,22 @@ class _ChatListScreenState extends State<ChatListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Online",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Obx(
+                  () => _messageController.activeFriends.isEmpty
+                      ? const Text(
+                          "My Matches",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : const Text(
+                          "Online",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
@@ -74,8 +84,36 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     if (_messageController.isloading.value) {
                       return const SizedBox.shrink();
                     }
-                    if (_messageController.activeFriends.isEmpty) {
+                    if (_messageController.activeFriends.isEmpty &&
+                        _messageController.allChattedUserList.isEmpty) {
                       return const SizedBox.shrink();
+                    }
+                    if (_messageController.activeFriends.isEmpty &&
+                        _messageController.allChattedUserList.isNotEmpty) {
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _messageController.allChattedUserList.length,
+                        itemBuilder: (context, index) {
+                          final activeFriend =
+                              _messageController.allChattedUserList[index];
+                          return InkWell(
+                            onTap: () {
+                              Get.to(
+                                () => ChatScreen(chatHead: activeFriend),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 5),
+                              child: CircleAvatar(
+                                radius: 30,
+                                backgroundImage: CachedNetworkImageProvider(
+                                  activeFriend.avatar ?? "",
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
                     }
                     return ListView.builder(
                       scrollDirection: Axis.horizontal,
@@ -85,8 +123,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                             _messageController.activeFriends[index];
                         return InkWell(
                           onTap: () {
-                            Get.to(
-                                () => ChatScreen(chatHead: activeFriend));
+                            Get.to(() => ChatScreen(chatHead: activeFriend));
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(right: 5),

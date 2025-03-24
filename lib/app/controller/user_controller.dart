@@ -126,10 +126,8 @@ class UserController extends GetxController {
       }
 
       var userData = decoded["data"];
-      print(userData);
       UserModel mapped = UserModel.fromJson(userData);
       userModel.value = mapped;
-      print(userModel.value?.fullName);
       userModel.refresh();
       if (response.statusCode == 200) isUserDetailsFetched.value = true;
     } catch (e) {

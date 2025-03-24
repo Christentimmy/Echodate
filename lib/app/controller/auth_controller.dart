@@ -177,7 +177,7 @@ class AuthController extends GetxController {
       String message = decoded["message"] ?? "";
       String token = decoded["token"] ?? "";
       final storageController = Get.find<StorageController>();
-
+      await storageController.storeToken(token);
       if (response.statusCode == 404) {
         CustomSnackbar.showErrorSnackBar(message);
         return;
@@ -211,7 +211,6 @@ class AuthController extends GetxController {
       }
       final userController = Get.find<UserController>();
       final storyController = Get.find<StoryController>();
-      await storageController.storeToken(token);
       await userController.getUserDetails();
       await userController.getPotentialMatches();
       await storyController.getAllStories();

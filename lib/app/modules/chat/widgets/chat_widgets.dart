@@ -36,8 +36,6 @@ class _SenderCardState extends State<SenderCard> {
     } else if (widget.messageModel.messageType == 'audio' &&
         widget.messageModel.mediaUrl != null) {
       _initializeAudioController();
-    } else {
-      print('Invalid message type or media URL');
     }
   }
 

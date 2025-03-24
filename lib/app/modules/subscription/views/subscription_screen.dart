@@ -71,40 +71,31 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       ),
                     );
                   }
-                  if (_userController.userModel.value?.plan != "free") {
-                    final subModel =
-                        subscriptionMap[_userController.userModel.value?.plan];
 
-                    return SubsCard(
-                      title: subModel?.title ?? "",
-                      price: subModel?.price.toString() ?? "",
-                      imagePath: "assets/images/couple.png",
-                      subModel: subModel ?? SubModel(),
-                      features: subModel?.features
-                              ?.map((e) => _buildFeature(e))
-                              .toList() ??
-                          [],
-                    );
-                  }
-
+                  final currentPlan = _userController.userModel.value?.plan;
+                  
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: _userController.allSubscriptionPlanList.length,
                     itemBuilder: (context, index) {
-                      final subModel =
-                          _userController.allSubscriptionPlanList[index];
+                      final subModel = _userController.allSubscriptionPlanList[index];
+                      final isCurrentPlan = currentPlan == subModel.id;
+                      
                       return InkWell(
-                        onTap: () {
-                          Get.to(
-                            () => SubPaymentScreen(subModel: subModel),
-                          );
-                        },
+                        onTap: isCurrentPlan 
+                            ? null 
+                            : () {
+                                Get.to(
+                                  () => SubPaymentScreen(subModel: subModel),
+                                );
+                              },
                         child: SubsCard(
                           title: subModel.title ?? "",
                           price: subModel.price.toString(),
                           imagePath: "assets/images/couple.png",
                           subModel: subModel,
+                          isCurrentPlan: isCurrentPlan,
                           features: subModel.features
                               ?.map((e) => _buildFeature(e))
                               .toList() ?? [],
@@ -192,6 +183,7 @@ class SubsCard extends StatelessWidget {
   final List<Widget> features;
   final String imagePath;
   final SubModel subModel;
+  final bool isCurrentPlan;
 
   const SubsCard({
     super.key,
@@ -200,6 +192,7 @@ class SubsCard extends StatelessWidget {
     required this.features,
     required this.imagePath,
     required this.subModel,
+    this.isCurrentPlan = false,
   });
 
   @override
@@ -208,6 +201,19 @@ class SubsCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: AppColors.primaryColor,
+        border: isCurrentPlan 
+            ? Border.all(color: Colors.amber, width: 3) 
+            : null,
+        boxShadow: isCurrentPlan 
+            ? [
+                BoxShadow(
+                  color: Colors.amber.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                )
+              ] 
+            : null,
       ),
       padding: const EdgeInsets.all(15),
       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -215,15 +221,38 @@ class SubsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Row(
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (isCurrentPlan) ...[
+                      const SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          "ACTIVE",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              const Spacer(),
               Text(
                 "GH₵ $price",
                 style: const TextStyle(
@@ -253,6 +282,17 @@ class SubsCard extends StatelessWidget {
               ),
             ],
           ),
+          if (isCurrentPlan)
+            const Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Text(
+                "Your current subscription plan",
+                style: TextStyle(
+                  color: Colors.amber,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
         ],
       ),
     );

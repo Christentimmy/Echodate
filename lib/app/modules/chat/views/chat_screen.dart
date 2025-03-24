@@ -147,25 +147,19 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _audioPlayerController.onCompletion.listen((_) async {
-      setState(() => _isPlaying = false);
-      if (_selectedFile.value != null &&
-          _isAudioFile(_selectedFile.value!.path)) {
-        await _audioPlayerController.stopPlayer();
-        await _audioPlayerController.preparePlayer(
-          path: _selectedFile.value!.path,
-        );
-      }
+    Future.microtask(() async {
+      await _messageController.getMessageHistory(
+        receiverUserId: widget.chatHead.userId ?? "",
+      );
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (_socketController.socket != null ||
-          _socketController.socket?.connected == true) {
+    WidgetsBinding.instance.addPostFrameCallback((e) async {
+      print(e);
+      if (_socketController.socket == null ||
+          _socketController.socket?.disconnected == true) {
         _socketController.initializeSocket();
         _socketController.markMessageRead(widget.chatHead.userId ?? "");
-        await _messageController.getMessageHistory(
-          receiverUserId: widget.chatHead.userId ?? "",
-        );
+        _scrollToBottom();
 
         _socketController.socket?.on("typing", (data) {
           if (data["senderId"] == widget.chatHead.userId) {
@@ -180,6 +174,34 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     });
+
+    _selectedFile.value = null;
+    _messageController.chatHistoryAndLiveMessage.listen((e) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
+      });
+    });
+
+    _audioPlayerController.onCompletion.listen((_) async {
+      setState(() => _isPlaying = false);
+      if (_selectedFile.value != null &&
+          _isAudioFile(_selectedFile.value!.path)) {
+        await _audioPlayerController.stopPlayer();
+        await _audioPlayerController.preparePlayer(
+          path: _selectedFile.value!.path,
+        );
+      }
+    });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   bool _isVideoFile(String path) {
@@ -292,15 +314,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 itemCount: _messageController.chatHistoryAndLiveMessage.length,
                 itemBuilder: (context, index) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (_scrollController.hasClients) {
-                      _scrollController.animateTo(
-                        _scrollController.position.maxScrollExtent,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOut,
-                      );
-                    }
-                  });
                   final message =
                       _messageController.chatHistoryAndLiveMessage[index];
                   return message.senderId == _userController.userModel.value!.id

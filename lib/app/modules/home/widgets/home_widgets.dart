@@ -430,29 +430,31 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
                         ],
                       ),
                     ),
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 25,
-                          vertical: 5,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20),
+                    widget.userModel.matchPercentage == 0
+                        ? const SizedBox.shrink()
+                        : Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 25,
+                                vertical: 5,
+                              ),
+                              decoration: const BoxDecoration(
+                                color: Colors.orange,
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                              ),
+                              child: Text(
+                                "${widget.userModel.matchPercentage}% match",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          "${widget.userModel.matchPercentage}% match",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.all(15.0),
@@ -1255,89 +1257,85 @@ class TinderCardDetailsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => _userController.potentialMatchesList.isEmpty
-          ? const SizedBox.shrink()
-          : Container(
-              width: double.infinity,
-              padding: EdgeInsets.only(bottom: Get.height * 0.02),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // DISLIKE BUTTON (X)
-                  buildAnimatedButton(
-                    icon: FontAwesomeIcons.xmark,
-                    color: Colors.red,
-                    size: 28,
-                    animationTrigger: isDisliking,
-                    onPressed: () async {
-                      isDisliking.value = true;
-                      await Future.delayed(const Duration(milliseconds: 300));
-                      isDisliking.value = false;
-                      bool isSwiped = await _userController.swipeDislike(
-                          swipedUserId: userId);
-                      if (isSwiped) {
-                        CustomSnackbar.showSuccessSnackBar(
-                          "Profile Disliked successfully",
-                        );
-                      }
-                    },
-                    rotationEffect: true,
-                  ),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(bottom: Get.height * 0.02),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          // DISLIKE BUTTON (X)
+          buildAnimatedButton(
+            icon: FontAwesomeIcons.xmark,
+            color: Colors.red,
+            size: 28,
+            animationTrigger: isDisliking,
+            onPressed: () async {
+              isDisliking.value = true;
+              await Future.delayed(const Duration(milliseconds: 300));
+              isDisliking.value = false;
+              bool isSwiped =
+                  await _userController.swipeDislike(swipedUserId: userId);
+              if (isSwiped) {
+                CustomSnackbar.showSuccessSnackBar(
+                  "Profile Disliked successfully",
+                );
+              }
+            },
+            rotationEffect: true,
+          ),
 
-                  const SizedBox(width: 24),
+          const SizedBox(width: 24),
 
-                  // SUPER LIKE BUTTON (⭐)
-                  buildAnimatedButton(
-                    icon: Icons.star,
-                    color: Colors.blue,
-                    size: 32,
-                    animationTrigger: isSuperLiking,
-                    onPressed: () async {
-                      isSuperLiking.value = true;
-                      await Future.delayed(const Duration(milliseconds: 300));
+          // SUPER LIKE BUTTON (⭐)
+          buildAnimatedButton(
+            icon: Icons.star,
+            color: Colors.blue,
+            size: 32,
+            animationTrigger: isSuperLiking,
+            onPressed: () async {
+              isSuperLiking.value = true;
+              await Future.delayed(const Duration(milliseconds: 300));
 
-                      isSuperLiking.value = false;
-                      bool isSwiped = await _userController.swipeSuperLike(
-                        swipedUserId: userId,
-                      );
-                      if (isSwiped) {
-                        CustomSnackbar.showSuccessSnackBar(
-                          "Profile Super-like successfully",
-                        );
-                      }
-                    },
-                    pulseEffect: true,
-                    glowEffect: true,
-                  ),
+              isSuperLiking.value = false;
+              bool isSwiped = await _userController.swipeSuperLike(
+                swipedUserId: userId,
+              );
+              if (isSwiped) {
+                CustomSnackbar.showSuccessSnackBar(
+                  "Profile Super-like successfully",
+                );
+              }
+            },
+            pulseEffect: true,
+            glowEffect: true,
+          ),
 
-                  const SizedBox(width: 24),
+          const SizedBox(width: 24),
 
-                  // LIKE BUTTON (❤️)
-                  buildAnimatedButton(
-                    icon: FontAwesomeIcons.heart,
-                    color: Colors.green,
-                    size: 28,
-                    animationTrigger: isLiking,
-                    onPressed: () async {
-                      isLiking.value = true;
-                      await Future.delayed(const Duration(milliseconds: 300));
+          // LIKE BUTTON (❤️)
+          buildAnimatedButton(
+            icon: FontAwesomeIcons.heart,
+            color: Colors.green,
+            size: 28,
+            animationTrigger: isLiking,
+            onPressed: () async {
+              isLiking.value = true;
+              await Future.delayed(const Duration(milliseconds: 300));
 
-                      isLiking.value = false;
-                      bool isSwiped = await _userController.swipeLike(
-                        swipedUserId: userId,
-                      );
-                      if (isSwiped) {
-                        CustomSnackbar.showSuccessSnackBar(
-                          "Profile liked successfully",
-                        );
-                      }
-                    },
-                    floatEffect: true,
-                  ),
-                ],
-              ),
-            ),
+              isLiking.value = false;
+              bool isSwiped = await _userController.swipeLike(
+                swipedUserId: userId,
+              );
+              if (isSwiped) {
+                CustomSnackbar.showSuccessSnackBar(
+                  "Profile liked successfully",
+                );
+              }
+            },
+            floatEffect: true,
+          ),
+        ],
+      ),
     );
   }
 

@@ -163,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Divider(color: Colors.grey.withOpacity(0.2)),
                 const SizedBox(height: 10),
                 _buildProfileSettingTiles(
-                  title: "Coin History",
+                  title: "Transactions",
                   onTap: () {
                     Get.to(() => const CoinHistoryScreen());
                   },

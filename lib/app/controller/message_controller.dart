@@ -63,7 +63,6 @@ class MessageController extends GetxController {
         token: token,
         receiverUserId: receiverUserId,
       );
-
       if (response == null) return;
       final decoded = json.decode(response.body);
       String message = decoded["message"] ?? "";
@@ -72,6 +71,7 @@ class MessageController extends GetxController {
         return;
       }
       List chatHistory = decoded["data"] ?? [];
+      chatHistoryAndLiveMessage.clear();
       if (chatHistory.isEmpty) return;
       List<MessageModel> mapped =
           chatHistory.map((json) => MessageModel.fromJson(json)).toList();
@@ -162,4 +162,3 @@ class MessageController extends GetxController {
     chatHistoryAndLiveMessage.refresh();
   }
 }
-

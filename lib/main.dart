@@ -26,7 +26,7 @@ class MainApp extends StatelessWidget {
           splashColor: Colors.transparent,
           primaryColor: AppColors.primaryColor,
           splashFactory: NoSplash.splashFactory,
-          scaffoldBackgroundColor: Colors.white,
+          scaffoldBackgroundColor: Colors.white
         ),
         home: const SplashScreen1(),
         initialBinding: AppBindings());
