@@ -148,7 +148,7 @@ class AuthService {
           ),
         );
 
-      var response = await request.send().timeout(const Duration(seconds: 15));
+      var response = await request.send().timeout(const Duration(seconds: 120));
       return response;
     } on SocketException catch (e) {
       CustomSnackbar.showErrorSnackBar("Check internet connection, $e");

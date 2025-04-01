@@ -60,6 +60,9 @@ PODS:
   - flutter_sound_core (9.28.0)
   - geocoding_ios (1.0.5):
     - Flutter
+  - geolocator_apple (1.2.0):
+    - Flutter
+    - FlutterMacOS
   - google_mlkit_commons (0.11.0):
     - Flutter
     - MLKitVision
@@ -204,6 +207,7 @@ DEPENDENCIES:
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - flutter_sound (from `.symlinks/plugins/flutter_sound/ios`)
   - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
+  - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
   - google_mlkit_face_detection (from `.symlinks/plugins/google_mlkit_face_detection/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
@@ -258,6 +262,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_sound/ios"
   geocoding_ios:
     :path: ".symlinks/plugins/geocoding_ios/ios"
+  geolocator_apple:
+    :path: ".symlinks/plugins/geolocator_apple/darwin"
   google_mlkit_commons:
     :path: ".symlinks/plugins/google_mlkit_commons/ios"
   google_mlkit_face_detection:
@@ -306,6 +312,7 @@ SPEC CHECKSUMS:
   flutter_sound: 82aba29055d6feba684d08906e0623217b87bcd3
   flutter_sound_core: 427465f72d07ab8c3edbe8ffdde709ddacd3763c
   geocoding_ios: d7460f56e80e118d57678efe5c2cdc888739ff18
+  geolocator_apple: 66b711889fd333205763b83c9dcf0a57a28c7afd
   google_mlkit_commons: 2544377e5503bf78ee7412ccfce0394c2dcb8a6b
   google_mlkit_face_detection: 111b3ac2f2df6ad5f464bafed9ba380ac8366d37
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -336,6 +343,6 @@ SPEC CHECKSUMS:
   video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
   wakelock_plus: 373cfe59b235a6dd5837d0fb88791d2f13a90d56
 
-PODFILE CHECKSUM: 0d20cc037b8c56e7d065be044d60c88981eb2142
+PODFILE CHECKSUM: dc5db828cad5143e8993f7c607cf723a25872c16
 
 COCOAPODS: 1.16.2

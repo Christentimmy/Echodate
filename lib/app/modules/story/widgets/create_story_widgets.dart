@@ -390,7 +390,7 @@ class _ViewStoryFullSceenCardState extends State<ViewStoryFullSceenCard> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.9),
+                color: Colors.black.withOpacity(0.6),
               ),
               child: Text(
                 widget.storiesModel.content ?? '',

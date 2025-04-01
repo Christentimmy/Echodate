@@ -47,7 +47,7 @@ class RegisterScreen extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               const Text(
-                "Fill the following essential details to getting registered.",
+                "Fill the following essential details to get registered.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,

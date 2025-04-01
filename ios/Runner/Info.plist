@@ -56,5 +56,20 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to save photos.</string>
 
+	<key>UIBackgroundModes</key>
+	<array>
+    	<string>fetch</string>
+    	<string>remote-notification</string>
+	</array>
+
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+    	<string>arm64</string>
+	</array>
+
+	<key>OneSignalAppId</key>
+	<string>2fa250e8-3569-45a5-9c27-db2be9b84c36</string> <!-- Replace with your OneSignal App ID -->
+
+
 </dict>
 </plist>

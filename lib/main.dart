@@ -20,15 +20,16 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          textTheme: GoogleFonts.montserratTextTheme(),
-          splashColor: Colors.transparent,
-          primaryColor: AppColors.primaryColor,
-          splashFactory: NoSplash.splashFactory,
-          scaffoldBackgroundColor: Colors.white
-        ),
-        home: const SplashScreen1(),
-        initialBinding: AppBindings());
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        textTheme: GoogleFonts.montserratTextTheme(),
+        splashColor: Colors.transparent,
+        primaryColor: AppColors.primaryColor,
+        splashFactory: NoSplash.splashFactory,
+        scaffoldBackgroundColor: Colors.white,
+      ),
+      home: const SplashScreen1(),
+      initialBinding: AppBindings(),
+    );
   }
 }

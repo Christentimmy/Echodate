@@ -154,25 +154,25 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((e) async {
-      print(e);
       if (_socketController.socket == null ||
           _socketController.socket?.disconnected == true) {
         _socketController.initializeSocket();
-        _socketController.markMessageRead(widget.chatHead.userId ?? "");
-        _scrollToBottom();
-
-        _socketController.socket?.on("typing", (data) {
-          if (data["senderId"] == widget.chatHead.userId) {
-            isTyping.value = true;
-          }
-        });
-
-        _socketController.socket?.on("stop-typing", (data) {
-          if (data["senderId"] == widget.chatHead.userId) {
-            isTyping.value = false;
-          }
-        });
       }
+
+      _socketController.markMessageRead(widget.chatHead.userId ?? "");
+      _scrollToBottom();
+
+      _socketController.socket?.on("typing", (data) {
+        if (data["senderId"] == widget.chatHead.userId) {
+          isTyping.value = true;
+        }
+      });
+
+      _socketController.socket?.on("stop-typing", (data) {
+        if (data["senderId"] == widget.chatHead.userId) {
+          isTyping.value = false;
+        }
+      });
     });
 
     _selectedFile.value = null;

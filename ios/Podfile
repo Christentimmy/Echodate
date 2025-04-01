@@ -103,6 +103,19 @@ post_install do |installer|
         ## dart: PermissionGroup.criticalAlerts
         'PERMISSION_ASSISTANT=1',
       ]
+
+      if target.name == 'GoogleMLKitFaceDetection'
+        target.build_configurations.each do |config|
+          config.build_settings['SWIFT_VERSION'] = '5.0'  # Ensure Swift version compatibility
+        end
+      end
+
+      # Disable background location permission for geolocator_apple
+      if target.name == "geolocator_apple"
+        target.build_configurations.each do |config|
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'BYPASS_PERMISSION_LOCATION_ALWAYS=1']
+        end
+      end
     end
   end
 end

@@ -202,6 +202,12 @@ class CompleteProfileScreen extends StatelessWidget {
                       );
                       return;
                     }
+                    if (_selectedPicture.value == null) {
+                       CustomSnackbar.showErrorSnackBar(
+                        "Please select a picture",
+                      );
+                      return;
+                    }
                     final UserModel userModel = UserModel(
                       fullName: _fullNameController.text,
                       bio: _bioController.text,

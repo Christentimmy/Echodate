@@ -688,6 +688,7 @@ class UserController extends GetxController {
         token: token,
         gender: gender,
       );
+      print(response?.body);
 
       if (response == null) return;
       final decoded = json.decode(response.body);
@@ -697,6 +698,7 @@ class UserController extends GetxController {
       }
       if (nextScreen != null) {
         nextScreen();
+        return;
       }
       final locationController = Get.find<LocationController>();
       await locationController.getCurrentCity();

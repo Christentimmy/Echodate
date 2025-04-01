@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:confetti/confetti.dart';
 import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/controller/socket_controller.dart';
@@ -135,6 +134,13 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.arrow_back_ios),
+          ),
+        ),
         floatingActionButton: _permissionsGranted
             ? FloatingActionButton(
                 backgroundColor: AppColors.primaryColor,
@@ -242,7 +248,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                       gravity: 0.3,
                     ),
                   )
-
                 ],
               )
             : const Center(
@@ -335,8 +340,8 @@ class HostInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: Get.height * 0.05,
+      padding: const EdgeInsets.symmetric(
+        //vertical: Get.height * 0.05,
         horizontal: 15,
       ),
       child: Row(
