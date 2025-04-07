@@ -3,10 +3,13 @@ import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/utils/privacy.dart';
+import 'package:echodate/app/utils/terms.dart';
 import 'package:echodate/app/widget/animations.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
+import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -76,7 +79,36 @@ class RegisterScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  const Text("I agree to the terms and conditions."),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style: TextStyle(color: Colors.black),
+                        children: [
+                          const TextSpan(text: 'I agree to the '),
+                          TextSpan(
+                            text: 'Terms & Conditions',
+                            style:  TextStyle(
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => _showTermsDialog(context),
+                          ),
+                          const TextSpan(text: ' and '),
+                          TextSpan(
+                            text: 'Privacy Policy',
+                            style:  TextStyle(
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => _showPrivacyDialog(context),
+                          ),
+                          const TextSpan(text: '.'),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: Get.height * 0.05),
@@ -130,4 +162,44 @@ class RegisterScreen extends StatelessWidget {
       ),
     );
   }
+
+
+
+
+  void _showTermsDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Terms & Conditions'),
+      content: SingleChildScrollView(
+        child: Text(termsAndConditionsText),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  );
+}
+
+void _showPrivacyDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Privacy Policy'),
+      content: SingleChildScrollView(
+        child: Text(privacyPolicyText),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  );
+}
+
 }
