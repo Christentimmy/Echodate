@@ -45,6 +45,8 @@ PODS:
   - AgoraRtcEngine_iOS/VideoCodecEnc (4.5.1)
   - AgoraRtcEngine_iOS/VirtualBackground (4.5.1)
   - AgoraRtcEngine_iOS/VQA (4.5.1)
+  - app_links (0.0.2):
+    - Flutter
   - audio_waveforms (0.0.1):
     - Flutter
   - camera_avfoundation (0.0.1):
@@ -200,6 +202,7 @@ PODS:
 
 DEPENDENCIES:
   - agora_rtc_engine (from `.symlinks/plugins/agora_rtc_engine/ios`)
+  - app_links (from `.symlinks/plugins/app_links/ios`)
   - audio_waveforms (from `.symlinks/plugins/audio_waveforms/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -215,6 +218,7 @@ DEPENDENCIES:
   - location (from `.symlinks/plugins/location/ios`)
   - motion (from `.symlinks/plugins/motion/ios`)
   - onesignal_flutter (from `.symlinks/plugins/onesignal_flutter/ios`)
+  - OneSignalXCFramework (< 6.0, >= 5.0.0)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - pdfx (from `.symlinks/plugins/pdfx/ios`)
@@ -248,6 +252,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   agora_rtc_engine:
     :path: ".symlinks/plugins/agora_rtc_engine/ios"
+  app_links:
+    :path: ".symlinks/plugins/app_links/ios"
   audio_waveforms:
     :path: ".symlinks/plugins/audio_waveforms/ios"
   camera_avfoundation:
@@ -304,6 +310,7 @@ SPEC CHECKSUMS:
   AgoraInfra_iOS: 65e11a2183ab7836258768868d06058c22701b13
   AgoraIrisRTC_iOS: dd3d957c25be6bd2b2a5d03fe706ebe8a46909f0
   AgoraRtcEngine_iOS: 5092a058c7b2842db39d8ca614d451af6f84969a
+  app_links: f3e17e4ee5e357b39d8b95290a9b2c299fca71c6
   audio_waveforms: cd736909ebc6b6a164eb74701d8c705ce3241e1c
   camera_avfoundation: dd002b0330f4981e1bbcb46ae9b62829237459a4
   device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
@@ -343,6 +350,6 @@ SPEC CHECKSUMS:
   video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
   wakelock_plus: 373cfe59b235a6dd5837d0fb88791d2f13a90d56
 
-PODFILE CHECKSUM: dc5db828cad5143e8993f7c607cf723a25872c16
+PODFILE CHECKSUM: bff06aa77f6d32f4bcc2ca6d6316937fecb386b2
 
 COCOAPODS: 1.16.2

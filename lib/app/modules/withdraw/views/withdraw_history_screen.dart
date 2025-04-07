@@ -231,7 +231,7 @@ class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.menu),
+            icon: const Icon(Icons.arrow_back_ios),
           );
         },
       ),

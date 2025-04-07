@@ -3,6 +3,7 @@ import 'package:echodate/app/modules/echocoin/widget/echo_coin_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/loader.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -171,6 +172,10 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen> {
               ontap: _userController.isPaymentProcessing.value
                   ? () {}
                   : () async {
+                    if(_selectedCoinPackage.value.isEmpty){
+                       CustomSnackbar.showErrorSnackBar("Select a package");
+                       return;
+                    }
                       await _userController.buyCoin(
                         coinPackageId: _selectedCoinPackage.value,
                       );

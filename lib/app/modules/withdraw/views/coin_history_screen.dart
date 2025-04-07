@@ -252,7 +252,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.menu),
+            icon: const Icon(Icons.arrow_back_ios),
           );
         },
       ),

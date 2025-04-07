@@ -1,3 +1,4 @@
+import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
@@ -34,10 +35,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void saveUserOneSignalId() async {
-    String? subId = OneSignal.User.pushSubscription.id;
-    if (subId != null) {
-      await _userController.saveUserOneSignalId(oneSignalId: subId);
+    final userId = _userController.userModel.value?.id;
+    final subId = OneSignal.User.pushSubscription.id;
+    final storageController = Get.find<StorageController>();
+
+    if (userId == null || subId == null) return;
+
+    final lastSaved = await storageController.getLastPushId(userId);
+
+    if (lastSaved == subId) {
+      return;
     }
+
+    await _userController.saveUserOneSignalId(oneSignalId: subId);
   }
 
   @override

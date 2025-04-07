@@ -70,6 +70,14 @@
 	<key>OneSignalAppId</key>
 	<string>2fa250e8-3569-45a5-9c27-db2be9b84c36</string> <!-- Replace with your OneSignal App ID -->
 
-
+	<key>CFBundleURLTypes</key>
+	<array>
+	<dict>
+		<key>CFBundleURLSchemes</key>
+		<array>
+		<string>echodate</string>
+		</array>
+	</dict>
+	</array>
 </dict>
 </plist>

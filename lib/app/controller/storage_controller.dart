@@ -1,4 +1,3 @@
-
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -30,4 +29,14 @@ class StorageController extends GetxController {
     await _secureStorage.write(key: "newUser", value: value);
   }
 
+  Future<void> saveLastPushId({
+    required String userId,
+    required String oneSignalId,
+  }) async {
+    await _secureStorage.write(key: 'push_id_$userId', value: oneSignalId);
+  }
+
+  Future<String?> getLastPushId(String userId) async {
+    return _secureStorage.read(key: 'push_id_$userId');
+  }
 }

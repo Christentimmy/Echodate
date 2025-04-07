@@ -215,6 +215,12 @@ class UserController extends GetxController {
       );
       if (response == null) return;
       print(response.body);
+      final userId = userModel.value?.id;
+
+      await storageController.saveLastPushId(
+        userId: userId ?? "",
+        oneSignalId: oneSignalId,
+      );
     } catch (e) {
       debugPrint(e.toString());
     }
