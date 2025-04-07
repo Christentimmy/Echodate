@@ -320,7 +320,7 @@ class UserService {
         ..headers['Authorization'] = 'Bearer $token'
         ..files.add(
           await http.MultipartFile.fromPath(
-            'avatar', 
+            'avatar',
             imageFile.path,
           ),
         );
@@ -404,17 +404,18 @@ class UserService {
   }) async {
     try {
       final Map<String, dynamic> body = {};
-      if (minAge != null && minAge.isNotEmpty) {
-        body['minAge'] = int.parse(minAge);
+      if (minAge != null &&
+          minAge.isNotEmpty &&
+          maxAge != null &&
+          maxAge.isNotEmpty) {
+        body['ageRange'] = [int.parse(minAge), int.parse(maxAge)];
       }
-      if (maxAge != null && maxAge.isNotEmpty) {
-        body['maxAge'] = int.parse(maxAge);
-      }
+
       if (interestedIn != null && interestedIn.isNotEmpty) {
         body['interested_in'] = interestedIn.toLowerCase();
       }
       if (distance != null && distance.isNotEmpty) {
-        body['distance'] = int.parse(distance);
+        body['maxDistance'] = int.parse(distance);
       }
       final response = await client
           .patch(

@@ -16,7 +16,7 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
   final UserController _userController = Get.find<UserController>();
 
   RxString interestedIn = "".obs;
-  double distance = 50.0;
+  double distance = 0.0;
   RangeValues ageRange = const RangeValues(18, 45);
 
   @override
@@ -24,8 +24,11 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = _userController.userModel.value;
-      if (user != null) {
-        interestedIn.value = user.interestedIn?.capitalizeFirst ?? "";
+      if (user == null) {
+        return;
+      }
+      interestedIn.value = user.interestedIn?.capitalizeFirst ?? "";
+      setState(() {
         if (user.preferences != null &&
             user.preferences!.ageRange != null &&
             user.preferences!.ageRange!.length >= 2) {
@@ -35,9 +38,10 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
           );
         }
         print(user.preferences?.maxDistance);
-        distance = ((user.preferences?.maxDistance?.toDouble() ?? 50000) / 1000)
-            .clamp(1.0, 100.0);
-      }
+        print(user.preferences?.ageRange);
+        distance =
+            ((user.preferences?.maxDistance?.toDouble() ?? 50000) / 1000);
+      });
     });
   }
 
@@ -64,7 +68,10 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
         backgroundColor: Colors.white,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 30,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
