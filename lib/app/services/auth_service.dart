@@ -66,6 +66,7 @@ class AuthService {
     required String otpCode,
     String? email,
     String? phoneNumber,
+    required String token,
   }) async {
     try {
       final Map<String, String> body = {
@@ -83,6 +84,9 @@ class AuthService {
       final response = await client
           .post(
             Uri.parse("$baseUrl/auth/verify-otp"),
+            headers: {
+              "Authorization": "Bearer $token",
+            },
             body: body,
           )
           .timeout(const Duration(seconds: 15));

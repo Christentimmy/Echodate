@@ -242,6 +242,8 @@ class UserController extends GetxController {
         coinPackageId: coinPackageId,
       );
 
+      print(response?.body);
+
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {

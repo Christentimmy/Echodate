@@ -100,7 +100,7 @@ class _PickHobbiesScreenState extends State<PickHobbiesScreen> {
 
               // Interests Grid
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: SingleChildScrollView(
                   child: Wrap(
                     spacing: 8,

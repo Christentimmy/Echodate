@@ -1,6 +1,6 @@
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+// import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -57,8 +57,8 @@ class LocationController extends GetxController {
         permission = await location.requestPermission();
       }
       print("permission: $permission");
-      Position locationData = await Geolocator.getCurrentPosition();
-     // LocationData locationData = await location.getLocation();
+      // Position locationData = await Geolocator.getCurrentPosition();
+     LocationData locationData = await location.getLocation();
       print("location data $locationData");
       List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
         locationData.latitude ?? 0.0,

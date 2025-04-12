@@ -98,14 +98,20 @@ class AuthController extends GetxController {
 
   Future<void> verifyOtp({
     required String otpCode,
-    required String email,
+    String? email,
+    String? phoneNumber,
     VoidCallback? whatNext,
   }) async {
     isOtpVerifyLoading.value = true;
     try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
       final response = await _authService.verifyOtp(
         otpCode: otpCode,
         email: email,
+        phoneNumber: phoneNumber,
+        token: token,
       );
       if (response == null) return;
       final decoded = json.decode(response.body);

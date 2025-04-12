@@ -36,7 +36,7 @@ class _VerificationStatusScreenState extends State<VerificationStatusScreen> {
       await _userController.getUserDetails();
       final userModel = _userController.userModel.value;
       if (userModel == null) return;
-      if (userModel.isEmailVerified == false &&
+      if (userModel.isEmailVerified == false ||
           userModel.isPhoneNumberVerified == false) {
         CustomSnackbar.showErrorSnackBar(
           "Please verify your email or phone number before proceeding.",
@@ -144,16 +144,14 @@ class _VerificationStatusScreenState extends State<VerificationStatusScreen> {
                                       .userModel.value?.isPhoneNumberVerified ??
                                   false,
                               onVerify: () async {
-                                CustomSnackbar.showErrorSnackBar(
-                                  "Phone number verification is not available yet.",
-                                );
-                                // Get.to(() => OTPVerificationScreen(
-                                //     phoneNumber: _userController
-                                //         .userModel.value?.phoneNumber,
-                                //     onVerifiedCallBack: () {
-                                //       Get.back();
-                                //     }));
-                                // await _authController.sendNumberOTP();
+                                Get.to(() => OTPVerificationScreen(
+                                    phoneNumber: _userController
+                                        .userModel.value?.phoneNumber,
+                                    onVerifiedCallBack: () async {
+                                      await _userController.getUserDetails();
+                                      Get.back();
+                                    }));
+                                await _authController.sendNumberOTP();
                               },
                             ),
                           ),

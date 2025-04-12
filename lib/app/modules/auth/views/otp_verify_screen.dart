@@ -111,7 +111,8 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
                             ontap: () async {
                               _authController.verifyOtp(
                                 otpCode: _otpController.text,
-                                email: widget.email ?? "",
+                                email: widget.email,
+                                phoneNumber: widget.phoneNumber,
                                 whatNext: () {
                                   widget.onVerifiedCallBack();
                                 },
@@ -176,7 +177,12 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
           () => InkWell(
             onTap: () async {
               _timerController.startTimer();
-              await _authController.sendOtp();
+              if (widget.phoneNumber != null &&
+                  widget.phoneNumber?.isNotEmpty == true) {
+                await _authController.sendNumberOTP();
+              } else {
+                await _authController.sendOtp();
+              }
             },
             child: _timerController.secondsRemaining.value == 0
                 ? Text(

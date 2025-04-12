@@ -7,9 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   file_selector_windows
   flutter_secure_storage_windows
-  geolocator_windows
   iris_method_channel
-  pdfx
   permission_handler_windows
   url_launcher_windows
 )
