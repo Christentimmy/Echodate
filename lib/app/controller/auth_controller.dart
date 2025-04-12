@@ -81,12 +81,11 @@ class AuthController extends GetxController {
       String? token = await storageController.getToken();
       if (token == null) return;
       final response = await _authService.sendNumberOTP(token: token);
+      print(response?.body);
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
-        CustomSnackbar.showErrorSnackBar(
-          "Failed to get OTP, ${decoded["message"]}",
-        );
+        CustomSnackbar.showErrorSnackBar(decoded["message"].toString());
         return;
       }
     } catch (e) {
@@ -196,9 +195,8 @@ class AuthController extends GetxController {
       if (response.statusCode == 401) {
         CustomSnackbar.showErrorSnackBar(message);
         Get.offAll(
-          () => OTPVerificationScreen(
-            email: identifier,
-            onVerifiedCallBack: () => Get.offAll(
+          () => VerificationStatusScreen(
+            callback: () => Get.offAll(
               () => BottomNavigationScreen(),
             ),
           ),

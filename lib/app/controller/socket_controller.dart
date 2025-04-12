@@ -12,7 +12,6 @@ import 'package:echodate/app/models/live_stream_model.dart';
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/utils/base_url.dart';
-import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
@@ -163,7 +162,6 @@ class SocketController extends GetxController {
 
     socket?.on("error", (data) {
       String error = data["message"] ?? "";
-      CustomSnackbar.showErrorSnackBar(error);
       if (error.contains("limit")) {
         Get.to(() => const SubscriptionScreen());
       }
