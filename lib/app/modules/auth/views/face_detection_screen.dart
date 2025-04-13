@@ -3,6 +3,7 @@ import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/services/face_detective_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class FaceDetectionScreen extends StatefulWidget {
   const FaceDetectionScreen({super.key, this.callback});
@@ -29,8 +30,10 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _faceDetectionService = FaceDetectionService();
-    _setupStreams();
-    _initializeCamera();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _requestCameraPermission();
+    });
+    // _setupStreams();
   }
 
   @override
@@ -39,6 +42,24 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
     _stopCamera();
     _faceDetectionService.dispose();
     super.dispose();
+  }
+
+  Future<void> _requestCameraPermission() async {
+    // Add proper permission handling
+    final status = await Permission.camera.request();
+
+    if (status.isGranted) {
+      _initializeCamera();
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text("Camera permission is required for face verification"),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -84,7 +105,7 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
         print("No cameras available");
         return;
       }
-      
+
       // Use front camera for face verification
       final frontCamera = _cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front,
@@ -98,6 +119,7 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
       );
 
       await _cameraController!.initialize();
+      _setupStreams();
 
       if (!mounted) return;
 
@@ -222,7 +244,9 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
   }
 
   Widget _buildCircularCameraView() {
-    if (!_isCameraInitialized || _cameraController == null || !_cameraController!.value.isInitialized) {
+    if (!_isCameraInitialized ||
+        _cameraController == null ||
+        !_cameraController!.value.isInitialized) {
       return _buildLoadingCircle();
     }
 
