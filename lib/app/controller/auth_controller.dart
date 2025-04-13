@@ -423,6 +423,7 @@ class AuthController extends GetxController {
         return;
       }
       if(callback != null){
+        debugPrint("statement");
         callback();
         return;
       }

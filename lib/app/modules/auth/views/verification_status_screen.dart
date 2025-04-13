@@ -39,7 +39,7 @@ class _VerificationStatusScreenState extends State<VerificationStatusScreen> {
       if (userModel.isEmailVerified == false ||
           userModel.isPhoneNumberVerified == false) {
         CustomSnackbar.showErrorSnackBar(
-          "Please verify your email or phone number before proceeding.",
+          "Please verify your email and phone number before proceeding.",
         );
         return;
       }

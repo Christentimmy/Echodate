@@ -137,22 +137,22 @@ class UserController extends GetxController {
     }
   }
 
-  Future<bool> getUserStatus() async {
+  Future<void> getUserStatus() async {
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
-      if (token == null || token.isEmpty) return false;
+      if (token == null || token.isEmpty) return;
       final response = await _userService.getUserStatus(token: token);
       if (response == null) {
         Get.offAll(() => RegisterScreen());
-        return true;
+        return;
       }
       final decoded = json.decode(response.body);
       String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
         Get.offAll(() => RegisterScreen());
         debugPrint(message);
-        return true;
+        return;
       }
       String status = decoded["data"]["status"] ?? "";
       bool isEmailVerified = decoded["data"]["is_email_verified"] ?? false;
@@ -164,7 +164,7 @@ class UserController extends GetxController {
       if (status == "banned" || status == "blocked") {
         CustomSnackbar.showErrorSnackBar("Your account has been banned.");
         Get.offAll(() => RegisterScreen());
-        return true;
+        return;
       }
       if (!isEmailVerified || !isPhonNumberVerified) {
         CustomSnackbar.showErrorSnackBar("Your account is not verified.");
@@ -173,37 +173,39 @@ class UserController extends GetxController {
             callback: () async => await getUserStatus(),
           ),
         );
-        return true;
+        return;
       }
       if (!isVerified) {
         CustomSnackbar.showErrorSnackBar("Your account is not verified.");
         Get.offAll(() => FaceDetectionScreen(
               callback: () async {
                 await getUserStatus();
+                debugPrint("statement 2");
               },
             ));
-        return true;
+        return;
       }
       if (!isProfileCompleted) {
         CustomSnackbar.showErrorSnackBar("Your profile is not completed.");
         Get.offAll(
-          () => CompleteProfileScreen(nextScreen: () async {
-            await getUserStatus();
-          }),
+          () => CompleteProfileScreen(
+            nextScreen: () async {
+              await getUserStatus();
+            },
+          ),
         );
-        return true;
+        return;
       }
       final locationController = Get.find<LocationController>();
       if (address.isEmpty) {
         await locationController.getCurrentCity();
         Get.offAll(() => BottomNavigationScreen());
-        return true;
+        return;
       }
-      return false;
+      Get.offAll(() => BottomNavigationScreen());
     } catch (e) {
       debugPrint(e.toString());
     }
-    return false;
   }
 
   Future<void> saveUserOneSignalId({

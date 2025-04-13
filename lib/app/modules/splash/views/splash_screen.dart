@@ -2,7 +2,6 @@ import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
-import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/modules/onboarding/views/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -73,9 +72,7 @@ class _SplashScreen1State extends State<SplashScreen1>
         Get.off(() => RegisterScreen());
         return;
       }
-      bool hasNavigated = await userController.getUserStatus();
-      if (hasNavigated) return;
-      Get.offAll(() => BottomNavigationScreen());
+      await userController.getUserStatus();
       socketController.initializeSocket();
     });
   }
