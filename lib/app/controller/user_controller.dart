@@ -166,8 +166,8 @@ class UserController extends GetxController {
         Get.offAll(() => RegisterScreen());
         return true;
       }
-      if (!isEmailVerified && !isPhonNumberVerified) {
-        CustomSnackbar.showErrorSnackBar("Your account email is not verified.");
+      if (!isEmailVerified || !isPhonNumberVerified) {
+        CustomSnackbar.showErrorSnackBar("Your account is not verified.");
         Get.offAll(
           () => VerificationStatusScreen(
             callback: () async => await getUserStatus(),
@@ -177,7 +177,11 @@ class UserController extends GetxController {
       }
       if (!isVerified) {
         CustomSnackbar.showErrorSnackBar("Your account is not verified.");
-        Get.offAll(() => const FaceDetectionScreen());
+        Get.offAll(() => FaceDetectionScreen(
+              callback: () async {
+                await getUserStatus();
+              },
+            ));
         return true;
       }
       if (!isProfileCompleted) {

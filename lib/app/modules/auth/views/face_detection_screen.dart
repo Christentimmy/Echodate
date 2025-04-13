@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class FaceDetectionScreen extends StatefulWidget {
-  const FaceDetectionScreen({super.key});
+  const FaceDetectionScreen({super.key, this.callback});
+  final VoidCallback? callback;
 
   @override
   State<FaceDetectionScreen> createState() => _FaceDetectionScreenState();
@@ -418,7 +419,7 @@ class _FaceDetectionScreenState extends State<FaceDetectionScreen>
       case VerificationStatus.completed:
         return ElevatedButton(
           onPressed: () async {
-            await _authController.verifyFace();
+            await _authController.verifyFace(widget.callback);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.orange,

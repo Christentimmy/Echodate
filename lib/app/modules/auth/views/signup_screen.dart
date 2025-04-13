@@ -187,6 +187,7 @@ class RegisterScreen extends StatelessWidget {
 void _showPrivacyDialog(BuildContext context) {
   showDialog(
     context: context,
+    
     builder: (context) => AlertDialog(
       title: const Text('Privacy Policy'),
       content: SingleChildScrollView(

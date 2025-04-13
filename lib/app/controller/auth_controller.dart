@@ -74,6 +74,42 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> changeAuthDetails({
+    String? email,
+    String? phoneNumber,
+  }) async {
+    isLoading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null) return;
+      final response = await _authService.changeAuthDetails(
+        token: token,
+        email: email,
+        phoneNumber: phoneNumber,
+      );
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(
+          decoded["message"].toString(),
+        );
+        return;
+      }
+
+      final usercontroller = Get.find<UserController>();
+      await usercontroller.getUserDetails();
+      CustomSnackbar.showSuccessSnackBar(
+        decoded["message"].toString(),
+      );
+      Navigator.pop(Get.context!);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> sendNumberOTP() async {
     isLoading.value = true;
     try {
@@ -370,7 +406,9 @@ class AuthController extends GetxController {
     return null;
   }
 
-  Future<void> verifyFace() async {
+  Future<void> verifyFace(
+    VoidCallback? callback,
+  ) async {
     isLoading.value = true;
     try {
       final storageController = Get.find<StorageController>();
@@ -382,6 +420,10 @@ class AuthController extends GetxController {
       final data = jsonDecode(response.body);
       if (response.statusCode != 200) {
         debugPrint(data["message"].toString());
+        return;
+      }
+      if(callback != null){
+        callback();
         return;
       }
       Get.offAll(() => BottomNavigationScreen());

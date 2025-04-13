@@ -113,6 +113,34 @@ class AuthService {
     return null;
   }
 
+  Future<http.Response?> changeAuthDetails({
+    required String token,
+    String? email,
+    String? phoneNumber,
+  }) async {
+    try {
+      Map body = {};
+      if (email != null) {
+        body["email"] = email;
+      }
+      if (phoneNumber != null) {
+        body["phone_number"] = phoneNumber;
+      }
+      final response = await client
+          .post(Uri.parse("$baseUrl/auth/change-auth-details"),
+              headers: {
+                "Authorization": "Bearer $token",
+                "Content-Type": "application/json"
+              },
+              body: jsonEncode(body))
+          .timeout(const Duration(seconds: 15));
+      return response;
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
   Future<http.Response?> sendNumberOTP({
     required String token,
   }) async {
