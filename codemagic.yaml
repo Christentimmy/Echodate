@@ -1,0 +1,34 @@
+workflows:
+  ios-workflow:
+    name: iOS Workflow
+    environment:
+      flutter: stable
+      xcode: latest
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: com.echodate.me.echodate
+
+    scripts:
+      - name: Initialize keychain
+        script: keychain initialize
+
+      - name: Add certificates
+        script: keychain add-certificates
+
+      - name: Use provisioning profiles
+        script: xcode-project use-profiles
+
+      - name: Get Flutter packages
+        script: flutter pub get
+
+      - name: Flutter build ipa and automatic versioning
+        script: |
+          flutter build ipa
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+
+    publishing:
+      email:
+        recipients:
+          - timmychris09@gmail.com
