@@ -7,9 +7,16 @@ workflows:
       ios_signing:
         distribution_type: app-store
         bundle_identifier: com.echodate.me.echodate
-        automatic_code_signing: false
+        automatic_code_signing: true
 
     scripts:
+      
+      - name: Set version number
+        script: |
+          BUILD_NUMBER=${BUILD_NUMBER:-$(date +%s)}
+          flutter pub get
+          sed -i '' "s/^version:.*/version: 0.1.1+${BUILD_NUMBER}/" pubspec.yaml
+
       - name: Initialize keychain
         script: keychain initialize
 
