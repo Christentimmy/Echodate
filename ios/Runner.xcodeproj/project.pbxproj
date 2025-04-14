@@ -38,18 +38,7 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		0497236F2DA15C5A005E6DC8 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				0497236E2DA15C59005E6DC8 /* OneSignalNotificationServiceExtension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
+/* Begin PBXCopyFilesBuildPhase section */	
 		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -272,7 +261,6 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				11E914AE1E6C2E407C9F1B2F /* [CP] Embed Pods Frameworks */,
 				CE14C87857876E984CEAD3B1 /* [CP] Copy Pods Resources */,
-				0497236F2DA15C5A005E6DC8 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
