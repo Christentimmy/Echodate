@@ -56,6 +56,21 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to save photos.</string>
 
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need access to your location to enhance app experience, even when the app is in the background.</string>
+
+	<key>NSMotionUsageDescription</key>
+	<string>This app uses motion data to improve user experience and enable motion-based features.</string>
+
+	<key>NSSiriUsageDescription</key>
+	<string>This app may integrate with Siri to enhance voice interactions.</string>
+
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app uses speech recognition to allow voice-based input.</string>
+
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app may access Apple Music to personalize content and audio playback.</string>
+
 	<key>UIBackgroundModes</key>
 	<array>
     	<string>fetch</string>
