@@ -115,9 +115,9 @@ class SocketController extends GetxController {
       liveStreamController.numberOfViewers.refresh();
     });
 
-    socket?.on("refresh", (data) {
+    socket?.on("refresh", (data) async {
       final userController = Get.find<UserController>();
-      userController.getUserDetails();
+      await userController.getUserDetails();
     });
 
     socket?.on("update-online-chat-list", (data) {

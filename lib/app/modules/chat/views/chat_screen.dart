@@ -539,7 +539,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 iconColor: Colors.white,
                                 icon: Icons.image,
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 15),
                               _buildProfileSettingTiles(
                                 title: "Send Video",
                                 onTap: () async {
@@ -557,7 +557,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 iconColor: Colors.white,
                                 icon: Icons.video_camera_back_sharp,
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 15),
                               _buildProfileSettingTiles(
                                 title: "Send Audio",
                                 onTap: () async {
@@ -568,14 +568,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 iconColor: Colors.white,
                                 icon: Icons.audiotrack_sharp,
                               ),
-                              const SizedBox(height: 10),
-                              _buildProfileSettingTiles(
-                                title: "Send Document",
-                                onTap: () {},
-                                bgColor: Colors.lightBlueAccent,
-                                iconColor: Colors.white,
-                                icon: Icons.document_scanner,
-                              ),
+                              const SizedBox(height: 15),
                             ],
                           ),
                         );
