@@ -99,7 +99,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: Colors.black,
                   ),
                 ),
-                Obx(() => Text(_userController.userModel.value?.bio ?? "")),
+                Obx(() {
+                  String bio = _userController.userModel.value?.bio ?? "";
+                  String truncate =
+                      bio.length > 150 ? "${bio.substring(0, 148)}...." : bio;
+                  return Text(truncate);
+                }),
                 const SizedBox(height: 10),
                 Obx(() {
                   String gender = _userController.userModel.value?.gender ?? "";

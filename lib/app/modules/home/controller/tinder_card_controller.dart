@@ -23,4 +23,8 @@ class TinderCardController extends GetxController {
           [];
     }
   }
+
+  void toggleShowFullBio() {
+    isExpanded.value = !isExpanded.value;
+  }
 }
