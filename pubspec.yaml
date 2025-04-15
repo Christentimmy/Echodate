@@ -8,7 +8,6 @@ environment:
 
 dependencies:
   agora_rtc_engine: ^6.5.0
-  animate_do: ^4.2.0
   cached_network_image: ^3.4.1
   camera: ^0.11.0+2
   confetti: ^0.8.0

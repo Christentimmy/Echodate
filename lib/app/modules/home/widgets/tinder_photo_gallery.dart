@@ -41,12 +41,19 @@ class TinderPhotoGallery extends StatelessWidget {
                 itemCount: cleanPhotos.length,
                 itemBuilder: (context, index) {
                   final picture = cleanPhotos[index];
-                  return Image.network(
-                    picture,
+                  return CachedNetworkImage(
+                    imageUrl: picture,
                     fit: BoxFit.cover,
                     alignment: Alignment.topCenter,
                     height: Get.height * 0.6,
                     width: Get.width,
+                    placeholder: (context, url) {
+                      return Center(
+                        child: Loader(
+                          color: AppColors.primaryColor,
+                        ),
+                      );
+                    },
                   );
                 },
               );

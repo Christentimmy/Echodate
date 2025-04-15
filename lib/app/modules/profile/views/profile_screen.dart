@@ -67,7 +67,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fit: BoxFit.cover,
                         imageUrl: userModel?.avatar ?? "",
                         placeholder: (context, url) {
-                          return const CircularProgressIndicator();
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          );
                         },
                         errorWidget: (context, url, error) =>
                             const Icon(Icons.error),

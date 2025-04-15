@@ -113,8 +113,10 @@ class DisplaySubCard extends StatelessWidget {
         height: double.infinity,
         fit: BoxFit.cover,
         placeholder: (context, url) {
-          return const CircularProgressIndicator(
-            color: Colors.white,
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+            ),
           );
         },
         errorWidget: (context, url, error) {
@@ -151,8 +153,10 @@ class DisplayFreeCard extends StatelessWidget {
               height: double.infinity,
               fit: BoxFit.cover,
               placeholder: (context, url) {
-                return const CircularProgressIndicator(
-                  color: Colors.white,
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
                 );
               },
               errorWidget: (context, url, error) {
@@ -160,7 +164,6 @@ class DisplayFreeCard extends StatelessWidget {
               },
             ),
           ),
-          // Optional: You can add a semi-transparent overlay to make the blur more pronounced
           Container(
             color: Colors.black.withOpacity(0.2), // Optional overlay
           ),

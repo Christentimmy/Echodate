@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
@@ -14,6 +13,7 @@ import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/delete_dialog.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -49,7 +49,12 @@ Widget actionButton(
         size: 25,
       ),
     ),
-  );
+  ).animate().scale(
+        duration: 1000.ms,
+        curve: Curves.elasticOut,
+        begin: const Offset(0.2, 0.2), // Offset for both x and y
+        end: const Offset(1.0, 1.0),
+      );
 }
 
 class TinderCard extends StatelessWidget {
@@ -58,142 +63,127 @@ class TinderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FadeIn(
-      duration: const Duration(milliseconds: 500),
-      child: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(width: 3, color: Colors.orange),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(17),
-              child: CachedNetworkImage(
-                width: double.infinity,
-                height: double.infinity,
-                imageUrl: profile.avatar ?? "",
-                fit: BoxFit.cover,
-                placeholder: (context, url) {
-                  return const Center(
-                    child:  CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                  );
-                },
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
-            ),
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(width: 3, color: Colors.orange),
           ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: const [0.6, 1.0],
-                colors: [
-                  Colors.black.withOpacity(0.1),
-                  Colors.black.withOpacity(0.8),
-                ],
-              ),
-            ),
-          ),
-          profile.plan != "free"
-              ? Positioned(
-                  top: 20,
-                  right: 10,
-                  child: InkWell(
-                    onTap: () {
-                      Get.to(
-                        () => CoinTransferScreen(
-                          recipientName: profile.fullName ?? "",
-                          recipientId: profile.id ?? "",
-                        ),
-                      );
-                    },
-                    child: Bounce(
-                      from: 10,
-                      duration: const Duration(milliseconds: 500),
-                      child: Container(
-                        height: 45,
-                        width: 45,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: AppColors.primaryColor,
-                        ),
-                        child: const Icon(
-                          FontAwesomeIcons.wallet,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              : const SizedBox.shrink(),
-          Positioned(
-            top: 0,
-            left: MediaQuery.of(context).size.width * 0.32,
-            child: FadeInDown(
-              from: 20,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: const BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  "${profile.matchPercentage.toString()}% Match",
-                  style: const TextStyle(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(17),
+            child: CachedNetworkImage(
+              width: double.infinity,
+              height: double.infinity,
+              imageUrl: profile.avatar ?? "",
+              fit: BoxFit.cover,
+              placeholder: (context, url) {
+                return const Center(
+                  child: CircularProgressIndicator(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
                   ),
-                ),
-              ),
+                );
+              },
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
           ),
-          Positioned(
-            bottom: Get.height * 0.12,
-            left: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FadeInLeft(
-                  from: 20,
-                  child: Text(
-                    profile.fullName ?? "",
-                    style: GoogleFonts.poppins(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                FadeInLeft(
-                  from: 40,
-                  delay: const Duration(milliseconds: 300),
-                  child: Text(
-                    profile.location?.address ?? "",
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: const [0.6, 1.0],
+              colors: [
+                Colors.black.withOpacity(0.1),
+                Colors.black.withOpacity(0.8),
               ],
             ),
           ),
-        ],
-      ),
-    );
+        ),
+        profile.plan != "free"
+            ? Positioned(
+                top: 20,
+                right: 10,
+                child: InkWell(
+                  onTap: () {
+                    Get.to(
+                      () => CoinTransferScreen(
+                        recipientName: profile.fullName ?? "",
+                        recipientId: profile.id ?? "",
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 45,
+                    width: 45,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.primaryColor,
+                    ),
+                    child: const Icon(
+                      FontAwesomeIcons.wallet,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              )
+            : const SizedBox.shrink(),
+        Positioned(
+          top: 0,
+          left: MediaQuery.of(context).size.width * 0.32,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            decoration: const BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10),
+              ),
+            ),
+            child: Text(
+              "${profile.matchPercentage.toString()}% Match",
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: Get.height * 0.12,
+          left: 20,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                profile.fullName ?? "",
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ).animate().fadeIn(),
+              Text(
+                profile.location?.address ?? "",
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ).animate().fadeIn(),
+            ],
+          ),
+        ),
+      ],
+    ).animate().fadeIn(
+          duration: const Duration(milliseconds: 500),
+        );
   }
 }
 
@@ -527,8 +517,10 @@ class SwiperActionButtonsWidget extends StatelessWidget {
   final RxBool isDisliking = false.obs;
   final RxBool isSuperLiking = false.obs;
 
-  void _triggerAnimation(CardSwiperDirection direction,
-      {bool isSuperLike = false}) {
+  void _triggerAnimation(
+    CardSwiperDirection direction, {
+    bool isSuperLike = false,
+  }) {
     if (direction == CardSwiperDirection.right) {
       if (isSuperLike) {
         isSuperLiking.value = true;
@@ -562,17 +554,14 @@ class SwiperActionButtonsWidget extends StatelessWidget {
                     () => AnimatedOpacity(
                       duration: const Duration(milliseconds: 200),
                       opacity: isDisliking.value ? 1.0 : 0.7,
-                      child: Bounce(
-                        from: isDisliking.value ? 20 : 10,
-                        child: actionButton(
-                          FontAwesomeIcons.xmark,
-                          Colors.white,
-                          false,
-                          () {
-                            _triggerAnimation(CardSwiperDirection.left);
-                            controller.swipe(CardSwiperDirection.left);
-                          },
-                        ),
+                      child: actionButton(
+                        FontAwesomeIcons.xmark,
+                        Colors.white,
+                        false,
+                        () {
+                          _triggerAnimation(CardSwiperDirection.left);
+                          controller.swipe(CardSwiperDirection.left);
+                        },
                       ),
                     ),
                   ),
@@ -584,17 +573,14 @@ class SwiperActionButtonsWidget extends StatelessWidget {
                     () => AnimatedScale(
                       scale: isLiking.value ? 1.2 : 1.0,
                       duration: const Duration(milliseconds: 200),
-                      child: Bounce(
-                        from: isLiking.value ? 30 : 15,
-                        child: actionButton(
-                          FontAwesomeIcons.solidHeart,
-                          Colors.orange,
-                          true,
-                          () {
-                            _triggerAnimation(CardSwiperDirection.right);
-                            controller.swipe(CardSwiperDirection.right);
-                          },
-                        ),
+                      child: actionButton(
+                        FontAwesomeIcons.solidHeart,
+                        Colors.orange,
+                        true,
+                        () {
+                          _triggerAnimation(CardSwiperDirection.right);
+                          controller.swipe(CardSwiperDirection.right);
+                        },
                       ),
                     ),
                   ),
@@ -606,20 +592,22 @@ class SwiperActionButtonsWidget extends StatelessWidget {
                     () => AnimatedScale(
                       scale: isSuperLiking.value ? 1.2 : 1.0,
                       duration: const Duration(milliseconds: 200),
-                      child: Bounce(
-                        from: isSuperLiking.value ? 25 : 10,
-                        delay: const Duration(milliseconds: 400),
-                        child: actionButton(
-                          Icons.star_border,
-                          Colors.white,
-                          false,
-                          () {
-                            _triggerAnimation(CardSwiperDirection.right,
-                                isSuperLike: true);
-                            controller.swipe(CardSwiperDirection.right);
-                          },
-                        ),
-                      ),
+                      child: actionButton(
+                        Icons.star_border,
+                        Colors.white,
+                        false,
+                        () {
+                          _triggerAnimation(CardSwiperDirection.right,
+                              isSuperLike: true);
+                          controller.swipe(CardSwiperDirection.right);
+                        },
+                      ).animate().scale(
+                            duration: 1000.ms,
+                            curve: Curves.elasticOut,
+                            begin: const Offset(
+                                0.2, 0.2), // Offset for both x and y
+                            end: const Offset(1.0, 1.0),
+                          ),
                     ),
                   ),
                 ],
@@ -651,15 +639,12 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
             }
 
             if (_userController.potentialMatchesList.isEmpty) {
-              return FadeIn(
-                duration: const Duration(milliseconds: 500),
-                child: const Center(
-                  child: Text(
-                    "No matches found",
-                    style: TextStyle(color: Colors.black),
-                  ),
+              return const Center(
+                child: Text(
+                  "No matches found",
+                  style: TextStyle(color: Colors.black),
                 ),
-              );
+              ).animate().fade();
             }
 
             return CardSwiper(
@@ -702,18 +687,21 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
                 }
 
                 final profile = _userController.potentialMatchesList[index];
-                return ElasticIn(
-                  child: InkWell(
-                    onTap: () {
-                      Get.to(
-                        () => TinderCardDetails(
-                          userModel: profile,
-                        ),
-                      );
-                    },
-                    child: TinderCard(profile: profile),
-                  ),
-                );
+                return InkWell(
+                  onTap: () {
+                    Get.to(
+                      () => TinderCardDetails(
+                        userModel: profile,
+                      ),
+                    );
+                  },
+                  child: TinderCard(profile: profile),
+                ).animate().scale(
+                      duration: 1000.ms,
+                      curve: Curves.elasticOut,
+                      begin: const Offset(0.2, 0.2), // Offset for both x and y
+                      end: const Offset(1.0, 1.0),
+                    );
               },
             );
           }),
