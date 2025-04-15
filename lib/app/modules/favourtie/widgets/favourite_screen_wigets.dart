@@ -2,9 +2,8 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
-import 'package:echodate/app/modules/home/widgets/tinder_card_widgets.dart';
+import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/resources/colors.dart';
-import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -114,7 +113,9 @@ class DisplaySubCard extends StatelessWidget {
         height: double.infinity,
         fit: BoxFit.cover,
         placeholder: (context, url) {
-          return ShimmerEffect(child: Container());
+          return const CircularProgressIndicator(
+            color: Colors.white,
+          );
         },
         errorWidget: (context, url, error) {
           return const Icon(Icons.error);
@@ -150,7 +151,9 @@ class DisplayFreeCard extends StatelessWidget {
               height: double.infinity,
               fit: BoxFit.cover,
               placeholder: (context, url) {
-                return ShimmerEffect(child: Container());
+                return const CircularProgressIndicator(
+                  color: Colors.white,
+                );
               },
               errorWidget: (context, url, error) {
                 return const Icon(Icons.error);

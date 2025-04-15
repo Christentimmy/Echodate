@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
@@ -8,7 +7,6 @@ import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:motion/motion.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../../app/models/chat_list_model.dart';
 
@@ -109,13 +107,12 @@ class TinderPhotoGallery extends StatelessWidget {
                       );
                       Get.to(() => ChatScreen(chatHead: chatHead));
                     },
-                    child: Motion(
-                      shadow: null,
-                      glare: null,
-                      child: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.white.withOpacity(0.8),
-                        child: Icon(Icons.chat, color: AppColors.primaryColor),
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.white.withOpacity(0.8),
+                      child: Icon(
+                        Icons.chat,
+                        color: AppColors.primaryColor,
                       ),
                     ),
                   )
@@ -147,8 +144,7 @@ class TinderPhotoGallery extends StatelessWidget {
           const Spacer(),
           Obx(() {
             final userModel = _tinderCardController.userModel.value;
-            if (_userController.isloading.value ||
-                userModel?.plan == "free") {
+            if (_userController.isloading.value || userModel?.plan == "free") {
               return const SizedBox.shrink();
             }
             return InkWell(

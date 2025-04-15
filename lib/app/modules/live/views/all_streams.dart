@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/resources/colors.dart';
-import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -95,8 +94,8 @@ class _LiveStreamListScreenState extends State<LiveStreamListScreen> {
                                         width: double.infinity,
                                         height: double.infinity,
                                         placeholder: (context, url) =>
-                                            ShimmerEffect(
-                                          child: const SizedBox(),
+                                           const CircularProgressIndicator(
+                                          color: Colors.white,
                                         ),
                                         errorWidget: (context, url, error) =>
                                             Container(

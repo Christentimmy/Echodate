@@ -1,17 +1,17 @@
 import 'dart:typed_data';
+import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/home/views/send_coins_screen.dart';
-import 'package:echodate/app/modules/home/widgets/tinder_card_widgets.dart';
+import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/modules/live/views/all_streams.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/delete_dialog.dart';
-import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -19,7 +19,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_compress/video_compress.dart';
-import 'package:animate_do/animate_do.dart';
 
 Widget actionButton(
   IconData icon,
@@ -78,13 +77,9 @@ class TinderCard extends StatelessWidget {
                 imageUrl: profile.avatar ?? "",
                 fit: BoxFit.cover,
                 placeholder: (context, url) {
-                  return ShimmerEffect(
-                    child: Container(
-                      width: double.infinity,
-                      height: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                  return const Center(
+                    child:  CircularProgressIndicator(
+                      color: Colors.white,
                     ),
                   );
                 },

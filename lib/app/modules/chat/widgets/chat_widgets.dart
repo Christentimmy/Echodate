@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/views/view_medial_full_screen.dart';
 import 'package:echodate/app/widget/loader.dart';
-import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -258,11 +257,8 @@ class _SenderCardState extends State<SenderCard> {
           width: Get.width * 0.558,
           height: Get.height * 0.32,
           fit: BoxFit.cover,
-          placeholder: (context, url) => ShimmerEffect(
-            child: SizedBox(
-              width: Get.width * 0.558,
-              height: Get.height * 0.32,
-            ),
+          placeholder: (context, url) => const CircularProgressIndicator(
+            color: Colors.white,
           ),
         ),
       );
@@ -516,10 +512,9 @@ class _ReceiverCardState extends State<ReceiverCard> {
           height: Get.height * 0.32,
           fit: BoxFit.cover,
           placeholder: (context, url) {
-            return ShimmerEffect(
-              child: SizedBox(
-                width: Get.width * 0.558,
-                height: Get.height * 0.32,
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
               ),
             );
           },

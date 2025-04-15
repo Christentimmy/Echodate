@@ -1,6 +1,5 @@
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:flutter/material.dart';
-// import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -44,11 +43,9 @@ class LocationController extends GetxController {
   Future<void> getCurrentCity() async {
     try {
       bool serviceEnabled = await location.serviceEnabled();
-      print(serviceEnabled);
       if (!serviceEnabled) {
         serviceEnabled = await location.requestService();
         if (!serviceEnabled) {
-          print("Location services are not enabled.");
           return;
         }
       }
@@ -56,17 +53,12 @@ class LocationController extends GetxController {
       if (permission == PermissionStatus.denied) {
         permission = await location.requestPermission();
       }
-      print("permission: $permission");
-      // Position locationData = await Geolocator.getCurrentPosition();
      LocationData locationData = await location.getLocation();
-      print("location data $locationData");
       List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
         locationData.latitude ?? 0.0,
         locationData.longitude ?? 0.0,
       );
-      print("placemark : $placemarks");
       String? city = placemarks[0].subAdministrativeArea;
-      print(city);
       if (city == null || city.isEmpty) return;
       final userController = Get.find<UserController>();
       await userController.updateLocation(
