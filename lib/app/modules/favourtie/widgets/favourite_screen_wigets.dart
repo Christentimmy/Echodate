@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
-import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
+import 'package:echodate/app/modules/home/widgets/tinder_card_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/shimmer_effect.dart';
 import 'package:flutter/material.dart';
