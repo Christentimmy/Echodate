@@ -1,16 +1,20 @@
 import 'dart:io';
+import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/models/user_model.dart';
+import 'package:echodate/app/modules/profile/controller/edit_profile_controller.dart';
+import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ProfileImage extends StatelessWidget {
   final File? imageFile;
   final String? imageUrl;
-  final String index;
   final bool isLarge;
   final VoidCallback onPickImage;
   final VoidCallback onRemove;
-
-  const ProfileImage({
+  final int index;
+  ProfileImage({
     super.key,
     required this.imageFile,
     required this.imageUrl,
@@ -20,13 +24,16 @@ class ProfileImage extends StatelessWidget {
     this.isLarge = false,
   });
 
+  final _editProfileController = Get.find<EditProfileController>();
+  final _userController = Get.find<UserController>();
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = Get.width;
     double screenHeight = Get.height;
 
     return GestureDetector(
-      onTap: onPickImage, // Tap to pick an image
+      onTap: onPickImage,
       child: Container(
         margin: EdgeInsets.only(bottom: screenHeight * 0.01),
         width: isLarge ? screenWidth * 0.585 : screenWidth * 0.28,
@@ -35,69 +42,236 @@ class ProfileImage extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           color: Colors.grey,
           border: isLarge ? Border.all(color: Colors.blue, width: 2) : null,
-          image: imageFile != null
-              ? DecorationImage(image: FileImage(imageFile!), fit: BoxFit.cover)
-              : (imageUrl != null &&
-                      imageUrl!.isNotEmpty) // Use imageUrl if available
-                  ? DecorationImage(
-                      image: NetworkImage(imageUrl!), fit: BoxFit.cover)
-                  : const DecorationImage(
-                      image: AssetImage("assets/images/placeholder1.png"),
-                      fit: BoxFit.cover,
-                    ),
+          image: _buildImage(),
         ),
         child: Stack(
           children: [
-            // Close Button (Only show if image exists)
-            if (imageFile != null || (imageUrl != null && imageUrl!.isNotEmpty))
-              Positioned(
-                top: 5,
-                right: 5,
-                child: GestureDetector(
-                  onTap: onRemove,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.red,
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: const Icon(
-                      Icons.close,
-                      size: 14,
-                      color: Colors.white,
+            Obx(() {
+              final deletedIndex = _editProfileController.deletedIndex.value;
+              final isDeleting = _userController.isloading.value;
+              final isLoading = deletedIndex == index && isDeleting;
+              if (isLoading) {
+                return const Positioned(
+                  top: 5,
+                  right: 5,
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
                     ),
                   ),
-                ),
-              ),
-
-            // Index Label
-            Positioned(
-              bottom: 5,
-              right: 5,
-              child: CircleAvatar(
-                radius: screenWidth * 0.03,
-                backgroundColor: Colors.white,
-                child: Text(
-                  index,
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.03,
-                    fontWeight: FontWeight.bold,
+                );
+              } else if (imageFile != null ||
+                  (imageUrl != null && imageUrl!.isNotEmpty)) {
+                return Positioned(
+                  top: 5,
+                  right: 5,
+                  child: GestureDetector(
+                    onTap: onRemove,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.red,
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: const Icon(
+                        Icons.close,
+                        size: 14,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-
-            // "+" Icon for empty upload slots
-            if (imageFile == null && (imageUrl == null || imageUrl!.isEmpty))
-              Center(
-                child: Icon(
-                  Icons.add_a_photo,
-                  size: screenWidth * 0.07,
-                  color: Colors.white70,
-                ),
-              ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            }),
           ],
         ),
+      ),
+    );
+  }
+
+  DecorationImage _buildImage() {
+    if (imageFile != null) {
+      return DecorationImage(
+        image: FileImage(imageFile!),
+        fit: BoxFit.cover,
+      );
+    }
+
+    if (imageUrl?.isNotEmpty == true) {
+      return DecorationImage(
+        image: NetworkImage(imageUrl!),
+        fit: BoxFit.cover,
+      );
+    }
+
+    return const DecorationImage(
+      image: AssetImage("assets/images/placeholder1.png"),
+      fit: BoxFit.cover,
+    );
+  }
+}
+
+class BuildPictureSection extends StatelessWidget {
+  BuildPictureSection({super.key});
+
+  final _userController = Get.find<UserController>();
+  final _editPontroller = Get.find<EditProfileController>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Obx(() {
+              final userModel = _userController.userModel.value;
+              return ProfileImage(
+                imageUrl: userModel?.avatar,
+                imageFile: _editPontroller.profileImage.value,
+                isLarge: true,
+                index: 8,
+                onPickImage: () async {
+                  await _editPontroller.selectImage(8, isProfile: true);
+                },
+                onRemove: () {},
+              );
+            }),
+            SizedBox(width: Get.width * 0.02),
+            Obx(
+              () => Column(
+                children: [
+                  ...buildTopImages(),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Obx(() => buildBottomImages()),
+      ],
+    );
+  }
+
+  List<Widget> buildTopImages() {
+    return List.generate(2, (i) {
+      final userModel = _userController.userModel.value ?? UserModel();
+      final images = _editPontroller.images;
+      final photos = userModel.photos ?? [];
+      final imageUrl = i < photos.length ? photos[i] : null;
+      final imageFile = i < images.length ? images[i] : null;
+
+      return Padding(
+        padding: EdgeInsets.only(bottom: Get.height * 0.01),
+        child: ProfileImage(
+          imageUrl: imageUrl,
+          imageFile: imageFile,
+          index: i,
+          onPickImage: () => _editPontroller.selectImage(i),
+          onRemove: () => _editPontroller.removeImage(i),
+        ),
+      );
+    });
+  }
+
+  Widget buildBottomImages() {
+    final userModel = _userController.userModel.value ?? UserModel();
+    final photos = userModel.photos ?? [];
+    final images = _editPontroller.images;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (i) {
+        final imgIndex = i + 2;
+        final imageUrl = imgIndex < photos.length ? photos[imgIndex] : null;
+        final imageFile = imgIndex < images.length ? images[imgIndex] : null;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: Get.width * 0.01),
+          child: ProfileImage(
+            imageUrl: imageUrl,
+            imageFile: imageFile,
+            index: imgIndex,
+            onPickImage: () => _editPontroller.selectImage(imgIndex),
+            onRemove: () => _editPontroller.removeImage(imgIndex),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class BuildGenderSelectField extends StatelessWidget {
+  BuildGenderSelectField({super.key});
+
+  final _editProfileController = Get.find<EditProfileController>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => DropdownButtonFormField<String>(
+        decoration: InputDecoration(
+          labelText: 'Gender',
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: AppColors.primaryColor,
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: AppColors.primaryColor,
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+        value: _editProfileController.gender.value,
+        onChanged: (value) {
+          _editProfileController.gender.value = value!;
+        },
+        items: ['Male', 'Female', 'Other'].map((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class BuildSaveButton extends StatelessWidget {
+  BuildSaveButton({super.key});
+
+  final _editProfileController = Get.find<EditProfileController>();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomButton(
+      ontap: () async {
+        if (_editProfileController.isSaving.value) return;
+        await _editProfileController.saveProfile();
+      },
+      child: Obx(
+        () => _editProfileController.isSaving.value
+            ? const CircularProgressIndicator(
+                strokeWidth: 4,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              )
+            : const Text(
+                "Save",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
       ),
     );
   }

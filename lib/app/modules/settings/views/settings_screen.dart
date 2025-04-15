@@ -3,6 +3,7 @@ import 'package:echodate/app/controller/notification_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
 import 'package:echodate/app/modules/auth/views/change_password_screen.dart';
+import 'package:echodate/app/modules/profile/binding/editprofile_binding.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
@@ -81,7 +82,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(width: 10),
               ListTile(
                 onTap: () {
-                  Get.to(() => const EditProfileScreen());
+                  Get.to(
+                    () =>  EditProfileScreen(),
+                    binding: EditprofileBinding(),
+                  );
                 },
                 minTileHeight: 30,
                 contentPadding: const EdgeInsets.all(5),

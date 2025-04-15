@@ -75,10 +75,13 @@ class UserModel {
       phoneNumber: json['phone_number'] as String?,
       avatar: json['avatar'] as String?,
       bio: json['bio'] as String?,
-      photos:
-          (json['photos'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      hobbies:
-          (json['hobbies'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      photos: (json['photos'] as List<dynamic>?)
+              ?.map((e) => e?.toString() ?? '')
+              .toList() ??
+          [],
+      hobbies: (json['hobbies'] as List<dynamic>?)
+          ?.map((e) => e?.toString() ?? "")
+          .toList(),
       status: json['status'] as String?,
       profileCompleted: json['profile_completed'] as bool?,
       isEmailVerified: json['is_email_verified'] as bool?,

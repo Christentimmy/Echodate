@@ -290,7 +290,7 @@ class UserService {
   }) async {
     try {
       final url = Uri.parse("$baseUrl/user/delete-photo");
-      var request = http.Request("DELETE", url)
+      var request = http.Request("POST", url)
         ..headers['Authorization'] = 'Bearer $token'
         ..headers['Content-Type'] = 'application/json'
         ..body = json.encode({"index": index});
