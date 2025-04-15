@@ -260,7 +260,7 @@ class _TinderCardDetailsState extends State<TinderCardDetails> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return ReportBottomSheet();
+        return const ReportBottomSheet();
       },
     );
   }
