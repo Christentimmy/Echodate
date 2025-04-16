@@ -46,6 +46,32 @@ class EditProfileScreen extends StatelessWidget {
                 controller: _editProfileController.nameController,
               ),
               const SizedBox(height: 10.0),
+              Obx(
+                () => CustomTextField(
+                  hintText: "Email",
+                  controller: _editProfileController.emailController,
+                  readOnly: _editProfileController.isEmailEditDisAllowed.value,
+                  suffixIcon: Icons.mode_edit_outline_outlined,
+                  onSuffixTap: () {
+                    _editProfileController.showEmailEditBottomSheet(context);
+                  },
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              Obx(
+                () => CustomTextField(
+                  hintText: "Phone Number",
+                  controller: _editProfileController.phoneNumberController,
+                  readOnly:
+                      _editProfileController.isPhoneNumberEditDisAllowed.value,
+                  suffixIcon: Icons.mode_edit_outline_outlined,
+                  onSuffixTap: () {
+                    _editProfileController
+                        .showPhoneNumberEditBottomSheet(context);
+                  },
+                ),
+              ),
+              const SizedBox(height: 10.0),
               BuildGenderSelectField(),
               const SizedBox(height: 10.0),
               Obx(
@@ -64,7 +90,6 @@ class EditProfileScreen extends StatelessWidget {
                 maxLines: 3,
               ),
               SizedBox(height: Get.height * 0.04),
-              // Interests section (left as is)
               Row(
                 children: [
                   const Text(

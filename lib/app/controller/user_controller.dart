@@ -510,6 +510,8 @@ class UserController extends GetxController {
     required String fullName,
     required String bio,
     required String gender,
+    required String email,
+    required String phoneNumber,
   }) async {
     try {
       final storageController = Get.find<StorageController>();
@@ -523,6 +525,8 @@ class UserController extends GetxController {
         fullName: fullName,
         bio: bio,
         gender: gender,
+        email: email,
+        phoneNumber: phoneNumber,
       );
       if (response == null) return;
       final decoded = json.decode(response.body);
@@ -532,7 +536,6 @@ class UserController extends GetxController {
         return;
       }
       await getUserDetails();
-      Get.back();
     } catch (e) {
       debugPrint(e.toString());
     }

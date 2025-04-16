@@ -492,6 +492,8 @@ class UserService {
     required String bio,
     required String token,
     required String gender,
+    required String email,
+    required String phoneNumber,
   }) async {
     try {
       final response = await client
@@ -504,8 +506,10 @@ class UserService {
                 'gender': gender,
                 'full_name': fullName,
                 'bio': bio,
+                "email": email,
+                "phone_number": phoneNumber,
               }))
-          .timeout(const Duration(seconds: 15));
+          .timeout(const Duration(seconds: 60));
       return response;
     } on SocketException catch (e) {
       debugPrint("No internet connection $e");
