@@ -37,10 +37,7 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
             user.preferences!.ageRange![1].toDouble(),
           );
         }
-        print(user.preferences?.maxDistance);
-        print(user.preferences?.ageRange);
-        distance =
-            ((user.preferences?.maxDistance?.toDouble() ?? 50000) / 1000);
+        distance = user.preferences?.maxDistance?.toDouble() ?? 0.0;
       });
     });
   }
@@ -50,7 +47,7 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
       minAge: ageRange.start.toInt().toString(),
       maxAge: ageRange.end.toInt().toString(),
       interestedIn: interestedIn.value,
-      distance: (distance * 1000).toInt().toString(),
+      distance: (distance).toInt().toString(),
     );
   }
 
@@ -136,7 +133,7 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
               value: distance.clamp(1.0, 1000.0),
               min: 1,
               max: 1000,
-              divisions: 99,
+              divisions: 50,
               onChanged: (value) {
                 setState(() {
                   distance = value;
@@ -154,8 +151,8 @@ class _PreferenceSettingScreenState extends State<PreferenceSettingScreen> {
               activeColor: AppColors.primaryColor,
               values: ageRange,
               min: 18,
-              max: 60,
-              divisions: 42,
+              max: 100,
+              divisions: 5,
               labels: RangeLabels(
                 ageRange.start.toInt().toString(),
                 ageRange.end.toInt().toString(),
