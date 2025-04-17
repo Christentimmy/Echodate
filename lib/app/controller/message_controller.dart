@@ -16,6 +16,8 @@ class MessageController extends GetxController {
   RxList<ChatListModel> activeFriends = <ChatListModel>[].obs;
   RxList<MessageModel> chatHistoryAndLiveMessage = <MessageModel>[].obs;
   final scrollController = ScrollController();
+  RxMap<String, RxList<MessageModel>> savedChatToAvoidLoading =
+      <String, RxList<MessageModel>>{}.obs;
 
   Future<void> sendMessage({
     required MessageModel messageModel,
@@ -85,9 +87,10 @@ class MessageController extends GetxController {
     }
   }
 
-  Future<void> getChatList() async {
-    print("ca");
-    isChatListLoading.value = true;
+  Future<void> getChatList({bool showLoading = true}) async {
+    if (showLoading) {
+      isChatListLoading.value = true;
+    }
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
@@ -172,5 +175,6 @@ class MessageController extends GetxController {
     activeFriends.clear();
     allChattedUserList.clear();
     chatHistoryAndLiveMessage.refresh();
+    savedChatToAvoidLoading.clear();
   }
 }

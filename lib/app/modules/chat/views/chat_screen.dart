@@ -7,7 +7,9 @@ import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/message_model.dart';
+import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/chat/widgets/chat_widgets.dart';
+import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/services/message_service.dart';
 import 'package:echodate/app/utils/image_picker.dart';
@@ -224,6 +226,12 @@ class _ChatScreenState extends State<ChatScreen> {
     _socketController.stopTyping(
       receiverId: widget.chatHead.userId ?? "",
     );
+    final userId = widget.chatHead.userId;
+    if (userId != null && userId.isNotEmpty) {
+      final clonedMessages = [..._messageController.chatHistoryAndLiveMessage];
+      _messageController.savedChatToAvoidLoading[userId] =
+          RxList<MessageModel>.from(clonedMessages);
+    }
     _messageController.chatHistoryAndLiveMessage.clear();
     super.dispose();
   }
@@ -242,10 +250,21 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         title: Row(
           children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundImage: CachedNetworkImageProvider(
-                widget.chatHead.avatar ?? "",
+            InkWell(
+              onTap: () {
+                Get.to(() => TinderCardDetails(
+                      userModel: UserModel(
+                        id: widget.chatHead.userId,
+                        avatar: widget.chatHead.avatar,
+                        fullName: widget.chatHead.fullName,
+                      ),
+                    ));
+              },
+              child: CircleAvatar(
+                radius: 22,
+                backgroundImage: CachedNetworkImageProvider(
+                  widget.chatHead.avatar ?? "",
+                ),
               ),
             ),
             const SizedBox(width: 15),
@@ -299,14 +318,35 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(height: 10),
           Expanded(
             child: Obx(() {
-              if (_messageController.isloading.value) {
+              final liss = _messageController
+                      .savedChatToAvoidLoading[widget.chatHead.userId] ??
+                  [];
+              if (liss.isEmpty && _messageController.isloading.value) {
                 return Center(
                   child: CircularProgressIndicator(
                     color: AppColors.primaryColor,
                   ),
                 );
               }
-              if (_messageController.chatHistoryAndLiveMessage.isEmpty) {
+              if (liss.isNotEmpty && _messageController.isloading.value) {
+                return ListView.builder(
+                  controller: _messageController.scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  itemCount: _messageController
+                      .savedChatToAvoidLoading[widget.chatHead.userId]?.length,
+                  reverse: true,
+                  itemBuilder: (context, index) {
+                    final reversedIndex = liss.length - 1 - index;
+                    final message = liss[reversedIndex];
+                    return message.senderId ==
+                            _userController.userModel.value!.id
+                        ? SenderCard(messageModel: message)
+                        : ReceiverCard(messageModel: message);
+                  },
+                );
+              }
+              if (_messageController.chatHistoryAndLiveMessage.isEmpty &&
+                  liss.isEmpty) {
                 return const Center(
                   child: Text("No Message"),
                 );

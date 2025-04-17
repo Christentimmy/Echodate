@@ -1,4 +1,5 @@
 import 'package:echodate/app/controller/location_controller.dart';
+import 'package:echodate/app/controller/message_controller.dart';
 import 'package:echodate/app/controller/notification_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
@@ -7,6 +8,8 @@ import 'package:echodate/app/modules/profile/binding/editprofile_binding.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -49,198 +52,216 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: Get.height * 0.02),
-              const Text(
-                'Settings',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: Get.height * 0.02),
+                const Text(
+                  'Settings',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              SizedBox(height: Get.height * 0.05),
-              const Row(
-                children: [
-                  Icon(Icons.person),
-                  SizedBox(width: 10),
-                  Text(
-                    "Account",
+                SizedBox(height: Get.height * 0.05),
+                const Row(
+                  children: [
+                    Icon(Icons.person),
+                    SizedBox(width: 10),
+                    Text(
+                      "Account",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 10),
+                const Divider(height: 0),
+                const SizedBox(width: 10),
+                ListTile(
+                  onTap: () {
+                    Get.to(
+                      () => EditProfileScreen(),
+                      binding: EditprofileBinding(),
+                    );
+                  },
+                  minTileHeight: 30,
+                  contentPadding: const EdgeInsets.all(5),
+                  leading: const Text(
+                    "Edit Profile",
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(width: 10),
-              const Divider(height: 0),
-              const SizedBox(width: 10),
-              ListTile(
-                onTap: () {
-                  Get.to(
-                    () =>  EditProfileScreen(),
-                    binding: EditprofileBinding(),
-                  );
-                },
-                minTileHeight: 30,
-                contentPadding: const EdgeInsets.all(5),
-                leading: const Text(
-                  "Edit Profile",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                 ),
-                trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-              ),
-              ListTile(
-                onTap: () {
-                  Get.to(() => const ChangePasswordScreen());
-                },
-                minTileHeight: 30,
-                contentPadding: const EdgeInsets.all(5),
-                leading: const Text(
-                  "Change Password",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                ListTile(
+                  onTap: () {
+                    Get.to(() => const ChangePasswordScreen());
+                  },
+                  minTileHeight: 30,
+                  contentPadding: const EdgeInsets.all(5),
+                  leading: const Text(
+                    "Change Password",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                  trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                 ),
-                trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-              ),
-              ListTile(
-                onTap: () {
-                  Get.to(() => const PreferenceSettingScreen());
-                },
-                minTileHeight: 30,
-                contentPadding: const EdgeInsets.all(5),
-                leading: const Text(
-                  "Your Preferences",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                ListTile(
+                  onTap: () {
+                    Get.to(() => const PreferenceSettingScreen());
+                  },
+                  minTileHeight: 30,
+                  contentPadding: const EdgeInsets.all(5),
+                  leading: const Text(
+                    "Your Preferences",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                  trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                 ),
-                trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-              ),
-              ListTile(
-                onTap: () {
-                  Get.to(() => RelationtionshipPreferenceScreen(
-                        callback: () {
-                          Get.back();
+                ListTile(
+                  onTap: () {
+                    Get.to(() => RelationtionshipPreferenceScreen(
+                          callback: () {
+                            Get.back();
+                          },
+                        ));
+                  },
+                  minTileHeight: 30,
+                  contentPadding: const EdgeInsets.all(5),
+                  leading: const Text(
+                    "Relationship Preference",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+                ),
+                SizedBox(height: Get.height * 0.05),
+                const Row(
+                  children: [
+                    Icon(Icons.notifications_active),
+                    SizedBox(width: 10),
+                    Text(
+                      "Notification",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 10),
+                const Divider(height: 0),
+                const SizedBox(width: 10),
+                ListTile(
+                  minTileHeight: 30,
+                  contentPadding: const EdgeInsets.all(5),
+                  leading: const Text(
+                    "Location",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  trailing: Transform.scale(
+                    scale: 0.7,
+                    child: Obx(
+                      () => Switch(
+                        value: _locationController.isLocation.value,
+                        activeColor: AppColors.primaryColor,
+                        onChanged: (value) async {
+                          if (value) {
+                            await _locationController
+                                .requestLocationPermission();
+                          } else {
+                            _locationController.isLocation.value = false;
+                          }
                         },
-                      ));
-                },
-                minTileHeight: 30,
-                contentPadding: const EdgeInsets.all(5),
-                leading: const Text(
-                  "Relationship Preference",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-                trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-              ),
-              SizedBox(height: Get.height * 0.05),
-              const Row(
-                children: [
-                  Icon(Icons.notifications_active),
-                  SizedBox(width: 10),
-                  Text(
+                ListTile(
+                  minTileHeight: 30,
+                  contentPadding: const EdgeInsets.all(5),
+                  leading: const Text(
+                    "Weekend Vibes",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  trailing: Transform.scale(
+                    scale: 0.7,
+                    child: Obx(
+                      () => Switch(
+                        value: _isWeekendVibes.value,
+                        activeColor: AppColors.primaryColor,
+                        onChanged: (value) async {
+                          _isWeekendVibes.value = value;
+                          await _userController.updateWeekendAvailability(
+                            updateWeekendAvailability: value,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                ListTile(
+                  minTileHeight: 30,
+                  contentPadding: const EdgeInsets.all(5),
+                  leading: const Text(
                     "Notification",
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(width: 10),
-              const Divider(height: 0),
-              const SizedBox(width: 10),
-              ListTile(
-                minTileHeight: 30,
-                contentPadding: const EdgeInsets.all(5),
-                leading: const Text(
-                  "Location",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                trailing: Transform.scale(
-                  scale: 0.7,
-                  child: Obx(
-                    () => Switch(
-                      value: _locationController.isLocation.value,
-                      activeColor: AppColors.primaryColor,
-                      onChanged: (value) async {
-                        if (value) {
-                          await _locationController.requestLocationPermission();
-                        } else {
-                          _locationController.isLocation.value = false;
-                        }
-                      },
+                  trailing: Transform.scale(
+                    scale: 0.7,
+                    child: Obx(
+                      () => Switch(
+                        value: _controller.isNotification.value,
+                        activeColor: AppColors.primaryColor,
+                        onChanged: (value) {
+                          _controller.toggleNotification(value);
+                        },
+                      ),
                     ),
                   ),
                 ),
-              ),
-              ListTile(
-                minTileHeight: 30,
-                contentPadding: const EdgeInsets.all(5),
-                leading: const Text(
-                  "Weekend Vibes",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                trailing: Transform.scale(
-                  scale: 0.7,
-                  child: Obx(
-                    () => Switch(
-                      value: _isWeekendVibes.value,
-                      activeColor: AppColors.primaryColor,
-                      onChanged: (value) async {
-                        _isWeekendVibes.value = value;
-                        await _userController.updateWeekendAvailability(
-                          updateWeekendAvailability: value,
-                        );
-                      },
+                const SizedBox(height: 45),
+                CustomButton(
+                  ontap: () {
+                    final messageController = Get.find<MessageController>();
+                    messageController.savedChatToAvoidLoading.clear();
+                    CustomSnackbar.showSuccessSnackBar("Caches Cleared Successfully");
+                  },
+                  child: const Text(
+                    "Clear Chat Caches",
+                    style: TextStyle(
+                      color: Colors.white,
                     ),
                   ),
                 ),
-              ),
-              ListTile(
-                minTileHeight: 30,
-                contentPadding: const EdgeInsets.all(5),
-                leading: const Text(
-                  "Notification",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                trailing: Transform.scale(
-                  scale: 0.7,
-                  child: Obx(
-                    () => Switch(
-                      value: _controller.isNotification.value,
-                      activeColor: AppColors.primaryColor,
-                      onChanged: (value) {
-                        _controller.toggleNotification(value);
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ],
+                const SizedBox(width: 10),
+              ],
+            ),
           ),
         ),
       ),

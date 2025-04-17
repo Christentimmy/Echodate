@@ -131,7 +131,8 @@ class SocketController extends GetxController {
     });
 
     socket?.on("update-chat-list", (data) async {
-      Get.find<MessageController>().getChatList();
+      await Future.delayed(const Duration(seconds: 2));
+      Get.find<MessageController>().getChatList(showLoading: false);
     });
 
     socket?.on("user-offline", (data) {
@@ -150,7 +151,7 @@ class SocketController extends GetxController {
     });
 
     socket?.on("update-unread-count", (data) {
-      Get.find<MessageController>().getChatList();
+      Get.find<MessageController>().getChatList(showLoading: false);
     });
 
     socket?.on("receive-message", (data) {
