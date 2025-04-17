@@ -30,6 +30,8 @@ class _SenderCardState extends State<SenderCard> {
   bool isLoading = false;
   String localPath = '';
 
+  bool _isCancelled = false;
+
   @override
   void initState() {
     super.initState();
@@ -43,24 +45,18 @@ class _SenderCardState extends State<SenderCard> {
     }
   }
 
-  void _initializeVideoController() {
-    _videoController?.dispose();
-    _videoController = VideoPlayerController.networkUrl(
-        Uri.parse(widget.messageModel.mediaUrl ?? ""))
-      ..initialize().then((_) {
-        setState(() {});
-        _videoController!.setVolume(1.0);
-      }).catchError((error) {
-        print("Video initialization error: $error");
-      });
-  }
-
   Future<String> _downloadAudio(String url) async {
     try {
+      if (_isCancelled) return "";
+
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) {
         return "";
       }
+
+      // Check again after async operation
+      if (_isCancelled) return "";
+
       Uri uri = Uri.parse(url);
       String filename = uri.pathSegments.last;
       Directory tempDir = await getTemporaryDirectory();
@@ -69,25 +65,27 @@ class _SenderCardState extends State<SenderCard> {
       await saveFile.writeAsBytes(response.bodyBytes);
       return savePath;
     } catch (e) {
-      CustomSnackbar.showErrorSnackBar("Failed to download audio");
+      if (mounted) {
+        CustomSnackbar.showErrorSnackBar("Failed to download audio");
+      }
       return "";
     }
   }
 
   Future<void> _initializeAudioController() async {
     try {
+      if (!mounted) return;
       setState(() => isLoading = true);
+
       if (widget.messageModel.mediaUrl == null ||
           widget.messageModel.mediaUrl!.isEmpty) {
-        print("Error: Media URL is empty");
         return;
       }
 
       localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
 
-      if (localPath.isEmpty) {
-        return;
-      }
+      if (!mounted || _isCancelled || localPath.isEmpty) return;
+
       _audioController = PlayerController();
 
       await _audioController!.preparePlayer(
@@ -96,7 +94,13 @@ class _SenderCardState extends State<SenderCard> {
         noOfSamples: 100,
       );
 
-      _audioController!.onPlayerStateChanged.listen((state) async {
+      // Only add listener if widget is still mounted
+      if (!mounted || _isCancelled) return;
+
+      _audioController!.onPlayerStateChanged.listen((state) {
+        // Always check mounted before setState
+        if (!mounted || _isCancelled) return;
+
         if (state == PlayerState.stopped) {
           setState(() {
             isPlaying = false;
@@ -106,10 +110,29 @@ class _SenderCardState extends State<SenderCard> {
         }
       });
     } catch (e) {
-      CustomSnackbar.showErrorSnackBar("Error Playing Audio");
+      if (mounted) {
+        CustomSnackbar.showErrorSnackBar("Error Playing Audio");
+      }
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
+  }
+
+  void _initializeVideoController() {
+    _videoController?.dispose();
+    _videoController = VideoPlayerController.networkUrl(
+        Uri.parse(widget.messageModel.mediaUrl ?? ""))
+      ..initialize().then((_) {
+        // Check if widget is still mounted before updating state
+        if (mounted && !_isCancelled) {
+          setState(() {});
+          _videoController!.setVolume(1.0);
+        }
+      }).catchError((error) {
+        print("Video initialization error: $error");
+      });
   }
 
   void playPause() async {
@@ -137,15 +160,23 @@ class _SenderCardState extends State<SenderCard> {
             noOfSamples: 100,
           );
 
+          // Check mounted before setting listeners
+          if (!mounted || _isCancelled) return;
+
           _audioController!.onPlayerStateChanged.listen((state) {
+            // Always check mounted before setState
+            if (!mounted || _isCancelled) return;
             setState(() => isPlaying = state == PlayerState.playing);
           });
 
+          if (!mounted || _isCancelled) return;
           await _audioController?.startPlayer();
         } else {
           // If localPath somehow got lost, re-download
           await _initializeAudioController();
-          await _audioController?.startPlayer();
+          if (mounted && !_isCancelled) {
+            await _audioController?.startPlayer();
+          }
         }
         return;
       }
@@ -155,14 +186,29 @@ class _SenderCardState extends State<SenderCard> {
         return;
       }
 
-      // Fall back to reinitialization if none of the above worked
       if (_audioController == null) {
         await _initializeAudioController();
-        await _audioController?.startPlayer();
+        if (mounted && !_isCancelled) {
+          await _audioController?.startPlayer();
+        }
       }
     } catch (e) {
-      CustomSnackbar.showErrorSnackBar("Error Playing audio");
+      if (mounted) {
+        CustomSnackbar.showErrorSnackBar("Error Playing audio");
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    // Set cancel flag to true
+    _isCancelled = true;
+
+    // Clean up controllers
+    _audioController?.dispose();
+    _videoController?.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -176,13 +222,6 @@ class _SenderCardState extends State<SenderCard> {
         widget.messageModel.mediaUrl != null) {
       _initializeVideoController();
     }
-  }
-
-  @override
-  void dispose() {
-    _videoController?.dispose();
-    _audioController?.dispose();
-    super.dispose();
   }
 
   @override
@@ -403,25 +442,33 @@ class _ReceiverCardState extends State<ReceiverCard> {
   bool isPlaying = false;
   bool isLoading = false;
   String localPath = '';
+  bool _isCancelled = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.messageModel.messageType == 'audio' &&
-        widget.messageModel.mediaUrl != null) {
-      _initializeAudioController();
-    } else if (widget.messageModel.messageType == 'video' &&
+    if (widget.messageModel.messageType == 'video' &&
         widget.messageModel.mediaUrl != null) {
       _initializeVideoController();
+    } else if (widget.messageModel.messageType == 'audio' &&
+        widget.messageModel.mediaUrl != null &&
+        _audioController == null) {
+      _initializeAudioController();
     }
   }
 
   Future<String> _downloadAudio(String url) async {
     try {
+      if (_isCancelled) return "";
+
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) {
         return "";
       }
+
+      // Check again after async operation
+      if (_isCancelled) return "";
+
       Uri uri = Uri.parse(url);
       String filename = uri.pathSegments.last;
       Directory tempDir = await getTemporaryDirectory();
@@ -430,14 +477,33 @@ class _ReceiverCardState extends State<ReceiverCard> {
       await saveFile.writeAsBytes(response.bodyBytes);
       return savePath;
     } catch (e) {
-      CustomSnackbar.showErrorSnackBar("Failed to download audio");
+      if (mounted) {
+        CustomSnackbar.showErrorSnackBar("Failed to download audio");
+      }
       return "";
     }
   }
 
+  void _initializeVideoController() {
+    _videoController?.dispose();
+    _videoController = VideoPlayerController.networkUrl(
+        Uri.parse(widget.messageModel.mediaUrl ?? ""))
+      ..initialize().then((_) {
+        // Check if widget is still mounted before updating state
+        if (mounted && !_isCancelled) {
+          setState(() {});
+          _videoController!.setVolume(1.0);
+        }
+      }).catchError((error) {
+        print("Video initialization error: $error");
+      });
+  }
+
   Future<void> _initializeAudioController() async {
     try {
+      if (!mounted) return;
       setState(() => isLoading = true);
+
       if (widget.messageModel.mediaUrl == null ||
           widget.messageModel.mediaUrl!.isEmpty) {
         return;
@@ -445,9 +511,8 @@ class _ReceiverCardState extends State<ReceiverCard> {
 
       localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
 
-      if (localPath.isEmpty) {
-        return;
-      }
+      if (!mounted || _isCancelled || localPath.isEmpty) return;
+
       _audioController = PlayerController();
 
       await _audioController!.preparePlayer(
@@ -456,7 +521,13 @@ class _ReceiverCardState extends State<ReceiverCard> {
         noOfSamples: 100,
       );
 
-      _audioController!.onPlayerStateChanged.listen((state) async {
+      // Only add listener if widget is still mounted
+      if (!mounted || _isCancelled) return;
+
+      _audioController!.onPlayerStateChanged.listen((state) {
+        // Always check mounted before setState
+        if (!mounted || _isCancelled) return;
+
         if (state == PlayerState.stopped) {
           setState(() {
             isPlaying = false;
@@ -466,22 +537,14 @@ class _ReceiverCardState extends State<ReceiverCard> {
         }
       });
     } catch (e) {
-      CustomSnackbar.showErrorSnackBar("Error Playing Audio");
+      if (mounted) {
+        CustomSnackbar.showErrorSnackBar("Error Playing Audio");
+      }
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
-  }
-
-  void _initializeVideoController() {
-    _videoController?.dispose();
-    _videoController = VideoPlayerController.networkUrl(
-        Uri.parse(widget.messageModel.mediaUrl ?? ""))
-      ..initialize().then((_) {
-        setState(() {});
-        _videoController!.setVolume(1.0);
-      }).catchError((error) {
-        print("Video initialization error: $error");
-      });
   }
 
   void playPause() async {
@@ -509,15 +572,23 @@ class _ReceiverCardState extends State<ReceiverCard> {
             noOfSamples: 100,
           );
 
+          // Check mounted before setting listeners
+          if (!mounted || _isCancelled) return;
+
           _audioController!.onPlayerStateChanged.listen((state) {
+            // Always check mounted before setState
+            if (!mounted || _isCancelled) return;
             setState(() => isPlaying = state == PlayerState.playing);
           });
 
+          if (!mounted || _isCancelled) return;
           await _audioController?.startPlayer();
         } else {
           // If localPath somehow got lost, re-download
           await _initializeAudioController();
-          await _audioController?.startPlayer();
+          if (mounted && !_isCancelled) {
+            await _audioController?.startPlayer();
+          }
         }
         return;
       }
@@ -529,17 +600,26 @@ class _ReceiverCardState extends State<ReceiverCard> {
 
       if (_audioController == null) {
         await _initializeAudioController();
-        await _audioController?.startPlayer();
+        if (mounted && !_isCancelled) {
+          await _audioController?.startPlayer();
+        }
       }
     } catch (e) {
-      CustomSnackbar.showErrorSnackBar("Error Playing audio");
+      if (mounted) {
+        CustomSnackbar.showErrorSnackBar("Error Playing audio");
+      }
     }
   }
 
   @override
   void dispose() {
+    // Set cancel flag to true
+    _isCancelled = true;
+
+    // Clean up controllers
     _audioController?.dispose();
     _videoController?.dispose();
+
     super.dispose();
   }
 
