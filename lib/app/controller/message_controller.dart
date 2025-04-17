@@ -160,7 +160,7 @@ class MessageController extends GetxController {
   void scrollToBottom() async {
     if (scrollController.hasClients) {
       scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
+        0,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );

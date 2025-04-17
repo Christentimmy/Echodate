@@ -533,18 +533,21 @@ class _ReceiverCardState extends State<ReceiverCard> {
                 message: widget.messageModel,
               ));
         },
-        child: CachedNetworkImage(
-          imageUrl: widget.messageModel.mediaUrl ?? "",
-          width: Get.width * 0.558,
-          height: Get.height * 0.32,
-          fit: BoxFit.cover,
-          placeholder: (context, url) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
-              ),
-            );
-          },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: CachedNetworkImage(
+            imageUrl: widget.messageModel.mediaUrl ?? "",
+            width: Get.width * 0.558,
+            height: Get.height * 0.32,
+            fit: BoxFit.cover,
+            placeholder: (context, url) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              );
+            },
+          ),
         ),
       );
     }

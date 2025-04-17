@@ -167,8 +167,6 @@ class _ChatScreenState extends State<ChatScreen> {
         _socketController.initializeSocket();
       }
 
-      // Set up socket listeners
-      _socketController.markMessageRead(widget.chatHead.userId ?? "");
       _socketController.socket?.on("typing", (data) {
         if (data["senderId"] == widget.chatHead.userId) {
           // isTyping.value = true;
@@ -194,15 +192,13 @@ class _ChatScreenState extends State<ChatScreen> {
       await _messageController.getMessageHistory(
         receiverUserId: widget.chatHead.userId ?? "",
       );
-      await Future.delayed(const Duration(seconds: 3), () {
-        _messageController.scrollToBottom();
-      });
     });
 
     // Listen for message changes and scroll to bottom when they change
     _messageController.chatHistoryAndLiveMessage.listen((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _messageController.scrollToBottom();
+        _socketController.markMessageRead(widget.chatHead.userId ?? "");
       });
     });
   }
@@ -319,9 +315,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 controller: _messageController.scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 itemCount: _messageController.chatHistoryAndLiveMessage.length,
+                reverse: true,
                 itemBuilder: (context, index) {
-                  final message =
-                      _messageController.chatHistoryAndLiveMessage[index];
+                  final reversedIndex =
+                      _messageController.chatHistoryAndLiveMessage.length -
+                          1 -
+                          index;
+                  final message = _messageController
+                      .chatHistoryAndLiveMessage[reversedIndex];
                   return message.senderId == _userController.userModel.value!.id
                       ? SenderCard(messageModel: message)
                       : ReceiverCard(messageModel: message);

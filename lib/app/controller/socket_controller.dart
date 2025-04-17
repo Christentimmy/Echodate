@@ -131,7 +131,6 @@ class SocketController extends GetxController {
     });
 
     socket?.on("update-chat-list", (data) async {
-      await Future.delayed(const Duration(seconds: 2));
       Get.find<MessageController>().getChatList();
     });
 
