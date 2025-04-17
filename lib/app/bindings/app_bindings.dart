@@ -17,11 +17,12 @@ class AppBindings extends Bindings {
     Get.put(StorageController());
     Get.put(StoryController());
     Get.put(SocketController());
+    Get.put(MessageController());
     Get.put(LiveStreamController());
     Get.put(UserController());
     Get.put(LocationController());
     Get.put(AuthController());
-    Get.put(MessageController());
+
     Get.put(LifecycleController());
   }
 }

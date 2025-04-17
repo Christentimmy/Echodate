@@ -3,10 +3,12 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/views/view_medial_full_screen.dart';
+import 'package:echodate/app/utils/shimmer_effect.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
@@ -68,7 +70,7 @@ class _SenderCardState extends State<SenderCard> {
       await _audioController!.preparePlayer(
         path: localPath,
         shouldExtractWaveform: true,
-        noOfSamples: 100, // Reduced from 44100 for better performance
+        noOfSamples: 100,
       );
 
       _audioController!.onPlayerStateChanged.listen((state) {
@@ -229,16 +231,19 @@ class _SenderCardState extends State<SenderCard> {
         children: [
           Opacity(
             opacity: 0.4,
-            child: Image.file(
-              widget.messageModel.tempFile!,
-              width: Get.width * 0.558,
-              height: Get.height * 0.32,
-              fit: BoxFit.cover,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Image.file(
+                widget.messageModel.tempFile!,
+                width: Get.width * 0.558,
+                height: Get.height * 0.32,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const Center(
             child: SizedBox(
-              width: 100,
+              width: 45,
               child: Loader(),
             ),
           ),
@@ -252,14 +257,21 @@ class _SenderCardState extends State<SenderCard> {
             () => ViewMedialFullScreen(message: widget.messageModel),
           );
         },
-        child: CachedNetworkImage(
-          imageUrl: widget.messageModel.mediaUrl ?? "",
-          width: Get.width * 0.558,
-          height: Get.height * 0.32,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => const CircularProgressIndicator(
-            color: Colors.white,
-          ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: CachedNetworkImage(
+              imageUrl: widget.messageModel.mediaUrl ?? "",
+              width: Get.width * 0.558,
+              height: Get.height * 0.32,
+              fit: BoxFit.cover,
+              placeholder: (context, url) {
+                return ShimmerWrapper(
+                  child: SizedBox(
+                    width: Get.width * 0.558,
+                    height: Get.height * 0.32,
+                  ),
+                );
+              }),
         ),
       );
     } else if (widget.messageModel.messageType == "video") {
@@ -382,6 +394,25 @@ class _ReceiverCardState extends State<ReceiverCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.messageModel.status == "typing") {
+      // CustomSnackbar.showErrorSnackBar("message");
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 5,
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Lottie.asset(
+              "assets/images/typing.json",
+              height: 50,
+            ),
+          ),
+        ),
+      );
+    }
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(

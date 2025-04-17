@@ -45,7 +45,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final RxBool _isUploading = false.obs;
   final RxBool _isShowPreview = false.obs;
   final TextEditingController _textMessageController = TextEditingController();
-  final _scrollController = ScrollController();
   final Rxn<File> _selectedFile = Rxn<File>(null);
 
   // Function to start recording
@@ -147,41 +146,9 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
-      await _messageController.getMessageHistory(
-        receiverUserId: widget.chatHead.userId ?? "",
-      );
-    });
 
-    WidgetsBinding.instance.addPostFrameCallback((e) async {
-      if (_socketController.socket == null ||
-          _socketController.socket?.disconnected == true) {
-        _socketController.initializeSocket();
-      }
-
-      _socketController.markMessageRead(widget.chatHead.userId ?? "");
-      _scrollToBottom();
-
-      _socketController.socket?.on("typing", (data) {
-        if (data["senderId"] == widget.chatHead.userId) {
-          isTyping.value = true;
-        }
-      });
-
-      _socketController.socket?.on("stop-typing", (data) {
-        if (data["senderId"] == widget.chatHead.userId) {
-          isTyping.value = false;
-        }
-      });
-    });
-
+    // Initialize audio player
     _selectedFile.value = null;
-    _messageController.chatHistoryAndLiveMessage.listen((e) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToBottom();
-      });
-    });
-
     _audioPlayerController.onCompletion.listen((_) async {
       setState(() => _isPlaying = false);
       if (_selectedFile.value != null &&
@@ -192,16 +159,49 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       }
     });
-  }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
+    // Set up all post-frame operations in one place
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Initialize socket
+      if (_socketController.socket == null ||
+          _socketController.socket?.disconnected == true) {
+        _socketController.initializeSocket();
+      }
+
+      // Set up socket listeners
+      _socketController.markMessageRead(widget.chatHead.userId ?? "");
+      _socketController.socket?.on("typing", (data) {
+        if (data["senderId"] == widget.chatHead.userId) {
+          // isTyping.value = true;
+          _messageController.chatHistoryAndLiveMessage.add(
+            MessageModel(status: "typing", receiverId: widget.chatHead.userId),
+          );
+        }
+      });
+      _socketController.socket?.on("stop-typing", (data) {
+        if (data["senderId"] == widget.chatHead.userId &&
+            _messageController.chatHistoryAndLiveMessage.last.status ==
+                "typing") {
+          // isTyping.value = false;
+          _messageController.chatHistoryAndLiveMessage.removeLast();
+        }
+      });
+
+      // Load messages and scroll to bottom
+      await _messageController.getMessageHistory(
+        receiverUserId: widget.chatHead.userId ?? "",
       );
-    }
+      await Future.delayed(const Duration(seconds: 3), () {
+        _messageController.scrollToBottom();
+      });
+    });
+
+    // Listen for message changes and scroll to bottom when they change
+    _messageController.chatHistoryAndLiveMessage.listen((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _messageController.scrollToBottom();
+      });
+    });
   }
 
   bool _isVideoFile(String path) {
@@ -313,7 +313,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 );
               }
               return ListView.builder(
-                controller: _scrollController,
+                controller: _messageController.scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 itemCount: _messageController.chatHistoryAndLiveMessage.length,
                 itemBuilder: (context, index) {
@@ -640,15 +640,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           _messageController.chatHistoryAndLiveMessage
                               .add(tempMessage);
                           // Scroll to bottom
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (_scrollController.hasClients) {
-                              _scrollController.animateTo(
-                                _scrollController.position.maxScrollExtent,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeOut,
-                              );
-                            }
-                          });
 
                           dynamic res = await MessageService().uploadMedia(
                             _selectedFile.value!,
@@ -668,6 +659,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         }
 
                         _socketController.sendMessage(message: messageModel);
+                        // _scrollToBottom();
+                        _messageController.scrollToBottom();
+                        _socketController.stopTyping(
+                            receiverId: messageModel.receiverId ?? "");
                         _textMessageController.clear();
                         wordsTyped.value = "";
                         _selectedFile.value = null;

@@ -130,7 +130,8 @@ class SocketController extends GetxController {
       Get.find<MessageController>().activeFriends.refresh();
     });
 
-    socket?.on("update-chat-list", (data) {
+    socket?.on("update-chat-list", (data) async {
+      await Future.delayed(const Duration(seconds: 2));
       Get.find<MessageController>().getChatList();
     });
 
