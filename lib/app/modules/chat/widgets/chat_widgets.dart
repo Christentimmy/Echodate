@@ -5,6 +5,7 @@ import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/views/view_medial_full_screen.dart';
 import 'package:echodate/app/utils/shimmer_effect.dart';
 import 'package:echodate/app/widget/loader.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -27,6 +28,7 @@ class _SenderCardState extends State<SenderCard> {
   PlayerController? _audioController;
   bool isPlaying = false;
   bool isLoading = false;
+  String localPath = '';
 
   @override
   void initState() {
@@ -35,7 +37,8 @@ class _SenderCardState extends State<SenderCard> {
         widget.messageModel.mediaUrl != null) {
       _initializeVideoController();
     } else if (widget.messageModel.messageType == 'audio' &&
-        widget.messageModel.mediaUrl != null) {
+        widget.messageModel.mediaUrl != null &&
+        _audioController == null) {
       _initializeAudioController();
     }
   }
@@ -53,39 +56,112 @@ class _SenderCardState extends State<SenderCard> {
   }
 
   Future<String> _downloadAudio(String url) async {
-    final response = await http.get(Uri.parse(url));
-    Directory tempDir = await getTemporaryDirectory();
-    String savePath = '${tempDir.path}/audiofile.mp3';
-    File saveFile = File(savePath);
-    await saveFile.writeAsBytes(response.bodyBytes);
-    return savePath;
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode != 200) {
+        return "";
+      }
+      Uri uri = Uri.parse(url);
+      String filename = uri.pathSegments.last;
+      Directory tempDir = await getTemporaryDirectory();
+      String savePath = '${tempDir.path}/$filename';
+      File saveFile = File(savePath);
+      await saveFile.writeAsBytes(response.bodyBytes);
+      return savePath;
+    } catch (e) {
+      CustomSnackbar.showErrorSnackBar("Failed to download audio");
+      return "";
+    }
   }
 
-  void _initializeAudioController() async {
-    setState(() => isLoading = true);
+  Future<void> _initializeAudioController() async {
     try {
-      String localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
+      setState(() => isLoading = true);
+      if (widget.messageModel.mediaUrl == null ||
+          widget.messageModel.mediaUrl!.isEmpty) {
+        print("Error: Media URL is empty");
+        return;
+      }
 
+      localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
+
+      if (localPath.isEmpty) {
+        return;
+      }
       _audioController = PlayerController();
+
       await _audioController!.preparePlayer(
         path: localPath,
         shouldExtractWaveform: true,
         noOfSamples: 100,
       );
 
-      _audioController!.onPlayerStateChanged.listen((state) {
+      _audioController!.onPlayerStateChanged.listen((state) async {
         if (state == PlayerState.stopped) {
           setState(() {
-            isPlaying = false; // Reset the play button after audio finishes
+            isPlaying = false;
           });
         } else {
           setState(() => isPlaying = state == PlayerState.playing);
         }
       });
     } catch (e) {
-      print("Audio initialization error: $e");
+      CustomSnackbar.showErrorSnackBar("Error Playing Audio");
     } finally {
       setState(() => isLoading = false);
+    }
+  }
+
+  void playPause() async {
+    try {
+      final state = _audioController?.playerState;
+
+      if (state == PlayerState.playing) {
+        await _audioController?.pausePlayer();
+        return;
+      }
+
+      if (state == PlayerState.paused) {
+        await _audioController?.startPlayer();
+        return;
+      }
+
+      if (state == PlayerState.stopped) {
+        _audioController = null;
+
+        if (localPath.isNotEmpty) {
+          _audioController = PlayerController();
+          await _audioController!.preparePlayer(
+            path: localPath,
+            shouldExtractWaveform: true,
+            noOfSamples: 100,
+          );
+
+          _audioController!.onPlayerStateChanged.listen((state) {
+            setState(() => isPlaying = state == PlayerState.playing);
+          });
+
+          await _audioController?.startPlayer();
+        } else {
+          // If localPath somehow got lost, re-download
+          await _initializeAudioController();
+          await _audioController?.startPlayer();
+        }
+        return;
+      }
+
+      if (state == PlayerState.initialized) {
+        await _audioController?.startPlayer();
+        return;
+      }
+
+      // Fall back to reinitialization if none of the above worked
+      if (_audioController == null) {
+        await _initializeAudioController();
+        await _audioController?.startPlayer();
+      }
+    } catch (e) {
+      CustomSnackbar.showErrorSnackBar("Error Playing audio");
     }
   }
 
@@ -143,7 +219,9 @@ class _SenderCardState extends State<SenderCard> {
             const SizedBox(height: 3),
             Text(
               widget.messageModel.createdAt != null
-                  ? DateFormat("hh:mm a").format(widget.messageModel.createdAt!)
+                  ? DateFormat("hh:mm a").format(
+                      widget.messageModel.createdAt!,
+                    )
                   : "",
               style: const TextStyle(fontSize: 10, color: Colors.white70),
             ),
@@ -154,6 +232,20 @@ class _SenderCardState extends State<SenderCard> {
   }
 
   Widget _buildAudioContent() {
+    if (widget.messageModel.mediaUrl == null ||
+        widget.messageModel.mediaUrl!.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Text(
+          "Audio unavailable",
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -165,20 +257,7 @@ class _SenderCardState extends State<SenderCard> {
         children: [
           // Play/Pause button with loading state
           InkWell(
-            onTap: _audioController == null || isLoading
-                ? null
-                : () async {
-                    setState(() => isLoading = true);
-                    try {
-                      if (isPlaying) {
-                        await _audioController?.pausePlayer();
-                      } else {
-                        await _audioController?.startPlayer();
-                      }
-                    } finally {
-                      setState(() => isLoading = false);
-                    }
-                  },
+            onTap: _audioController == null || isLoading ? null : playPause,
             child: SizedBox(
               width: 30,
               height: 30,
@@ -215,7 +294,7 @@ class _SenderCardState extends State<SenderCard> {
                     ),
                     enableSeekGesture: true,
                     continuousWaveform: true,
-                    waveformType: WaveformType.long,
+                    waveformType: WaveformType.fitWidth,
                   ),
           ),
         ],
@@ -323,6 +402,7 @@ class _ReceiverCardState extends State<ReceiverCard> {
   PlayerController? _audioController;
   bool isPlaying = false;
   bool isLoading = false;
+  String localPath = '';
 
   @override
   void initState() {
@@ -337,37 +417,56 @@ class _ReceiverCardState extends State<ReceiverCard> {
   }
 
   Future<String> _downloadAudio(String url) async {
-    final response = await http.get(Uri.parse(url));
-    Directory tempDir = await getTemporaryDirectory();
-    String savePath = '${tempDir.path}/audiofile.mp3';
-    File saveFile = File(savePath);
-    await saveFile.writeAsBytes(response.bodyBytes);
-    return savePath;
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode != 200) {
+        return "";
+      }
+      Uri uri = Uri.parse(url);
+      String filename = uri.pathSegments.last;
+      Directory tempDir = await getTemporaryDirectory();
+      String savePath = '${tempDir.path}/$filename';
+      File saveFile = File(savePath);
+      await saveFile.writeAsBytes(response.bodyBytes);
+      return savePath;
+    } catch (e) {
+      CustomSnackbar.showErrorSnackBar("Failed to download audio");
+      return "";
+    }
   }
 
-  void _initializeAudioController() async {
-    setState(() => isLoading = true);
+  Future<void> _initializeAudioController() async {
     try {
-      String localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
+      setState(() => isLoading = true);
+      if (widget.messageModel.mediaUrl == null ||
+          widget.messageModel.mediaUrl!.isEmpty) {
+        return;
+      }
 
+      localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
+
+      if (localPath.isEmpty) {
+        return;
+      }
       _audioController = PlayerController();
+
       await _audioController!.preparePlayer(
         path: localPath,
         shouldExtractWaveform: true,
-        noOfSamples: 100, // Reduced from 44100 for better performance
+        noOfSamples: 100,
       );
 
-      _audioController!.onPlayerStateChanged.listen((state) {
+      _audioController!.onPlayerStateChanged.listen((state) async {
         if (state == PlayerState.stopped) {
           setState(() {
-            isPlaying = false; // Reset the play button after audio finishes
+            isPlaying = false;
           });
         } else {
           setState(() => isPlaying = state == PlayerState.playing);
         }
       });
     } catch (e) {
-      print("Audio initialization error: $e");
+      CustomSnackbar.showErrorSnackBar("Error Playing Audio");
     } finally {
       setState(() => isLoading = false);
     }
@@ -383,6 +482,58 @@ class _ReceiverCardState extends State<ReceiverCard> {
       }).catchError((error) {
         print("Video initialization error: $error");
       });
+  }
+
+  void playPause() async {
+    try {
+      final state = _audioController?.playerState;
+
+      if (state == PlayerState.playing) {
+        await _audioController?.pausePlayer();
+        return;
+      }
+
+      if (state == PlayerState.paused) {
+        await _audioController?.startPlayer();
+        return;
+      }
+
+      if (state == PlayerState.stopped) {
+        _audioController = null;
+
+        if (localPath.isNotEmpty) {
+          _audioController = PlayerController();
+          await _audioController!.preparePlayer(
+            path: localPath,
+            shouldExtractWaveform: true,
+            noOfSamples: 100,
+          );
+
+          _audioController!.onPlayerStateChanged.listen((state) {
+            setState(() => isPlaying = state == PlayerState.playing);
+          });
+
+          await _audioController?.startPlayer();
+        } else {
+          // If localPath somehow got lost, re-download
+          await _initializeAudioController();
+          await _audioController?.startPlayer();
+        }
+        return;
+      }
+
+      if (state == PlayerState.initialized) {
+        await _audioController?.startPlayer();
+        return;
+      }
+
+      if (_audioController == null) {
+        await _initializeAudioController();
+        await _audioController?.startPlayer();
+      }
+    } catch (e) {
+      CustomSnackbar.showErrorSnackBar("Error Playing audio");
+    }
   }
 
   @override
@@ -455,6 +606,20 @@ class _ReceiverCardState extends State<ReceiverCard> {
   }
 
   Widget _buildAudioContent() {
+    if (widget.messageModel.mediaUrl == null ||
+        widget.messageModel.mediaUrl!.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Text(
+          "Audio unavailable",
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -464,22 +629,8 @@ class _ReceiverCardState extends State<ReceiverCard> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Play/Pause button with loading state
           InkWell(
-            onTap: _audioController == null || isLoading
-                ? null
-                : () async {
-                    setState(() => isLoading = true);
-                    try {
-                      if (isPlaying) {
-                        await _audioController?.pausePlayer();
-                      } else {
-                        await _audioController?.startPlayer();
-                      }
-                    } finally {
-                      setState(() => isLoading = false);
-                    }
-                  },
+            onTap: _audioController == null || isLoading ? null : playPause,
             child: SizedBox(
               width: 30,
               height: 30,
