@@ -157,11 +157,11 @@ class ChatController extends GetxController {
     socketController.stopTyping(receiverId: chatHead.userId ?? "");
     
     // Save chat to avoid reloading
-    // final userId = chatHead.userId;
-    // if (userId != null && userId.isNotEmpty) {
-    //   final clonedMessages = [...messageController.chatHistoryAndLiveMessage];
-    //   messageController.savedChatToAvoidLoading[userId] = RxList<MessageModel>.from(clonedMessages);
-    // }
+    final userId = chatHead.userId;
+    if (userId != null && userId.isNotEmpty) {
+      final clonedMessages = [...messageController.chatHistoryAndLiveMessage];
+      messageController.savedChatToAvoidLoading[userId] = RxList<MessageModel>.from(clonedMessages);
+    }
     
     messageController.chatHistoryAndLiveMessage.clear();
     textMessageController.dispose();
