@@ -47,8 +47,8 @@ class AuthService {
       ).timeout(const Duration(seconds: 15));
 
       return response;
-    } on SocketException catch (e) {
-      CustomSnackbar.showErrorSnackBar("Check internet connection, $e");
+    } on SocketException catch (_) {
+      CustomSnackbar.showErrorSnackBar("Host connection unstable");
       debugPrint("No internet connection");
       return null;
     } on TimeoutException {
