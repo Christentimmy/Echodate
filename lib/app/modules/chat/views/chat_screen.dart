@@ -14,7 +14,6 @@ import 'package:echodate/app/utils/image_picker.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_compress/video_compress.dart';
@@ -173,6 +172,10 @@ class _ChatScreenState extends State<ChatScreen> {
       _socketController.socket?.on("typing", (data) {
         if (data["senderId"] == widget.chatHead.userId) {
           // isTyping.value = true;
+          if (_messageController.chatHistoryAndLiveMessage.last.status ==
+              "typing") {
+            return;
+          }
           _messageController.chatHistoryAndLiveMessage.add(
             MessageModel(status: "typing", receiverId: widget.chatHead.userId),
           );
@@ -326,23 +329,7 @@ class _ChatScreenState extends State<ChatScreen> {
               );
             }),
           ),
-          Obx(
-            () => isTyping.value
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Lottie.asset(
-                        "assets/images/typing.json",
-                        height: 50,
-                      ),
-                    ),
-                  )
-                : const SizedBox(),
-          ),
+
           // Audio recording UI and preview
           Obx(
             () => _isRecording ||

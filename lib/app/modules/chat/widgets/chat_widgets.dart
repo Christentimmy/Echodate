@@ -395,20 +395,16 @@ class _ReceiverCardState extends State<ReceiverCard> {
   @override
   Widget build(BuildContext context) {
     if (widget.messageModel.status == "typing") {
-      // CustomSnackbar.showErrorSnackBar("message");
-      Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 5,
-          ),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Lottie.asset(
-              "assets/images/typing.json",
-              height: 50,
-            ),
+      return Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 2,
+          vertical: 5,
+        ),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Lottie.asset(
+            "assets/images/typing.json",
+            height: 50,
           ),
         ),
       );
