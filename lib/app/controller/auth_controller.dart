@@ -309,6 +309,8 @@ class AuthController extends GetxController {
       final storyController = Get.find<StoryController>();
       final storage = Get.find<StorageController>();
       final messageController = Get.find<MessageController>();
+      final socketController = Get.find<SocketController>();
+      socketController.disconnectSocket();
       messageController.clearChatHistory();
       await storage.deleteToken();
       userController.clearUserData();
