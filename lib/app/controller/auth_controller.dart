@@ -228,6 +228,8 @@ class AuthController extends GetxController {
         Get.offAll(() => RegisterScreen());
         return;
       }
+      final socketController = Get.find<SocketController>();
+      await socketController.initializeSocket();
       if (response.statusCode == 401) {
         CustomSnackbar.showErrorSnackBar(message);
         Get.offAll(
@@ -291,6 +293,7 @@ class AuthController extends GetxController {
   }
 
   Future<void> logout() async {
+    isLoading.value = true;
     try {
       String? token = await StorageController().getToken();
       if (token == null) {
@@ -318,6 +321,8 @@ class AuthController extends GetxController {
       Get.offAll(() => RegisterScreen());
     } catch (error) {
       debugPrint(error.toString());
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -424,7 +429,7 @@ class AuthController extends GetxController {
         debugPrint(data["message"].toString());
         return;
       }
-      if(callback != null){
+      if (callback != null) {
         debugPrint("statement");
         callback();
         return;

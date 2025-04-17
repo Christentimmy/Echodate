@@ -26,7 +26,7 @@ class SocketController extends GetxController {
   int _reconnectAttempts = 0;
   final int _maxReconnectAttempts = 5;
 
-  void initializeSocket() async {
+  Future<void> initializeSocket() async {
     String? token = await StorageController().getToken();
     if (token == null) {
       return;

@@ -26,6 +26,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _userController = Get.find<UserController>();
+  final authController = Get.find<AuthController>();
 
   @override
   void initState() {
@@ -213,15 +214,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 Divider(color: Colors.grey.withOpacity(0.2)),
                 const SizedBox(height: 10),
-                _buildProfileSettingTiles(
-                  title: "Sign Out",
-                  onTap: () async {
-                    final authController = Get.find<AuthController>();
-                    await authController.logout();
-                  },
-                  bgColor: Colors.red,
-                  iconColor: Colors.white,
-                  icon: FontAwesomeIcons.arrowRightFromBracket,
+                Obx(
+                  () => _buildProfileSettingTiles(
+                    title: "Sign Out",
+                    onTap: () async {
+                      await authController.logout();
+                    },
+                    bgColor: Colors.red,
+                    iconColor: Colors.white,
+                    icon: authController.isLoading.value
+                        ? FontAwesomeIcons.spinner
+                        : FontAwesomeIcons.arrowRightFromBracket,
+                  ),
                 ),
                 const SizedBox(height: 20),
               ],

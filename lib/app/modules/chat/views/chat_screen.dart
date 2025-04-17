@@ -222,6 +222,9 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _recorderController.dispose();
     _audioPlayerController.dispose();
+    _socketController.stopTyping(
+      receiverId: widget.chatHead.userId ?? "",
+    );
     _messageController.chatHistoryAndLiveMessage.clear();
     super.dispose();
   }
