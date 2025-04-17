@@ -11,6 +11,7 @@ import 'package:echodate/app/modules/withdraw/views/withdraw_history_screen.dart
 import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/age_calculator.dart';
+import 'package:echodate/app/utils/shimmer_effect.dart';
 import 'package:echodate/app/widget/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -67,9 +68,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fit: BoxFit.cover,
                         imageUrl: userModel?.avatar ?? "",
                         placeholder: (context, url) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
+                          return const ShimmerWrapper(
+                            child: CircleAvatar(
+                              radius: 30,
                             ),
                           );
                         },

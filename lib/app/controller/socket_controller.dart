@@ -156,6 +156,10 @@ class SocketController extends GetxController {
     socket?.on("receive-message", (data) {
       final message = Map<String, dynamic>.from(data);
       final messageModel = MessageModel.fromJson(message);
+      final exists = Get.find<MessageController>()
+          .chatHistoryAndLiveMessage
+          .any((msg) => msg.id == messageModel.id);
+      if (exists) return;
       Get.find<MessageController>().chatHistoryAndLiveMessage.add(messageModel);
       Get.find<MessageController>().chatHistoryAndLiveMessage.refresh();
     });
