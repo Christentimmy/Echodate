@@ -11,9 +11,7 @@ import 'package:echodate/app/models/withdraw_model.dart';
 import 'package:echodate/app/modules/Interest/views/interested_in_screen.dart';
 import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
-import 'package:echodate/app/modules/auth/views/face_detection_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
-import 'package:echodate/app/modules/auth/views/verification_status_screen.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/modules/profile/views/complete_profile_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
@@ -155,34 +153,16 @@ class UserController extends GetxController {
         return;
       }
       String status = decoded["data"]["status"] ?? "";
-      bool isEmailVerified = decoded["data"]["is_email_verified"] ?? false;
-      bool isVerified = decoded["data"]["isVerified"] ?? false;
-      bool isPhonNumberVerified =
-          decoded["data"]["is_phone_number_verified"] ?? false;
+      List hobbies = decoded["data"]["hobbies"] ?? [];
+      String relationshipPreference =
+          decoded["data"]["relationship_preference"] ?? "";
+      String interestedIn = decoded["data"]["interested_in"] ?? "";
       bool isProfileCompleted = decoded["data"]["profile_completed"] ?? false;
       String address = decoded["data"]["location"]?["address"] ?? "";
+
       if (status == "banned" || status == "blocked") {
         CustomSnackbar.showErrorSnackBar("Your account has been banned.");
         Get.offAll(() => RegisterScreen());
-        return;
-      }
-      if (!isEmailVerified || !isPhonNumberVerified) {
-        CustomSnackbar.showErrorSnackBar("Your account is not verified.");
-        Get.offAll(
-          () => VerificationStatusScreen(
-            callback: () async => await getUserStatus(),
-          ),
-        );
-        return;
-      }
-      if (!isVerified) {
-        CustomSnackbar.showErrorSnackBar("Your account is not verified.");
-        Get.offAll(() => FaceDetectionScreen(
-              callback: () async {
-                await getUserStatus();
-                debugPrint("statement 2");
-              },
-            ));
         return;
       }
       if (!isProfileCompleted) {
@@ -191,6 +171,37 @@ class UserController extends GetxController {
           () => CompleteProfileScreen(
             nextScreen: () async {
               await getUserStatus();
+            },
+          ),
+        );
+        return;
+      }
+      if (interestedIn.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Relationship Preference is required");
+        Get.offAll(
+          () => InterestedInScreen(
+            callback: () async {
+              getUserStatus();
+            },
+          ),
+        );
+      }
+      if (relationshipPreference.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Relationship Preference is required");
+        Get.offAll(
+          () => RelationtionshipPreferenceScreen(
+            callback: () async {
+              getUserStatus();
+            },
+          ),
+        );
+      }
+      if (hobbies.isEmpty) {
+        CustomSnackbar.showErrorSnackBar("Hobbies are required");
+        Get.offAll(
+          () => PickHobbiesScreen(
+            callback: () async {
+              getUserStatus();
             },
           ),
         );
@@ -603,7 +614,7 @@ class UserController extends GetxController {
         return;
       }
       await getUserDetails();
-      Get.offAll(() => const FaceDetectionScreen());
+      Get.offAll(() => BottomNavigationScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -729,6 +740,7 @@ class UserController extends GetxController {
 
   Future<void> updateInterestedIn({
     required String interestedIn,
+    VoidCallback? callback,
   }) async {
     isloading.value = true;
     try {
@@ -748,6 +760,10 @@ class UserController extends GetxController {
       final decoded = json.decode(response.body);
       if (response.statusCode != 200 && response.statusCode != 201) {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        return;
+      }
+      if (callback != null) {
+        callback();
         return;
       }
       Get.to(() => const RelationtionshipPreferenceScreen());

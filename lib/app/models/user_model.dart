@@ -32,6 +32,7 @@ class UserModel {
   final int? matchPercentage;
   final DateTime? createdAt;
   String? password;
+  String? otpCode;
 
   UserModel({
     this.id,
@@ -65,6 +66,7 @@ class UserModel {
     this.matchPercentage,
     this.password,
     this.createdAt,
+    this.otpCode,
   });
 
   factory UserModel.fromJson(json) {
@@ -117,6 +119,7 @@ class UserModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     if (id != null) data['_id'] = id;
+    if (otpCode != null && otpCode!.isNotEmpty) data["otp"] = otpCode;
     if (fullName != null && fullName!.isNotEmpty) data['full_name'] = fullName;
     if (email != null && email!.isNotEmpty) data['email'] = email;
     if (phoneNumber != null && phoneNumber!.isNotEmpty) {

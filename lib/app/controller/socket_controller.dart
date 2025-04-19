@@ -1,14 +1,14 @@
 // ignore_for_file: library_prefixes
 
 import 'dart:async';
-import 'package:echodate/app/controller/live_stream_controller.dart';
+// import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/controller/message_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/live_stream_chat_model.dart';
-import 'package:echodate/app/models/live_stream_model.dart';
+// import 'package:echodate/app/models/live_stream_model.dart';
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/utils/base_url.dart';
@@ -69,12 +69,12 @@ class SocketController extends GetxController {
   }
 
   void listenToEvents() {
-    socket?.on('new-gift', (data) async {
-      Get.find<LiveStreamController>().controllerBottomCenter.play();
-      await Future.delayed(const Duration(seconds: 4)).then((_) {
-        Get.find<LiveStreamController>().controllerBottomCenter.stop();
-      });
-    });
+    // socket?.on('new-gift', (data) async {
+    //   Get.find<LiveStreamController>().controllerBottomCenter.play();
+    //   await Future.delayed(const Duration(seconds: 4)).then((_) {
+    //     Get.find<LiveStreamController>().controllerBottomCenter.stop();
+    //   });
+    // });
 
     socket?.on('newChatMessage', (data) {
       final newMessage = LiveStreamChatModel.fromJson(data);
@@ -86,34 +86,34 @@ class SocketController extends GetxController {
       _storyController.getAllStories();
     });
 
-    socket?.on("newstream", (data) async {
-      LiveStreamModel newStream = LiveStreamModel.fromJson(data);
-      final liveStreamController = Get.find<LiveStreamController>();
+    // socket?.on("newstream", (data) async {
+    //   LiveStreamModel newStream = LiveStreamModel.fromJson(data);
+    //   final liveStreamController = Get.find<LiveStreamController>();
 
-      // Check if the stream already exists in the list
-      bool streamExists = liveStreamController.activeStreams
-          .any((stream) => stream.hostId == newStream.hostId);
+    //   // Check if the stream already exists in the list
+    //   bool streamExists = liveStreamController.activeStreams
+    //       .any((stream) => stream.hostId == newStream.hostId);
 
-      if (!streamExists) {
-        liveStreamController.activeStreams.add(newStream);
-        liveStreamController.activeStreams.refresh();
-      }
-    });
+    //   if (!streamExists) {
+    //     liveStreamController.activeStreams.add(newStream);
+    //     liveStreamController.activeStreams.refresh();
+    //   }
+    // });
 
-    socket?.on("endedStream", (data) async {
-      LiveStreamModel endedStream = LiveStreamModel.fromJson(data);
-      final liveStreamController = Get.find<LiveStreamController>();
-      liveStreamController.activeStreams
-          .removeWhere((e) => e.channelName == endedStream.channelName);
-      liveStreamController.activeStreams.refresh();
-    });
+    // socket?.on("endedStream", (data) async {
+    //   LiveStreamModel endedStream = LiveStreamModel.fromJson(data);
+    //   final liveStreamController = Get.find<LiveStreamController>();
+    //   liveStreamController.activeStreams
+    //       .removeWhere((e) => e.channelName == endedStream.channelName);
+    //   liveStreamController.activeStreams.refresh();
+    // });
 
-    socket?.on("viewer-count-updated", (data) {
-      final liveStreamController = Get.find<LiveStreamController>();
-      int viewers = data ?? 0;
-      liveStreamController.numberOfViewers.value = viewers;
-      liveStreamController.numberOfViewers.refresh();
-    });
+    // socket?.on("viewer-count-updated", (data) {
+    //   final liveStreamController = Get.find<LiveStreamController>();
+    //   int viewers = data ?? 0;
+    //   liveStreamController.numberOfViewers.value = viewers;
+    //   liveStreamController.numberOfViewers.refresh();
+    // });
 
     socket?.on("refresh", (data) async {
       final userController = Get.find<UserController>();

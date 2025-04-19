@@ -19,7 +19,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
   final _authController = Get.find<AuthController>();
 
   late AnimationController _animationController;
-  // late Animation<double> _animation;
   late Animation<double> _rotationAnimation;
 
   @override
@@ -295,4 +294,5 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
       ),
     );
   }
+
 }

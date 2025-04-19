@@ -21,7 +21,7 @@ class UserService {
         headers: {
           'Authorization': 'Bearer $token',
         },
-      ).timeout(const Duration(seconds: 9));
+      ).timeout(const Duration(seconds: 60));
       return response;
     } on SocketException catch (e) {
       debugPrint("No internet connection $e");

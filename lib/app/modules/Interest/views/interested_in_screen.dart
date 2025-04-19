@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class InterestedInScreen extends StatefulWidget {
-  const InterestedInScreen({super.key});
+  final VoidCallback? callback;
+  const InterestedInScreen({super.key, this.callback});
 
   @override
   State<InterestedInScreen> createState() => _InterestedInScreenState();
@@ -95,6 +96,7 @@ class _InterestedInScreenState extends State<InterestedInScreen> {
                   }
                   await _userController.updateInterestedIn(
                     interestedIn: selectedGender.value.toLowerCase(),
+                    callback: widget.callback,
                   );
                 },
                 child: Obx(

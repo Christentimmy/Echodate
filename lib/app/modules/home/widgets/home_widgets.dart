@@ -6,11 +6,9 @@ import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/home/views/send_coins_screen.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
-import 'package:echodate/app/modules/live/views/all_streams.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
-import 'package:echodate/app/widget/delete_dialog.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -323,36 +321,36 @@ class HeaderHomeWidget extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Row(
+          const Row(
             children: [
-              InkWell(
-                onTap: () async {
-                  Get.to(() => const LiveStreamListScreen());
-                },
-                child: const Icon(
-                  FontAwesomeIcons.hive,
-                  color: Colors.black,
-                  size: 20,
-                ),
-              ),
+              // InkWell(
+              //   onTap: () async {
+              //     // Get.to(() => const LiveStreamListScreen());
+              //   },
+              //   child: const Icon(
+              //     FontAwesomeIcons.hive,
+              //     color: Colors.black,
+              //     size: 20,
+              //   ),
+              // ),
               // const SizedBox(width: 10),
-              // const Icon(Icons.notifications, color: Colors.black),
-              const SizedBox(width: 20),
-              InkWell(
-                onTap: () {
-                  showDialog(
-                    barrierColor: Colors.black.withOpacity(0.7),
-                    context: context,
-                    builder: (context) {
-                      return GoLiveWidget();
-                    },
-                  );
-                },
-                child: const Icon(
-                  Icons.live_tv,
-                  color: Colors.black,
-                ),
-              ),
+              Icon(Icons.notifications, color: Colors.black),
+              // const SizedBox(width: 20),
+              // InkWell(
+              //   onTap: () {
+              //     showDialog(
+              //       barrierColor: Colors.black.withOpacity(0.7),
+              //       context: context,
+              //       builder: (context) {
+              //         return GoLiveWidget();
+              //       },
+              //     );
+              //   },
+              //   child: const Icon(
+              //     Icons.live_tv,
+              //     color: Colors.black,
+              //   ),
+              // ),
             ],
           )
         ],

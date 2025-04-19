@@ -62,22 +62,27 @@ class CompleteProfileScreen extends StatelessWidget {
                     clipBehavior: Clip.none,
                     children: [
                       Obx(
-                        () => Container(
-                          height: Get.height * 0.15,
-                          width: Get.width * 0.3,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 2,
-                              color: AppColors.primaryColor,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                            image: DecorationImage(
-                              image: _selectedPicture.value != null
-                                  ? FileImage(_selectedPicture.value!)
-                                  : const AssetImage(
-                                      "assets/images/placeholder1.png"),
-                              fit: BoxFit.cover,
-                              alignment: Alignment.topCenter,
+                        () => InkWell(
+                          onTap: () {
+                            selectImage();
+                          },
+                          child: Container(
+                            height: Get.height * 0.15,
+                            width: Get.width * 0.3,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                width: 2,
+                                color: AppColors.primaryColor,
+                              ),
+                              borderRadius: BorderRadius.circular(15),
+                              image: DecorationImage(
+                                image: _selectedPicture.value != null
+                                    ? FileImage(_selectedPicture.value!)
+                                    : const AssetImage(
+                                        "assets/images/placeholder1.png"),
+                                fit: BoxFit.cover,
+                                alignment: Alignment.topCenter,
+                              ),
                             ),
                           ),
                         ),
@@ -203,7 +208,7 @@ class CompleteProfileScreen extends StatelessWidget {
                       return;
                     }
                     if (_selectedPicture.value == null) {
-                       CustomSnackbar.showErrorSnackBar(
+                      CustomSnackbar.showErrorSnackBar(
                         "Please select a picture",
                       );
                       return;

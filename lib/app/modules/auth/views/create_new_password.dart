@@ -666,4 +666,5 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
       ),
     );
   }
+
 }

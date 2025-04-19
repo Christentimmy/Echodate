@@ -1,32 +1,28 @@
+import 'dart:math' as math;
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
+import 'package:echodate/app/modules/auth/controller/signup_controller.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
-import 'package:echodate/app/utils/privacy.dart';
-import 'package:echodate/app/utils/terms.dart';
 import 'package:echodate/app/widget/animations.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/gestures.dart';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
 
-  final _emailController = TextEditingController();
-  final _phoneNUmberController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _signUpFormKey = GlobalKey<FormState>();
-  final _isCheckValue = false.obs;
+  final _signUpController = Get.put(SignUpController());
   final _authController = Get.find<AuthController>();
-  final selectedCountryCode = RxString("+233");
 
   @override
   Widget build(BuildContext context) {
+    _signUpController.recreateFormKey();
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -58,24 +54,23 @@ class RegisterScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              SignUpFormFields(
-                formKey: _signUpFormKey,
-                emailController: _emailController,
-                phoneNUmberController: _phoneNUmberController,
-                passwordController: _passwordController,
-                selectedCountryCode: selectedCountryCode,
+              Stack(
+                children: [
+                  _buildDecorationElements(),
+                  SignUpFormFields(),
+                ],
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
                   Obx(
                     () => Checkbox(
-                      value: _isCheckValue.value,
+                      value: _signUpController.isCheckValue.value,
                       visualDensity: VisualDensity.compact,
                       activeColor: AppColors.primaryColor,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       onChanged: (value) {
-                        _isCheckValue.value = value!;
+                        _signUpController.isCheckValue.value = value!;
                       },
                     ),
                   ),
@@ -87,22 +82,24 @@ class RegisterScreen extends StatelessWidget {
                           const TextSpan(text: 'I agree to the '),
                           TextSpan(
                             text: 'Terms & Conditions',
-                            style:  TextStyle(
+                            style: TextStyle(
                               color: AppColors.primaryColor,
                               fontWeight: FontWeight.bold,
                             ),
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () => _showTermsDialog(context),
+                              ..onTap = () =>
+                                  _signUpController.showTermsDialog(context),
                           ),
                           const TextSpan(text: ' and '),
                           TextSpan(
                             text: 'Privacy Policy',
-                            style:  TextStyle(
+                            style: TextStyle(
                               color: AppColors.primaryColor,
                               fontWeight: FontWeight.bold,
                             ),
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () => _showPrivacyDialog(context),
+                              ..onTap = () =>
+                                  _signUpController.showPrivacyDialog(context),
                           ),
                           const TextSpan(text: '.'),
                         ],
@@ -112,34 +109,39 @@ class RegisterScreen extends StatelessWidget {
                 ],
               ),
               SizedBox(height: Get.height * 0.05),
-              CustomButton(
-                ontap: () async {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  if (!_signUpFormKey.currentState!.validate()) {
-                    return;
-                  }
-                  if (!_isCheckValue.value) {
-                    CustomSnackbar.showErrorSnackBar(
-                      "Accept our terms and condition",
+              Obx(() {
+                return CustomButton(
+                  ontap: () async {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    if (!_signUpController.signUpFormKey.currentState!
+                        .validate()) {
+                      return;
+                    }
+                    if (!_signUpController.isCheckValue.value) {
+                      CustomSnackbar.showErrorSnackBar(
+                        "Accept our terms and condition",
+                      );
+                      return;
+                    }
+                    if (_signUpController.selectedCountryCode.value.isEmpty) {
+                      CustomSnackbar.showErrorSnackBar(
+                        "Select your country code",
+                      );
+                      return;
+                    }
+                    final String email = _signUpController.emailController.text;
+                    final otpCode = _signUpController.otpCodeController.text;
+                    final userModel = UserModel(
+                      email: email,
+                      otpCode: otpCode,
+                      password: _signUpController.passwordController.text,
                     );
-                    return;
-                  }
-                  if (selectedCountryCode.value.isEmpty) {
-                    CustomSnackbar.showErrorSnackBar(
-                      "Select your country code",
+
+                    await _authController.signUpUSer(
+                      userModel: userModel,
                     );
-                    return;
-                  }
-                  final userModel = UserModel(
-                    email: _emailController.text,
-                    phoneNumber:
-                        "$selectedCountryCode${_phoneNUmberController.text}",
-                    password: _passwordController.text,
-                  );
-                  await _authController.signUpUSer(userModel: userModel);
-                },
-                child: Obx(
-                  () => _authController.isLoading.value
+                  },
+                  child: _authController.isLoading.value
                       ? const Loader()
                       : const Text(
                           "Register",
@@ -149,12 +151,14 @@ class RegisterScreen extends StatelessWidget {
                             color: Colors.white,
                           ),
                         ),
-                ),
-              ),
+                );
+              }),
               SizedBox(height: Get.height * 0.1),
               TextButton(
                 onPressed: () => Get.to(() => LoginScreen()),
-                child: const Text("Already have an account? Login"),
+                child: const Text(
+                  "Already have an account? Login",
+                ),
               ),
             ],
           ),
@@ -163,44 +167,135 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildDecorationElements() {
+    return SizedBox(
+      height: Get.height * 0.2,
+      child: Stack(
+        children: [
+          // Animated rotating blob 1
+          AnimatedBuilder(
+            animation: _signUpController.animationController,
+            builder: (context, child) {
+              final rotationAnimation = _signUpController.rotationAnimation;
+              return Positioned(
+                right: 20 + 40 * math.sin(rotationAnimation.value * 0.5),
+                top: 20 + 30 * math.cos(rotationAnimation.value * 0.7),
+                child: Transform.rotate(
+                  angle: rotationAnimation.value * 0.2,
+                  child: _buildAnimatedBlob(
+                    Colors.orange.withOpacity(0.04),
+                    120,
+                    borderRadius: 60,
+                  ),
+                ),
+              );
+            },
+          ),
 
+          // Animated rotating blob 2
+          AnimatedBuilder(
+            animation: _signUpController.animationController,
+            builder: (context, child) {
+              final rotationAnimation = _signUpController.rotationAnimation;
+              return Positioned(
+                left: 30 + 50 * math.cos(rotationAnimation.value * 0.3),
+                bottom: 50 + 40 * math.sin(rotationAnimation.value * 0.6),
+                child: Transform.rotate(
+                  angle: -rotationAnimation.value * 0.3,
+                  child: _buildAnimatedBlob(
+                    Colors.deepOrange.withOpacity(0.02),
+                    100,
+                    borderRadius: 30,
+                  ),
+                ),
+              );
+            },
+          ),
 
+          // Animated pulsating circle
+          AnimatedBuilder(
+            animation: _signUpController.animationController,
+            builder: (context, child) {
+              final rotationAnimation = _signUpController.rotationAnimation;
+              final pulseFactor =
+                  1.0 + 0.2 * math.sin(rotationAnimation.value * 3);
+              return Positioned(
+                right: 70 + 30 * math.cos(rotationAnimation.value * 1.1),
+                bottom: 80 + 30 * math.sin(rotationAnimation.value * 1.3),
+                child: Transform.scale(
+                  scale: pulseFactor,
+                  child: _buildAnimatedBlob(
+                    Colors.amber.withOpacity(0.07),
+                    70,
+                    isCircle: true,
+                  ),
+                ),
+              );
+            },
+          ),
 
-  void _showTermsDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Terms & Conditions'),
-      content: SingleChildScrollView(
-        child: Text(termsAndConditionsText),
+          // Small floating circles
+          AnimatedBuilder(
+            animation: _signUpController.animationController,
+            builder: (context, child) {
+              final rotationAnimation = _signUpController.rotationAnimation;
+              return Positioned(
+                left: 150 + 20 * math.sin(rotationAnimation.value * 2),
+                top: 80 + 15 * math.cos(rotationAnimation.value * 1.5),
+                child: _buildAnimatedBlob(
+                  Colors.orange.withOpacity(0.15),
+                  30,
+                  isCircle: true,
+                ),
+              );
+            },
+          ),
+
+          // Another small floating circle
+          AnimatedBuilder(
+            animation: _signUpController.animationController,
+            builder: (context, child) {
+              final rotationAnimation = _signUpController.rotationAnimation;
+              return Positioned(
+                right: 120 + 25 * math.cos(rotationAnimation.value * 1.8),
+                top: 120 + 20 * math.sin(rotationAnimation.value * 1.7),
+                child: _buildAnimatedBlob(
+                  Colors.deepOrange.withOpacity(0.1),
+                  20,
+                  isCircle: true,
+                ),
+              );
+            },
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
-    ),
-  );
-}
+    ).animate().fadeIn(delay: 1200.ms);
+  }
 
-void _showPrivacyDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    
-    builder: (context) => AlertDialog(
-      title: const Text('Privacy Policy'),
-      content: SingleChildScrollView(
-        child: Text(privacyPolicyText),
+  Widget _buildAnimatedBlob(
+    Color color,
+    double size, {
+    double? borderRadius,
+    bool isCircle = false,
+  }) {
+    if (isCircle) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+        ),
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(borderRadius ?? size / 4),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
-    ),
-  );
-}
-
+    );
+  }
 }

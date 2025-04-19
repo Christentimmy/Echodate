@@ -1,6 +1,6 @@
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/controller/lifecycle_controller.dart';
-import 'package:echodate/app/controller/live_stream_controller.dart';
+// import 'package:echodate/app/controller/live_stream_controller.dart';
 import 'package:echodate/app/controller/location_controller.dart';
 import 'package:echodate/app/controller/message_controller.dart';
 import 'package:echodate/app/controller/one_signal_controller.dart';
@@ -18,7 +18,7 @@ class AppBindings extends Bindings {
     Get.put(StoryController());
     Get.put(SocketController());
     Get.put(MessageController());
-    Get.put(LiveStreamController());
+    // Get.put(LiveStreamController());
     Get.put(UserController());
     Get.put(LocationController());
     Get.put(AuthController());

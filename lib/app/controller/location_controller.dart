@@ -9,26 +9,6 @@ class LocationController extends GetxController {
   RxBool get isLocation => _isLocation;
   Location location = Location();
 
-  @override
-  void onInit() {
-    super.onInit();
-    checkLocationPermission();
-  }
-
-  Future<void> checkLocationPermission() async {
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-    }
-
-    PermissionStatus permission = await location.hasPermission();
-    if (permission == PermissionStatus.granted ||
-        permission == PermissionStatus.grantedLimited) {
-      _isLocation.value = true;
-    } else {
-      _isLocation.value = false;
-    }
-  }
 
   Future<void> requestLocationPermission() async {
     PermissionStatus permission = await location.requestPermission();

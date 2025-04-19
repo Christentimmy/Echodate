@@ -7,7 +7,6 @@ import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/auth/views/create_new_password.dart';
-import 'package:echodate/app/modules/auth/views/face_detection_screen.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/auth/views/verification_status_screen.dart';
@@ -22,6 +21,7 @@ import 'package:get/get.dart';
 class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isOtpVerifyLoading = false.obs;
+  final RxBool isSignUpOtpLoading = false.obs;
   final AuthService _authService = AuthService();
   final _storageController = Get.find<StorageController>();
 
@@ -44,7 +44,7 @@ class AuthController extends GetxController {
       final socketController = Get.find<SocketController>();
       socketController.initializeSocket();
       await userController.getUserDetails();
-      Get.to(() => const VerificationStatusScreen());
+      Get.to(() => CompleteProfileScreen());
     } catch (e) {
       debugPrint("Error From Auth Controller: ${e.toString()}");
     } finally {
@@ -71,6 +71,25 @@ class AuthController extends GetxController {
       debugPrint(e.toString());
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> sendSignUpOtp({
+    required String email,
+  }) async {
+    isSignUpOtpLoading.value = true;
+    try {
+      final response = await _authService.sendSignUpOtp(email: email);
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(decoded["message"].toString());
+        return;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isSignUpOtpLoading.value = false;
     }
   }
 
@@ -244,11 +263,6 @@ class AuthController extends GetxController {
       if (response.statusCode == 400) {
         CustomSnackbar.showErrorSnackBar(message);
         Get.offAll(() => CompleteProfileScreen());
-        return;
-      }
-      if (response.statusCode == 407) {
-        CustomSnackbar.showErrorSnackBar(message);
-        Get.to(() => const FaceDetectionScreen());
         return;
       }
       final userController = Get.find<UserController>();

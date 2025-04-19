@@ -1,38 +1,31 @@
+import 'dart:math';
+
 import 'package:echodate/app/controller/auth_controller.dart';
+import 'package:echodate/app/modules/auth/controller/login_controller.dart';
+import 'package:echodate/app/modules/auth/controller/signup_controller.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class LoginFormField extends StatelessWidget {
-  const LoginFormField({
-    super.key,
-    required GlobalKey<FormState> formKey,
-    required TextEditingController emailController,
-    required TextEditingController passwordController,
-  })  : _formKey = formKey,
-        _emailController = emailController,
-        _passwordController = passwordController;
+  LoginFormField({super.key});
 
-  final GlobalKey<FormState> _formKey;
-  final TextEditingController _emailController;
-  final TextEditingController _passwordController;
+  final _loginController = Get.find<LoginController>();
 
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formKey,
+      key: _loginController.formKey,
       child: Column(
         children: [
           CustomTextField(
-            controller: _emailController,
-            hintText: "Email",
+            controller: _loginController.emailController,
+            hintText: "Email/Number",
             prefixIcon: Icons.email,
             validator: (value) {
               if (value!.isEmpty) {
-                return "";
-              }
-              if (!value.contains("@")) {
                 return "";
               }
               return null;
@@ -40,7 +33,7 @@ class LoginFormField extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           CustomTextField(
-            controller: _passwordController,
+            controller: _loginController.passwordController,
             hintText: "Password",
             isObscure: true,
             prefixIcon: Icons.lock,
@@ -52,45 +45,59 @@ class LoginFormField extends StatelessWidget {
 }
 
 class SignUpFormFields extends StatelessWidget {
-  final TextEditingController emailController;
-  final TextEditingController phoneNUmberController;
-  final TextEditingController passwordController;
-  final GlobalKey<FormState> formKey;
-  final RxString selectedCountryCode;
+  SignUpFormFields({super.key});
 
-  const SignUpFormFields({
-    super.key,
-    required this.emailController,
-    required this.phoneNUmberController,
-    required this.passwordController,
-    required this.formKey,
-    required this.selectedCountryCode,
-  });
+  final _signController = Get.find<SignUpController>();
+  final _authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: formKey,
+      key: _signController.signUpFormKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTextField(
-            controller: emailController,
+            controller: _signController.emailController,
             hintText: "Email",
             prefixIcon: Icons.email,
           ),
-          const SizedBox(height: 20),
-          CustomPhoneNumberField(
-            phoneNumberController: phoneNUmberController,
-            selectedCountryCode: selectedCountryCode,
-          ),
-          const SizedBox(height: 20),
+          // const SizedBox(height: 15),
+          // CustomPhoneNumberField(
+          //   phoneNumberController: phoneNUmberController,
+          //   selectedCountryCode: selectedCountryCode,
+          // ),
+          const SizedBox(height: 15),
           CustomTextField(
-            controller: passwordController,
+            controller: _signController.passwordController,
             hintText: "Password",
             isObscure: true,
             prefixIcon: Icons.lock,
           ),
+          const SizedBox(height: 15),
+          Row(
+            children: [
+              Expanded(
+                child: CustomTextField(
+                  hintText: "Code",
+                  prefixIcon: Icons.code,
+                  controller: _signController.otpCodeController,
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+              const SizedBox(width: 10),
+              AnimatedSendButton(
+                onTap: () async {
+                  String email = _signController.emailController.text.trim();
+                  if (email.isEmpty) {
+                    CustomSnackbar.showErrorSnackBar("Email is required");
+                    return;
+                  }
+                  await _authController.sendSignUpOtp(email: email);
+                },
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -155,7 +162,7 @@ class CustomPhoneNumberField extends StatelessWidget {
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              height: 60,
+              height: 51,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
@@ -416,4 +423,196 @@ class _ContactUpdateBottomSheetState extends State<ContactUpdateBottomSheet> {
       ),
     );
   }
+}
+
+class AnimatedSendButton extends StatefulWidget {
+  final Function() onTap;
+  final String text;
+
+  const AnimatedSendButton({
+    super.key,
+    required this.onTap,
+    this.text = "Send Code",
+  });
+
+  @override
+  State<AnimatedSendButton> createState() => _AnimatedSendButtonState();
+}
+
+class _AnimatedSendButtonState extends State<AnimatedSendButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  // bool _isLoading = false;
+  final List<ParticleModel> _particles = [];
+  final _authController = Get.find<AuthController>();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.3, curve: Curves.easeOut),
+      ),
+    );
+
+    // Generate particles
+    _generateParticles();
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _authController.isSignUpOtpLoading.value = true;
+        });
+      }
+    });
+  }
+
+  void _generateParticles() {
+    final random = Random();
+    for (int i = 0; i < 20; i++) {
+      _particles.add(
+        ParticleModel(
+          id: i,
+          x: 0,
+          y: 0,
+          vx: (random.nextDouble() - 0.5) * 8,
+          vy: (random.nextDouble() - 0.5) * 8,
+          size: random.nextDouble() * 5 + 1,
+          color: Colors.grey.shade600,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        if (!_authController.isSignUpOtpLoading.value &&
+            !_controller.isAnimating) {
+          _controller.forward();
+          await widget.onTap();
+          await Future.delayed(const Duration(milliseconds: 400));
+          _controller.reverse().then((_) {
+            setState(() {
+              _authController.isSignUpOtpLoading.value = false;
+            });
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        height: 51,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                // Particles
+                if (_controller.value > 0 && _controller.value < 0.7)
+                  ...generateParticleWidgets(),
+
+                // Original text that fades out
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Text(
+                    widget.text,
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+
+                // Loading indicator that fades in
+                if (_authController.isSignUpOtpLoading.value)
+                  const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  List<Widget> generateParticleWidgets() {
+    final progress = _controller.value;
+    final particleWidgets = <Widget>[];
+
+    for (var particle in _particles) {
+      // Calculate position based on animation progress
+      final x = particle.x + particle.vx * progress * 20;
+      final y = particle.y + particle.vy * progress * 20;
+
+      // Calculate opacity based on animation progress
+      final opacity = 1.0 - (_controller.value * 2).clamp(0.0, 1.0);
+
+      particleWidgets.add(
+        Positioned(
+          left: x,
+          top: y,
+          child: Opacity(
+            opacity: opacity,
+            child: Container(
+              width: particle.size,
+              height: particle.size,
+              decoration: BoxDecoration(
+                color: particle.color,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return particleWidgets;
+  }
+}
+
+class ParticleModel {
+  final int id;
+  final double x;
+  final double y;
+  final double vx; // velocity x
+  final double vy; // velocity y
+  final double size;
+  final Color color;
+
+  ParticleModel({
+    required this.id,
+    required this.x,
+    required this.y,
+    required this.vx,
+    required this.vy,
+    required this.size,
+    required this.color,
+  });
 }

@@ -1,0 +1,2 @@
+C:/Users/Akaza/Documents/Works/echodate/Echodate/android/app/.cxx/Debug/314c1p4j/x86/CMakeFiles/edit_cache.dir
+C:/Users/Akaza/Documents/Works/echodate/Echodate/android/app/.cxx/Debug/314c1p4j/x86/CMakeFiles/rebuild_cache.dir
