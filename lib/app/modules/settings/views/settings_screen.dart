@@ -1,14 +1,18 @@
+import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/controller/location_controller.dart';
 import 'package:echodate/app/controller/message_controller.dart';
 import 'package:echodate/app/controller/notification_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
 import 'package:echodate/app/modules/auth/views/change_password_screen.dart';
-import 'package:echodate/app/modules/profile/binding/editprofile_binding.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
+import 'package:echodate/app/modules/profile/widgets/profile_widgets.dart';
 import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
+import 'package:echodate/app/modules/settings/views/verification_badge_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/custom_textfield.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -32,6 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _locationController = Get.put(LocationController());
   final _controller = Get.put(NotificationController());
   final _userController = Get.find<UserController>();
+  final _authController = Get.find<AuthController>();
   final RxBool _isWeekendVibes = false.obs;
 
   @override
@@ -86,10 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(width: 10),
                 ListTile(
                   onTap: () {
-                    Get.to(
-                      () => EditProfileScreen(),
-                      binding: EditprofileBinding(),
-                    );
+                    Get.to(() => EditProfileScreen());
                   },
                   minTileHeight: 30,
                   contentPadding: const EdgeInsets.all(5),
@@ -132,18 +134,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                 ),
+                Obx(() {
+                  final user = _userController.userModel.value;
+                  if (user == null) {
+                    return const SizedBox.shrink();
+                  }
+                  if (user.phoneNumber!.isNotEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return ListTile(
+                    onTap: () {
+                      String number = "";
+                      addNumberBottomSheet(context, number);
+                    },
+                    minTileHeight: 30,
+                    contentPadding: const EdgeInsets.all(5),
+                    leading: const Text(
+                      "Add Number",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+                  );
+                }),
                 ListTile(
                   onTap: () {
-                    Get.to(() => RelationtionshipPreferenceScreen(
-                          callback: () {
-                            Get.back();
-                          },
-                        ));
+                    Get.to(
+                      () => RelationtionshipPreferenceScreen(
+                        callback: () {
+                          Get.back();
+                        },
+                      ),
+                    );
                   },
                   minTileHeight: 30,
                   contentPadding: const EdgeInsets.all(5),
                   leading: const Text(
                     "Relationship Preference",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+                ),
+                ListTile(
+                  onTap: () {
+                    Get.to(() => VerificationFlow());
+                  },
+                  minTileHeight: 30,
+                  contentPadding: const EdgeInsets.all(5),
+                  leading: const Text(
+                    "Verification Badge",
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -250,7 +294,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ontap: () {
                     final messageController = Get.find<MessageController>();
                     messageController.savedChatToAvoidLoading.clear();
-                    CustomSnackbar.showSuccessSnackBar("Caches Cleared Successfully");
+                    CustomSnackbar.showSuccessSnackBar(
+                        "Caches Cleared Successfully,");
                   },
                   child: const Text(
                     "Clear Chat Caches",
@@ -265,6 +310,94 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void showPhoneNumberEditBottomSheet(String phoneNumber) async {
+    OtpVerificationBottomSheet.show(
+      context: context,
+      contactType: 'phone',
+      contactValue: phoneNumber,
+      onOtpSubmitted: (otp) async {
+        await _authController.verifyOtp(
+            otpCode: otp,
+            phoneNumber: phoneNumber,
+            whatNext: () {
+              Get.back();
+            });
+        await _userController.getUserDetails();
+        phoneNumber = "";
+        Navigator.of(Get.context!).pop();
+      },
+      onResendOtp: () async {
+        await _authController.sendNumberOTP(phoneNumber: phoneNumber);
+      },
+    );
+    await _authController.sendNumberOTP(phoneNumber: phoneNumber);
+  }
+
+  Future<dynamic> addNumberBottomSheet(
+    BuildContext context,
+    String number,
+  ) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: 50,
+            left: 15,
+            right: 15,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Add Number",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: AppColors.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                CustomTextField(
+                  hintText: "Number",
+                  prefixIcon: Icons.call,
+                  keyboardType: TextInputType.number,
+                  onChanged: (p0) {
+                    number = p0;
+                  },
+                ),
+                const SizedBox(height: 20),
+                CustomButton(
+                  ontap: () async {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    showPhoneNumberEditBottomSheet("+$number");
+                  },
+                  child: Obx(
+                    () => _authController.isLoading.value
+                        ? const Loader()
+                        : const Text(
+                            "Continue",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

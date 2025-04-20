@@ -180,7 +180,7 @@ class EditProfileController extends GetxController {
             });
         pinController.clear();
         isSubmitting.value = false;
-        Navigator.of(context).pop();
+        Navigator.of(Get.context!).pop();
       },
       onResendOtp: () async {
         await _authController.sendOtp();
@@ -203,7 +203,7 @@ class EditProfileController extends GetxController {
             });
         pinController.clear();
         isSubmitting.value = false;
-        Navigator.of(context).pop();
+        Navigator.of(Get.context!).pop();
       },
       onResendOtp: () async {
         await _authController.sendNumberOTP();

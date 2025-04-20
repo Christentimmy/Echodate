@@ -145,15 +145,23 @@ class AuthService {
 
   Future<http.Response?> sendNumberOTP({
     required String token,
+    String? phoneNumber,
   }) async {
+    Map body = {};
+    if (phoneNumber != null && phoneNumber.isNotEmpty) {
+      body["phone_number"] = phoneNumber;
+    }
     try {
-      final response = await client.post(
-        Uri.parse("$baseUrl/auth/send-number-otp"),
-        headers: {
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json"
-        },
-      ).timeout(const Duration(seconds: 15));
+      final response = await client
+          .post(
+            Uri.parse("$baseUrl/auth/send-number-otp"),
+            headers: {
+              "Authorization": "Bearer $token",
+              "Content-Type": "application/json"
+            },
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 15));
       return response;
     } catch (e) {
       debugPrint(e.toString());

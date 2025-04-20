@@ -74,9 +74,9 @@ class UserModel {
       id: json['_id'] ?? "",
       fullName: json['full_name'] ?? "",
       email: json['email'] as String?,
-      phoneNumber: json['phone_number'] as String?,
+      phoneNumber: json['phone_number'] ?? "",
       avatar: json['avatar'] as String?,
-      bio: json['bio'] as String?,
+      bio: json['bio'] ?? "",
       photos: (json['photos'] as List<dynamic>?)
               ?.map((e) => e?.toString() ?? '')
               .toList() ??
@@ -84,34 +84,34 @@ class UserModel {
       hobbies: (json['hobbies'] as List<dynamic>?)
           ?.map((e) => e?.toString() ?? "")
           .toList(),
-      status: json['status'] as String?,
-      profileCompleted: json['profile_completed'] as bool?,
-      isEmailVerified: json['is_email_verified'] as bool?,
-      isPhoneNumberVerified: json['is_phone_number_verified'] as bool?,
-      isPremium: json['is_premium'] as bool?,
+      status: json['status'] ?? "",
+      profileCompleted: json['profile_completed'] ?? false,
+      isEmailVerified: json['is_email_verified'] ?? false,
+      isPhoneNumberVerified: json['is_phone_number_verified'] ?? false,
+      isPremium: json['is_premium'] ?? false,
       lastActive: json['last_active'] != null
           ? DateTime.tryParse(json['last_active'])
           : null,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'])
           : null,
-      gender: json['gender'] as String?,
-      interestedIn: json['interested_in'] as String?,
-      relationshipPreference: json['relationship_preference'] as String?,
-      weekendAvailability: json['weekend_availability'] as bool?,
+      gender: json['gender'] ?? "",
+      interestedIn: json['interested_in'] ?? "",
+      relationshipPreference: json['relationship_preference'] ?? "",
+      weekendAvailability: json['weekend_availability'] ?? false,
       echocoinsBalance: (json['echocoins_balance'] as num?)?.toInt() ?? 0,
-      oneSignalId: json['one_signal_id'] as String?,
+      oneSignalId: json['one_signal_id'] ?? "",
       transactions: json['transactions'] ?? [],
-      recipientCode: json['recipient_code'] as String?,
+      recipientCode: json['recipient_code'] ?? "",
       plan: json['plan'] as String?,
-      dailySwipes: json['daily_swipes'] as int?,
-      dailyMessages: json['daily_messages'] as int?,
+      dailySwipes: json['daily_swipes'] ?? 0,
+      dailyMessages: json['daily_messages'] ?? 0,
       preferences: json['preferences'] != null
           ? Preferences.fromJson(json['preferences'])
           : null,
       location:
           json['location'] != null ? Location.fromJson(json['location']) : null,
-      dob: json['date_of_birth'] as String?,
+      dob: json['date_of_birth'] ?? "",
       matchPercentage: (json['matchPercentage'] as num?)?.toInt() ?? 0,
     );
   }

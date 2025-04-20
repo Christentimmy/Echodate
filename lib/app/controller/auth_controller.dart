@@ -129,18 +129,27 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> sendNumberOTP() async {
+  Future<void> sendNumberOTP({
+    String? phoneNumber,
+    VoidCallback? callback,
+  }) async {
     isLoading.value = true;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
       if (token == null) return;
-      final response = await _authService.sendNumberOTP(token: token);
-      print(response?.body);
+      final response = await _authService.sendNumberOTP(
+        token: token,
+        phoneNumber: phoneNumber,
+      );
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
         CustomSnackbar.showErrorSnackBar(decoded["message"].toString());
+        return;
+      }
+      if (callback != null) {
+        callback();
         return;
       }
     } catch (e) {
@@ -174,6 +183,7 @@ class AuthController extends GetxController {
         CustomSnackbar.showErrorSnackBar(message);
         return;
       }
+      
       if (whatNext != null) {
         whatNext();
         return;
@@ -188,7 +198,7 @@ class AuthController extends GetxController {
   Future<void> completeProfileScreen({
     required UserModel userModel,
     required File imageFile,
-    VoidCallback? nextScreen,
+    Function()? nextScreen,
   }) async {
     isLoading.value = true;
     try {
@@ -211,7 +221,7 @@ class AuthController extends GetxController {
       final userController = Get.find<UserController>();
       await userController.getUserDetails();
       if (nextScreen != null) {
-        nextScreen();
+        await nextScreen();
         return;
       }
       Get.offAll(() => const GenderSelectionScreen());

@@ -8,6 +8,8 @@ import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/controller/verification_controller.dart';
+import 'package:echodate/app/modules/profile/controller/edit_profile_controller.dart';
 import 'package:get/get.dart';
 
 class AppBindings extends Bindings {
@@ -22,7 +24,8 @@ class AppBindings extends Bindings {
     Get.put(UserController());
     Get.put(LocationController());
     Get.put(AuthController());
-
+    Get.put(EditProfileController());
     Get.put(LifecycleController());
+    Get.put(VerificationController());
   }
 }

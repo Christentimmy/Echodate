@@ -248,7 +248,9 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
               _timerController.startTimer();
               if (widget.phoneNumber != null &&
                   widget.phoneNumber?.isNotEmpty == true) {
-                await _authController.sendNumberOTP();
+                await _authController.sendNumberOTP(
+                  phoneNumber: widget.phoneNumber,
+                );
               } else {
                 await _authController.sendOtp();
               }

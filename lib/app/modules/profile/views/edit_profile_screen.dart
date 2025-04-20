@@ -16,6 +16,7 @@ class EditProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _editProfileController.init();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,

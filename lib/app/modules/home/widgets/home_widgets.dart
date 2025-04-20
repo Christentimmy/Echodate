@@ -6,6 +6,7 @@ import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/home/views/send_coins_screen.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
+import 'package:echodate/app/modules/notification/views/notification_screen.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
@@ -299,9 +300,7 @@ class _StoryCardState extends State<StoryCard> {
 }
 
 class HeaderHomeWidget extends StatelessWidget {
-  const HeaderHomeWidget({
-    super.key,
-  });
+  const HeaderHomeWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -321,7 +320,7 @@ class HeaderHomeWidget extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Row(
+          Row(
             children: [
               // InkWell(
               //   onTap: () async {
@@ -334,7 +333,13 @@ class HeaderHomeWidget extends StatelessWidget {
               //   ),
               // ),
               // const SizedBox(width: 10),
-              Icon(Icons.notifications, color: Colors.black),
+              IconButton(
+                onPressed: () {
+                  Get.to(() => const NotificationScreen());
+                },
+                icon: const Icon(Icons.notifications, color: Colors.black),
+              ),
+
               // const SizedBox(width: 20),
               // InkWell(
               //   onTap: () {

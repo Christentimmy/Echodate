@@ -331,6 +331,13 @@ class _OtpVerificationBottomSheetState
   }
 
   @override
+  void dispose() {
+    _editProfileController.pinController.clear();
+    _editProfileController.isSubmitting.value = false;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final defaultPinTheme = PinTheme(
       width: 56,
