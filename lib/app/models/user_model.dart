@@ -31,6 +31,7 @@ class UserModel {
   final String? dob;
   final int? matchPercentage;
   final DateTime? createdAt;
+  final bool? isVerified;
   String? password;
   String? otpCode;
 
@@ -67,6 +68,7 @@ class UserModel {
     this.password,
     this.createdAt,
     this.otpCode,
+    this.isVerified,
   });
 
   factory UserModel.fromJson(json) {
@@ -87,6 +89,7 @@ class UserModel {
       status: json['status'] ?? "",
       profileCompleted: json['profile_completed'] ?? false,
       isEmailVerified: json['is_email_verified'] ?? false,
+      isVerified: json['isVerified'] ?? false,
       isPhoneNumberVerified: json['is_phone_number_verified'] ?? false,
       isPremium: json['is_premium'] ?? false,
       lastActive: json['last_active'] != null

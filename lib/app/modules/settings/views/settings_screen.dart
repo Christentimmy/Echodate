@@ -182,7 +182,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 ListTile(
                   onTap: () {
-                    Get.to(() => VerificationFlow());
+                    Get.to(() => const VerificationFlow());
                   },
                   minTileHeight: 30,
                   contentPadding: const EdgeInsets.all(5),
@@ -333,7 +333,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await _authController.sendNumberOTP(phoneNumber: phoneNumber);
       },
     );
-    await _authController.sendNumberOTP(phoneNumber: phoneNumber);
   }
 
   Future<dynamic> addNumberBottomSheet(
@@ -377,7 +376,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 CustomButton(
                   ontap: () async {
                     FocusManager.instance.primaryFocus?.unfocus();
-                    showPhoneNumberEditBottomSheet("+$number");
+                    await _authController.sendNumberOTP(
+                        phoneNumber: "+$number",
+                        callback: () {
+                          showPhoneNumberEditBottomSheet("+$number");
+                        });
                   },
                   child: Obx(
                     () => _authController.isLoading.value

@@ -1,0 +1,2 @@
+C:/Users/Akaza/Documents/Works/echodate/Echodate/android/app/.cxx/RelWithDebInfo/5821o1q6/x86/CMakeFiles/edit_cache.dir
+C:/Users/Akaza/Documents/Works/echodate/Echodate/android/app/.cxx/RelWithDebInfo/5821o1q6/x86/CMakeFiles/rebuild_cache.dir

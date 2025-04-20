@@ -14,6 +14,7 @@ import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -161,14 +162,26 @@ class TinderCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                profile.fullName ?? "",
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ).animate().fadeIn(),
+              Row(
+                children: [
+                  Text(
+                    profile.fullName ?? "",
+                    style: GoogleFonts.poppins(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ).animate().fadeIn(),
+                  const SizedBox(width: 5),
+                  profile.isVerified == true
+                      ? const Icon(
+                          Icons.verified,
+                          color: Colors.blue,
+                          size: 18,
+                        )
+                      : const SizedBox.shrink(),
+                ],
+              ),
               Text(
                 profile.location?.address ?? "",
                 style: GoogleFonts.poppins(
@@ -642,12 +655,20 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
             }
 
             if (_userController.potentialMatchesList.isEmpty) {
-              return const Center(
-                child: Text(
-                  "No matches found",
-                  style: TextStyle(color: Colors.black),
+              return const AnimationConfiguration.synchronized(
+                duration: Duration(milliseconds: 200),
+                child: SlideAnimation(
+                  verticalOffset: 50.0,
+                  child: FadeInAnimation(
+                    child: Center(
+                      child: Text(
+                        "No matches found",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
                 ),
-              ).animate().fade();
+              );
             }
 
             return CardSwiper(
@@ -690,21 +711,30 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
                 }
 
                 final profile = _userController.potentialMatchesList[index];
-                return InkWell(
-                  onTap: () {
-                    Get.to(
-                      () => TinderCardDetails(
-                        userModel: profile,
+
+                // Implementing staggered animations here
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: const Duration(milliseconds: 200),
+                  child: SlideAnimation(
+                    verticalOffset: 50.0,
+                    child: FadeInAnimation(
+                      child: ScaleAnimation(
+                        scale: 0.9,
+                        child: InkWell(
+                          onTap: () {
+                            Get.to(
+                              () => TinderCardDetails(
+                                userModel: profile,
+                              ),
+                            );
+                          },
+                          child: TinderCard(profile: profile),
+                        ),
                       ),
-                    );
-                  },
-                  child: TinderCard(profile: profile),
-                ).animate().scale(
-                      duration: 1000.ms,
-                      curve: Curves.elasticOut,
-                      begin: const Offset(0.2, 0.2), // Offset for both x and y
-                      end: const Offset(1.0, 1.0),
-                    );
+                    ),
+                  ),
+                );
               },
             );
           }),

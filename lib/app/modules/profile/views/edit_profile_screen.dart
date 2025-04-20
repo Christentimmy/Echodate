@@ -59,19 +59,25 @@ class EditProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10.0),
-              Obx(
-                () => CustomTextField(
+              Obx(() {
+                if (_userController.userModel.value!.phoneNumber!.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                final phoneController =
+                    _editProfileController.phoneNumberController;
+                final isEditNum =
+                    _editProfileController.isPhoneNumberEditDisAllowed.value;
+                return CustomTextField(
                   hintText: "Phone Number",
-                  controller: _editProfileController.phoneNumberController,
-                  readOnly:
-                      _editProfileController.isPhoneNumberEditDisAllowed.value,
+                  controller: phoneController,
+                  readOnly: isEditNum,
                   suffixIcon: Icons.mode_edit_outline_outlined,
                   onSuffixTap: () {
                     _editProfileController
                         .showPhoneNumberEditBottomSheet(context);
                   },
-                ),
-              ),
+                );
+              }),
               const SizedBox(height: 10.0),
               BuildGenderSelectField(),
               const SizedBox(height: 10.0),
