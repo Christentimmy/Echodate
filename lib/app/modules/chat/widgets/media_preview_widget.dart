@@ -46,61 +46,51 @@ class AudioPreviewWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
               );
             } else if (controller.selectedFile.value != null) {
-              return AudioFileWaveforms(
-                size: Size(
-                  MediaQuery.of(context).size.width * 0.8,
-                  50,
-                ),
-                playerController: controller.playerController,
-                enableSeekGesture: true,
-                continuousWaveform: true,
-                waveformType: WaveformType.fitWidth,
-                playerWaveStyle: const PlayerWaveStyle(
-                  fixedWaveColor: Colors.blue,
-                  liveWaveColor: Colors.orange,
-                  spacing: 6.0,
-                ),
-              );
-            } else {
-              return const SizedBox();
-            }
-          }),
-
-          const SizedBox(height: 10),
-
-          // Audio controls
-          Obx(() {
-            if (controller.selectedFile.value != null) {
               return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      controller.isPlaying.value
-                          ? Icons.pause
-                          : Icons.play_arrow,
-                      color: Colors.blue,
-                      size: 30,
+                  Expanded(
+                    child: AudioFileWaveforms(
+                      size: Size(
+                        MediaQuery.of(context).size.width * 0.8,
+                        50,
+                      ),
+                      playerController: controller.playerController,
+                      enableSeekGesture: true,
+                      continuousWaveform: true,
+                      waveformType: WaveformType.fitWidth,
+                      playerWaveStyle: const PlayerWaveStyle(
+                        fixedWaveColor: Colors.blue,
+                        liveWaveColor: Colors.orange,
+                        spacing: 6.0,
+                      ),
                     ),
-                    onPressed: controller.togglePlayback,
                   ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.delete,
-                      color: Colors.red,
-                      size: 30,
-                    ),
-                    onPressed: () {
-                      controller.selectedFile.value = null;
-                      controller.showAudioPreview.value = false;
-                    },
-                  ),
+                  const SizedBox(height: 10),
+                  Obx(() {
+                    if (controller.selectedFile.value != null) {
+                      return IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          controller.selectedFile.value = null;
+                          controller.showAudioPreview.value = false;
+                        },
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  }),
                 ],
               );
             } else {
               return const SizedBox();
             }
           }),
+
+          // Audio controls
         ],
       ),
     );
