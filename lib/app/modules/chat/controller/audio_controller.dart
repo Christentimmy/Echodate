@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:path_provider/path_provider.dart';
@@ -8,19 +9,17 @@ import 'package:echodate/app/widget/snack_bar.dart';
 class AudioController extends GetxController {
   final RecorderController recorderController = RecorderController();
   final PlayerController playerController = PlayerController();
-  
+
   final Rxn<File> selectedFile = Rxn<File>(null);
   final RxBool isRecording = false.obs;
   final RxBool isPlaying = false.obs;
   final RxBool showAudioPreview = false.obs;
-  
+
   String? _audioFilePath;
 
   @override
   void onInit() {
     super.onInit();
-    
-    // Set up audio player completion listener
     playerController.onCompletion.listen((_) async {
       isPlaying.value = false;
       if (selectedFile.value != null && isAudioFile(selectedFile.value!.path)) {
@@ -32,14 +31,12 @@ class AudioController extends GetxController {
     });
   }
 
-  // Check if file is an audio file
   bool isAudioFile(String path) {
     return path.toLowerCase().endsWith('.aac') ||
         path.toLowerCase().endsWith('.mp3') ||
         path.toLowerCase().endsWith('.wav');
   }
-  
-  // Get file type based on extension
+
   String? getFileType(String path) {
     if (isAudioFile(path)) {
       return "audio";
@@ -47,7 +44,6 @@ class AudioController extends GetxController {
     return null;
   }
 
-  // Start audio recording
   Future<void> startRecording() async {
     try {
       PermissionStatus status = await Permission.microphone.request();
@@ -57,9 +53,9 @@ class AudioController extends GetxController {
       }
 
       final directory = await getApplicationDocumentsDirectory();
-      _audioFilePath = '${directory.path}/voice_message_${DateTime.now().millisecondsSinceEpoch}.aac';
+      _audioFilePath =
+          '${directory.path}/voice_message_${DateTime.now().millisecondsSinceEpoch}.aac';
 
-      // Start recording with waveform
       await recorderController.record(
         path: _audioFilePath,
         bitRate: 128000,
@@ -68,13 +64,12 @@ class AudioController extends GetxController {
       isRecording.value = true;
       showAudioPreview.value = true;
     } catch (e) {
-      print("Error starting recording: $e");
+      debugPrint("Error starting recording: $e");
       CustomSnackbar.showErrorSnackBar("Failed to start recording");
       isRecording.value = false;
     }
   }
 
-  // Stop audio recording
   Future<void> stopRecording() async {
     try {
       final path = await recorderController.stop();
@@ -83,8 +78,6 @@ class AudioController extends GetxController {
       if (path != null) {
         selectedFile.value = File(path);
         showAudioPreview.value = true;
-
-        // Prepare player with the recorded audio file
         await playerController.preparePlayer(
           path: path,
           noOfSamples: 100,
@@ -92,43 +85,37 @@ class AudioController extends GetxController {
         );
       }
     } catch (e) {
-      print("Error stopping recording: $e");
+      debugPrint("Error stopping recording: $e");
       CustomSnackbar.showErrorSnackBar("Failed to process recording");
       isRecording.value = false;
     }
   }
 
-  // Toggle audio playback
   Future<void> togglePlayback() async {
     try {
       final currentState = playerController.playerState;
-
       if (currentState == PlayerState.playing) {
         await playerController.pausePlayer();
         isPlaying.value = false;
-      } else {
-        if (currentState == PlayerState.stopped ||
-            playerController.onCompletion == const Stream.empty()) {
-          await playerController.seekTo(0);
-        }
-
-        // Ensure player is properly prepared
-        if (currentState != PlayerState.initialized &&
-            currentState != PlayerState.paused) {
-          await playerController.preparePlayer(
-            path: selectedFile.value!.path,
-            noOfSamples: 44100,
-            shouldExtractWaveform: true,
-          );
-        }
-
-        // Start playback
-        await playerController.startPlayer();
-        isPlaying.value = true;
+        return;
       }
+
+      if (selectedFile.value == null ||
+          !isAudioFile(selectedFile.value!.path)) {
+        CustomSnackbar.showErrorSnackBar("Invalid audio file");
+        return;
+      }
+
+      await playerController.preparePlayer(
+        path: selectedFile.value!.path,
+        noOfSamples: 44100,
+        shouldExtractWaveform: true,
+      );
+
+      await playerController.startPlayer();
+      isPlaying.value = true;
     } catch (e) {
-      print("Error toggling playback: $e");
-      // If error occurs, try to completely reset the player
+      debugPrint("Error toggling playback: $e");
       if (selectedFile.value != null && isAudioFile(selectedFile.value!.path)) {
         await playerController.stopPlayer();
         await playerController.preparePlayer(path: selectedFile.value!.path);
@@ -137,7 +124,7 @@ class AudioController extends GetxController {
       }
     }
   }
-  
+
   // Reset all state
   void resetState() {
     selectedFile.value = null;
@@ -148,8 +135,10 @@ class AudioController extends GetxController {
     }
   }
 
+
   @override
   void onClose() {
+    resetState();
     recorderController.dispose();
     playerController.dispose();
     super.onClose();

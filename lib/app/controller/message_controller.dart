@@ -78,8 +78,9 @@ class MessageController extends GetxController {
       if (chatHistory.isEmpty) return;
       List<MessageModel> mapped =
           chatHistory.map((json) => MessageModel.fromJson(json)).toList();
-      chatHistoryAndLiveMessage.value = mapped;
-      chatHistoryAndLiveMessage.refresh();
+
+      // Use a more efficient approach to update the list
+      chatHistoryAndLiveMessage.assignAll(mapped);
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -88,6 +89,7 @@ class MessageController extends GetxController {
   }
 
   Future<void> getChatList({bool showLoading = true}) async {
+    print("called");
     if (showLoading) {
       isChatListLoading.value = true;
     }
@@ -170,11 +172,12 @@ class MessageController extends GetxController {
     }
   }
 
+
   clearChatHistory() {
     isChattedListFetched.value = false;
     activeFriends.clear();
     allChattedUserList.clear();
-    chatHistoryAndLiveMessage.refresh();
+    chatHistoryAndLiveMessage.clear();
     savedChatToAvoidLoading.clear();
   }
 }

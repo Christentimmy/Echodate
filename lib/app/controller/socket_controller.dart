@@ -130,8 +130,7 @@ class SocketController extends GetxController {
       Get.find<MessageController>().activeFriends.refresh();
     });
 
-    socket?.on("update-chat-list", (data) async {
-      await Future.delayed(const Duration(seconds: 2));
+    socket?.on("update-chat-list", (data) {
       Get.find<MessageController>().getChatList(showLoading: false);
     });
 
@@ -151,18 +150,20 @@ class SocketController extends GetxController {
     });
 
     socket?.on("update-unread-count", (data) {
-      Get.find<MessageController>().getChatList(showLoading: false);
+      // Get.find<MessageController>().getChatList(showLoading: false);
     });
 
     socket?.on("receive-message", (data) {
       final message = Map<String, dynamic>.from(data);
       final messageModel = MessageModel.fromJson(message);
-      final exists = Get.find<MessageController>()
-          .chatHistoryAndLiveMessage
+      final messageController = Get.find<MessageController>();
+
+      // Check if the message already exists to avoid duplicates
+      final exists = messageController.chatHistoryAndLiveMessage
           .any((msg) => msg.id == messageModel.id);
+
       if (exists) return;
-      Get.find<MessageController>().chatHistoryAndLiveMessage.add(messageModel);
-      Get.find<MessageController>().chatHistoryAndLiveMessage.refresh();
+      messageController.chatHistoryAndLiveMessage.add(messageModel);
     });
 
     socket?.on("error", (data) {

@@ -33,6 +33,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   @override
+  void dispose() {
+    _chatController.closeScreen();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -42,9 +48,7 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(height: 10),
           _buildSecurityMessage(),
           const SizedBox(height: 10),
-          Expanded(
-            child: _buildMessageList(),
-          ),
+          Expanded(child: _buildMessageList()),
           // Media preview widgets
           Obx(() {
             if (_chatController.audioController.showAudioPreview.value) {
@@ -155,7 +159,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return Obx(() {
       final messageController = _chatController.messageController;
       final savedChatToAvoidLoading = messageController.savedChatToAvoidLoading;
-      List<MessageModel> oldChats = savedChatToAvoidLoading[widget.chatHead.userId] ?? [];
+      List<MessageModel> oldChats =
+          savedChatToAvoidLoading[widget.chatHead.userId] ?? [];
       final chatHistoryAndLiveMessage =
           messageController.chatHistoryAndLiveMessage;
       if (oldChats.isEmpty && messageController.isloading.value) {
@@ -182,22 +187,24 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessageListView(List<MessageModel> messages) {
     return ListView.builder(
+      key: PageStorageKey<String>('chat_list_${widget.chatHead.userId}'),
       controller: _chatController.messageController.scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 15),
       itemCount: messages.length,
       reverse: true,
+      cacheExtent: 1000,
+      physics: const AlwaysScrollableScrollPhysics(),
+      addRepaintBoundaries: true,
+      addAutomaticKeepAlives: true,
       itemBuilder: (context, index) {
         final reversedIndex = messages.length - 1 - index;
         final message = messages[reversedIndex];
-        // if (message.messageType == "audio") {
-        //   print(message.mediaUrl);
-        // }
-        // return SizedBox();
         return message.senderId ==
                 _chatController.userController.userModel.value!.id
-                
-            ? SenderCard(messageModel: message)
-            : ReceiverCard(messageModel: message);
+            ? RepaintBoundary(
+                child: SenderCard(messageModel: message),
+              )
+            : RepaintBoundary(child: ReceiverCard(messageModel: message));
       },
     );
   }

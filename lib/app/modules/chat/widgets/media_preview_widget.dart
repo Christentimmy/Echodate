@@ -1,5 +1,3 @@
-
-
 import 'package:echodate/app/modules/chat/controller/audio_controller.dart';
 import 'package:echodate/app/modules/chat/controller/chat_media_controller.dart';
 import 'package:flutter/material.dart';
@@ -67,9 +65,9 @@ class AudioPreviewWidget extends StatelessWidget {
               return const SizedBox();
             }
           }),
-          
+
           const SizedBox(height: 10),
-          
+
           // Audio controls
           Obx(() {
             if (controller.selectedFile.value != null) {
@@ -78,7 +76,9 @@ class AudioPreviewWidget extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: Icon(
-                      controller.isPlaying.value ? Icons.pause : Icons.play_arrow,
+                      controller.isPlaying.value
+                          ? Icons.pause
+                          : Icons.play_arrow,
                       color: Colors.blue,
                       size: 30,
                     ),
@@ -138,7 +138,7 @@ class MediaPreviewWidget extends StatelessWidget {
                     child: Obx(() {
                       final file = controller.selectedFile.value;
                       if (file == null) return const SizedBox.shrink();
-                      
+
                       if (controller.isVideoFile(file.path)) {
                         return Stack(
                           alignment: Alignment.center,
@@ -161,6 +161,9 @@ class MediaPreviewWidget extends StatelessWidget {
                           file,
                           fit: BoxFit.cover,
                           width: Get.width * 0.2,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.broken_image);
+                          },
                         );
                       }
                     }),

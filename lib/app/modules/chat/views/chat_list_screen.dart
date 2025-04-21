@@ -21,11 +21,13 @@ class _ChatListScreenState extends State<ChatListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _socketController.getOnlineUser();
+      _messageController.getChatList(showLoading: false);
       if (!_messageController.isChattedListFetched.value) {
-        _messageController.getChatList();
+        _messageController.getChatList(showLoading: true);
       }
     });
   }
+
 
   @override
   Widget build(BuildContext context) {

@@ -135,8 +135,7 @@ class MessageService {
       var jsonResponse = jsonDecode(responseData);
       return jsonResponse;
     } else {
-      return null; // Upload failed
+      return null;
     }
   }
-
 }

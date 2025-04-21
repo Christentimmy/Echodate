@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/models/message_model.dart';
+import 'package:echodate/app/modules/chat/enums/message_enum_type.dart';
 import 'package:echodate/app/modules/chat/views/view_medial_full_screen.dart';
 import 'package:echodate/app/utils/shimmer_effect.dart';
 import 'package:echodate/app/widget/loader.dart';
@@ -14,6 +15,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
 
+
 class SenderCard extends StatefulWidget {
   final MessageModel messageModel;
 
@@ -23,7 +25,8 @@ class SenderCard extends StatefulWidget {
   State<SenderCard> createState() => _SenderCardState();
 }
 
-class _SenderCardState extends State<SenderCard> {
+class _SenderCardState extends State<SenderCard>
+    with AutomaticKeepAliveClientMixin {
   VideoPlayerController? _videoController;
   PlayerController? _audioController;
   bool isPlaying = false;
@@ -31,30 +34,40 @@ class _SenderCardState extends State<SenderCard> {
   String localPath = '';
 
   bool _isCancelled = false;
+  String? _oldMediaUrl;
+  bool _hasInitialized = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    if (widget.messageModel.messageType == 'video' &&
+    _oldMediaUrl = widget.messageModel.mediaUrl;
+  }
+
+  Future<void> _ensureControllerInitialized() async {
+    if (_hasInitialized) return;
+
+    if (getMessageType(widget.messageModel.messageType) == MessageType.video &&
         widget.messageModel.mediaUrl != null) {
       _initializeVideoController();
-    } else if (widget.messageModel.messageType == 'audio' &&
-        widget.messageModel.mediaUrl != null &&
-        _audioController == null) {
-      _initializeAudioController();
+      _hasInitialized = true;
+    } else if (getMessageType(widget.messageModel.messageType) ==
+            MessageType.audio &&
+        widget.messageModel.mediaUrl != null) {
+      await _initializeAudioController();
+      _hasInitialized = true;
     }
   }
 
   Future<String> _downloadAudio(String url) async {
     try {
       if (_isCancelled) return "";
-
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) {
         return "";
       }
-
-      // Check again after async operation
       if (_isCancelled) return "";
 
       Uri uri = Uri.parse(url);
@@ -73,18 +86,25 @@ class _SenderCardState extends State<SenderCard> {
   }
 
   Future<void> _initializeAudioController() async {
-    try {
-      if (!mounted) return;
-      setState(() => isLoading = true);
+    if (!mounted) return;
+    if (isLoading && widget.messageModel.mediaUrl == _oldMediaUrl) return;
 
-      if (widget.messageModel.mediaUrl == null ||
-          widget.messageModel.mediaUrl!.isEmpty) {
+    setState(() => isLoading = true);
+
+    final mediaUrl = widget.messageModel.mediaUrl;
+    if (mediaUrl == null || mediaUrl.isEmpty) {
+      setState(() => isLoading = false);
+      return;
+    }
+
+    await _disposeAudioController();
+
+    try {
+      localPath = await _downloadAudio(mediaUrl);
+      if (!mounted || _isCancelled || localPath.isEmpty) {
+        setState(() => isLoading = false);
         return;
       }
-
-      localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
-
-      if (!mounted || _isCancelled || localPath.isEmpty) return;
 
       _audioController = PlayerController();
 
@@ -94,25 +114,21 @@ class _SenderCardState extends State<SenderCard> {
         noOfSamples: 100,
       );
 
-      // Only add listener if widget is still mounted
-      if (!mounted || _isCancelled) return;
+      if (!mounted || _isCancelled) {
+        await _disposeAudioController();
+        setState(() => isLoading = false);
+        return;
+      }
 
       _audioController!.onPlayerStateChanged.listen((state) {
-        // Always check mounted before setState
         if (!mounted || _isCancelled) return;
-
-        if (state == PlayerState.stopped) {
-          setState(() {
-            isPlaying = false;
-          });
-        } else {
-          setState(() => isPlaying = state == PlayerState.playing);
-        }
+        setState(() => isPlaying = state == PlayerState.playing);
       });
     } catch (e) {
       if (mounted) {
-        CustomSnackbar.showErrorSnackBar("Error Playing Audio");
+        CustomSnackbar.showErrorSnackBar("Error initializing audio");
       }
+      await _disposeAudioController();
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
@@ -120,19 +136,45 @@ class _SenderCardState extends State<SenderCard> {
     }
   }
 
+  Future<void> _disposeAudioController() async {
+    if (_audioController == null) return;
+    try {
+      await _audioController!.pausePlayer();
+    } catch (_) {}
+    try {
+      _audioController!.dispose();
+    } catch (_) {}
+    _audioController = null;
+  }
+
   void _initializeVideoController() {
-    _videoController?.dispose();
+    if (_videoController != null) {
+      _videoController!.dispose();
+    }
+
+    if (widget.messageModel.mediaUrl == null ||
+        widget.messageModel.mediaUrl!.isEmpty) {
+      return;
+    }
+
     _videoController = VideoPlayerController.networkUrl(
-        Uri.parse(widget.messageModel.mediaUrl ?? ""))
-      ..initialize().then((_) {
-        // Check if widget is still mounted before updating state
-        if (mounted && !_isCancelled) {
-          setState(() {});
-          _videoController!.setVolume(1.0);
-        }
-      }).catchError((error) {
-        print("Video initialization error: $error");
-      });
+      Uri.parse(widget.messageModel.mediaUrl ?? ""),
+    );
+
+    _videoController!.addListener(() {
+      if (mounted && !_isCancelled) {
+        setState(() {});
+      }
+    });
+
+    _videoController!.initialize().then((_) {
+      if (mounted && !_isCancelled) {
+        setState(() {});
+        _videoController!.setVolume(1.0);
+      }
+    }).catchError((error) {
+      debugPrint("Video initialization error: $error");
+    });
   }
 
   void playPause() async {
@@ -151,7 +193,6 @@ class _SenderCardState extends State<SenderCard> {
 
       if (state == PlayerState.stopped) {
         _audioController = null;
-
         if (localPath.isNotEmpty) {
           _audioController = PlayerController();
           await _audioController!.preparePlayer(
@@ -201,31 +242,49 @@ class _SenderCardState extends State<SenderCard> {
 
   @override
   void dispose() {
-    // Set cancel flag to true
     _isCancelled = true;
+    if (_audioController != null) {
+      try {
+        _audioController!.pausePlayer();
+      } catch (_) {}
 
-    // Clean up controllers
-    _audioController?.dispose();
-    _videoController?.dispose();
+      try {
+        _audioController!.dispose();
+      } catch (_) {}
+      _audioController = null;
+    }
 
+    if (_videoController != null) {
+      _videoController!.dispose();
+      _videoController = null;
+    }
     super.dispose();
   }
 
   @override
   void didUpdateWidget(SenderCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If the message status changed from 'sending' to something else,
-    // and it's a video, initialize the video controller
-    if (oldWidget.messageModel.status == 'sending' &&
-        widget.messageModel.status != 'sending' &&
-        widget.messageModel.messageType == 'video' &&
-        widget.messageModel.mediaUrl != null) {
-      _initializeVideoController();
+    if (oldWidget.messageModel.mediaUrl != widget.messageModel.mediaUrl) {
+      _oldMediaUrl = widget.messageModel.mediaUrl;
+      _hasInitialized = false;
+      if (_videoController != null) {
+        _videoController!.dispose();
+        _videoController = null;
+      }
+
+      if (_audioController != null) {
+        try {
+          _audioController!.pausePlayer();
+          _audioController!.dispose();
+        } catch (_) {}
+        _audioController = null;
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
@@ -241,10 +300,13 @@ class _SenderCardState extends State<SenderCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (widget.messageModel.messageType == "image" ||
-                widget.messageModel.messageType == "video")
+            if (getMessageType(widget.messageModel.messageType) ==
+                    MessageType.image ||
+                getMessageType(widget.messageModel.messageType) ==
+                    MessageType.video)
               _buildMediaContent(),
-            if (widget.messageModel.messageType == "audio")
+            if (getMessageType(widget.messageModel.messageType) ==
+                MessageType.audio)
               _buildAudioContent(),
             if (widget.messageModel.message?.isNotEmpty == true)
               Text(
@@ -262,7 +324,10 @@ class _SenderCardState extends State<SenderCard> {
                       widget.messageModel.createdAt!,
                     )
                   : "",
-              style: const TextStyle(fontSize: 10, color: Colors.white70),
+              style: const TextStyle(
+                fontSize: 10,
+                color: Colors.white70,
+              ),
             ),
           ],
         ),
@@ -271,20 +336,39 @@ class _SenderCardState extends State<SenderCard> {
   }
 
   Widget _buildAudioContent() {
-    if (widget.messageModel.mediaUrl == null ||
-        widget.messageModel.mediaUrl!.isEmpty) {
+    if (widget.messageModel.status == "sending") {
       return Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: const Text(
-          "Audio unavailable",
-          style: TextStyle(color: Colors.white),
+        child: const Center(
+          child: CircularProgressIndicator(
+            color: Colors.white,
+            strokeWidth: 2,
+          ),
         ),
       );
     }
+
+    if (widget.messageModel.mediaUrl == null ||
+        widget.messageModel.mediaUrl?.isEmpty == true) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Center(
+          child: Text(
+            "Audio unavailable",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -294,9 +378,15 @@ class _SenderCardState extends State<SenderCard> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Play/Pause button with loading state
           InkWell(
-            onTap: _audioController == null || isLoading ? null : playPause,
+            onTap: () async {
+              if (_audioController == null && !isLoading) {
+                await _ensureControllerInitialized();
+              }
+              if (_audioController != null && !isLoading) {
+                playPause();
+              }
+            },
             child: SizedBox(
               width: 30,
               height: 30,
@@ -317,10 +407,14 @@ class _SenderCardState extends State<SenderCard> {
           const SizedBox(width: 8),
           Expanded(
             child: _audioController == null
-                ? const SizedBox(
+                ? Container(
                     height: 40,
                     width: 100,
-                    child: Center(child: Loader()),
+                    alignment: Alignment.center,
+                    child: Container(
+                      height: 2,
+                      color: Colors.white54,
+                    ),
                   )
                 : AudioFileWaveforms(
                     playerController: _audioController!,
@@ -343,7 +437,7 @@ class _SenderCardState extends State<SenderCard> {
 
   Widget _buildMediaContent() {
     if (widget.messageModel.status == "sending" &&
-        widget.messageModel.messageType == "image") {
+        getMessageType(widget.messageModel.messageType) == MessageType.image) {
       return Stack(
         alignment: Alignment.center,
         children: [
@@ -368,7 +462,7 @@ class _SenderCardState extends State<SenderCard> {
         ],
       );
     }
-    if (widget.messageModel.messageType == "image") {
+    if (getMessageType(widget.messageModel.messageType) == MessageType.image) {
       return InkWell(
         onTap: () {
           Get.to(
@@ -392,33 +486,50 @@ class _SenderCardState extends State<SenderCard> {
               }),
         ),
       );
-    } else if (widget.messageModel.messageType == "video") {
-      return _videoController != null && _videoController!.value.isInitialized
-          ? InkWell(
-              onTap: () {
-                Get.to(() => ViewMedialFullScreen(
-                      message: widget.messageModel,
-                    ));
-              },
-              child: SizedBox(
-                width: Get.width * 0.558,
-                height: Get.height * 0.32,
-                child: FittedBox(
-                  fit: BoxFit.cover,
+    } else if (getMessageType(widget.messageModel.messageType) ==
+        MessageType.video) {
+      return InkWell(
+        onTap: () async {
+          // For video, only initialize when tapped, then navigate
+          if (_videoController == null) {
+            await _ensureControllerInitialized();
+          }
+
+          Get.to(() => ViewMedialFullScreen(
+                message: widget.messageModel,
+              ));
+        },
+        child: Container(
+          width: Get.width * 0.558,
+          height: Get.height * 0.32,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.black.withOpacity(0.2),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (_videoController != null &&
+                  _videoController!.value.isInitialized)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
                   child: SizedBox(
                     width: Get.width * 0.558,
                     height: Get.height * 0.32,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: VideoPlayer(_videoController!),
-                    ),
+                    child: VideoPlayer(_videoController!),
                   ),
                 ),
-              ),
-            )
-          : const Center(
-              child: CircularProgressIndicator(color: Colors.orange),
-            );
+              if (_videoController == null ||
+                  !_videoController!.value.isInitialized)
+                const Icon(
+                  Icons.play_circle_fill,
+                  color: Colors.white,
+                  size: 50,
+                ),
+            ],
+          ),
+        ),
+      );
     }
     return const SizedBox.shrink();
   }
@@ -436,24 +547,38 @@ class ReceiverCard extends StatefulWidget {
   State<ReceiverCard> createState() => _ReceiverCardState();
 }
 
-class _ReceiverCardState extends State<ReceiverCard> {
+class _ReceiverCardState extends State<ReceiverCard>
+    with AutomaticKeepAliveClientMixin {
   VideoPlayerController? _videoController;
   PlayerController? _audioController;
   bool isPlaying = false;
   bool isLoading = false;
   String localPath = '';
   bool _isCancelled = false;
+  String? _oldMediaUrl;
+  bool _hasInitialized = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    if (widget.messageModel.messageType == 'video' &&
+    _oldMediaUrl = widget.messageModel.mediaUrl;
+  }
+
+  Future<void> _ensureControllerInitialized() async {
+    if (_hasInitialized) return;
+
+    if (getMessageType(widget.messageModel.messageType) == MessageType.video &&
         widget.messageModel.mediaUrl != null) {
       _initializeVideoController();
-    } else if (widget.messageModel.messageType == 'audio' &&
-        widget.messageModel.mediaUrl != null &&
-        _audioController == null) {
-      _initializeAudioController();
+      _hasInitialized = true;
+    } else if (getMessageType(widget.messageModel.messageType) ==
+            MessageType.audio &&
+        widget.messageModel.mediaUrl != null) {
+      await _initializeAudioController();
+      _hasInitialized = true;
     }
   }
 
@@ -465,8 +590,6 @@ class _ReceiverCardState extends State<ReceiverCard> {
       if (response.statusCode != 200) {
         return "";
       }
-
-      // Check again after async operation
       if (_isCancelled) return "";
 
       Uri uri = Uri.parse(url);
@@ -485,49 +608,88 @@ class _ReceiverCardState extends State<ReceiverCard> {
   }
 
   void _initializeVideoController() {
-    _videoController?.dispose();
+    if (_videoController != null) {
+      _videoController!.dispose();
+    }
+
+    if (widget.messageModel.mediaUrl == null ||
+        widget.messageModel.mediaUrl!.isEmpty) {
+      return;
+    }
+
     _videoController = VideoPlayerController.networkUrl(
-        Uri.parse(widget.messageModel.mediaUrl ?? ""))
-      ..initialize().then((_) {
-        // Check if widget is still mounted before updating state
-        if (mounted && !_isCancelled) {
-          setState(() {});
-          _videoController!.setVolume(1.0);
-        }
-      }).catchError((error) {
-        print("Video initialization error: $error");
-      });
+      Uri.parse(widget.messageModel.mediaUrl ?? ""),
+    );
+
+    _videoController!.addListener(() {
+      if (mounted && !_isCancelled) {
+        setState(() {});
+      }
+    });
+
+    _videoController!.initialize().then((_) {
+      if (mounted && !_isCancelled) {
+        setState(() {});
+        _videoController!.setVolume(1.0);
+      }
+    }).catchError((error) {
+      debugPrint("Video initialization error: $error");
+    });
   }
 
   Future<void> _initializeAudioController() async {
     try {
       if (!mounted) return;
-      setState(() => isLoading = true);
-
-      if (widget.messageModel.mediaUrl == null ||
-          widget.messageModel.mediaUrl!.isEmpty) {
+      if (isLoading && widget.messageModel.mediaUrl == _oldMediaUrl) {
         return;
       }
 
+      setState(() => isLoading = true);
+      if (widget.messageModel.mediaUrl == null ||
+          widget.messageModel.mediaUrl!.isEmpty) {
+        setState(() => isLoading = false);
+        return;
+      }
+      if (_audioController != null) {
+        try {
+          await _audioController!.pausePlayer();
+        } catch (_) {}
+
+        try {
+          _audioController!.dispose();
+        } catch (_) {}
+        _audioController = null;
+      }
       localPath = await _downloadAudio(widget.messageModel.mediaUrl!);
-
-      if (!mounted || _isCancelled || localPath.isEmpty) return;
-
+      if (!mounted || _isCancelled || localPath.isEmpty) {
+        setState(() => isLoading = false);
+        return;
+      }
       _audioController = PlayerController();
+      try {
+        await _audioController!.preparePlayer(
+          path: localPath,
+          shouldExtractWaveform: true,
+          noOfSamples: 100,
+        );
+      } catch (e) {
+        if (mounted) {
+          CustomSnackbar.showErrorSnackBar("Error preparing audio player");
+        }
+        _audioController = null;
+        setState(() => isLoading = false);
+        return;
+      }
 
-      await _audioController!.preparePlayer(
-        path: localPath,
-        shouldExtractWaveform: true,
-        noOfSamples: 100,
-      );
+      if (!mounted || _isCancelled) {
+        _audioController?.dispose();
+        _audioController = null;
+        return;
+      }
 
-      // Only add listener if widget is still mounted
-      if (!mounted || _isCancelled) return;
-
+      setState(() => isLoading = false);
       _audioController!.onPlayerStateChanged.listen((state) {
-        // Always check mounted before setState
         if (!mounted || _isCancelled) return;
-
         if (state == PlayerState.stopped) {
           setState(() {
             isPlaying = false;
@@ -571,12 +733,9 @@ class _ReceiverCardState extends State<ReceiverCard> {
             shouldExtractWaveform: true,
             noOfSamples: 100,
           );
-
-          // Check mounted before setting listeners
           if (!mounted || _isCancelled) return;
 
           _audioController!.onPlayerStateChanged.listen((state) {
-            // Always check mounted before setState
             if (!mounted || _isCancelled) return;
             setState(() => isPlaying = state == PlayerState.playing);
           });
@@ -584,7 +743,6 @@ class _ReceiverCardState extends State<ReceiverCard> {
           if (!mounted || _isCancelled) return;
           await _audioController?.startPlayer();
         } else {
-          // If localPath somehow got lost, re-download
           await _initializeAudioController();
           if (mounted && !_isCancelled) {
             await _audioController?.startPlayer();
@@ -613,18 +771,51 @@ class _ReceiverCardState extends State<ReceiverCard> {
 
   @override
   void dispose() {
-    // Set cancel flag to true
     _isCancelled = true;
+    if (_audioController != null) {
+      try {
+        _audioController!.pausePlayer();
+      } catch (_) {}
 
-    // Clean up controllers
-    _audioController?.dispose();
-    _videoController?.dispose();
+      try {
+        _audioController!.dispose();
+      } catch (_) {}
+      _audioController = null;
+    }
+
+    if (_videoController != null) {
+      _videoController!.dispose();
+      _videoController = null;
+    }
 
     super.dispose();
   }
 
   @override
+  void didUpdateWidget(ReceiverCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.messageModel.mediaUrl != widget.messageModel.mediaUrl) {
+      _oldMediaUrl = widget.messageModel.mediaUrl;
+      _hasInitialized = false;
+
+      if (_videoController != null) {
+        _videoController!.dispose();
+        _videoController = null;
+      }
+
+      if (_audioController != null) {
+        try {
+          _audioController!.pausePlayer();
+          _audioController!.dispose();
+        } catch (_) {}
+        _audioController = null;
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (widget.messageModel.status == "typing") {
       return Padding(
         padding: const EdgeInsets.symmetric(
@@ -686,20 +877,39 @@ class _ReceiverCardState extends State<ReceiverCard> {
   }
 
   Widget _buildAudioContent() {
-    if (widget.messageModel.mediaUrl == null ||
-        widget.messageModel.mediaUrl!.isEmpty) {
+    if (widget.messageModel.status == "sending") {
       return Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: const Text(
-          "Audio unavailable",
-          style: TextStyle(color: Colors.white),
+        child: const Center(
+          child: CircularProgressIndicator(
+            color: Colors.black54,
+            strokeWidth: 2,
+          ),
         ),
       );
     }
+
+    if (widget.messageModel.mediaUrl == null ||
+        widget.messageModel.mediaUrl?.isEmpty == true) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Center(
+          child: Text(
+            "Audio unavailable",
+            style: TextStyle(color: Colors.black54),
+          ),
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -710,7 +920,14 @@ class _ReceiverCardState extends State<ReceiverCard> {
         mainAxisSize: MainAxisSize.min,
         children: [
           InkWell(
-            onTap: _audioController == null || isLoading ? null : playPause,
+            onTap: () async {
+              if (_audioController == null && !isLoading) {
+                await _ensureControllerInitialized();
+              }
+              if (_audioController != null && !isLoading) {
+                playPause();
+              }
+            },
             child: SizedBox(
               width: 30,
               height: 30,
@@ -731,10 +948,14 @@ class _ReceiverCardState extends State<ReceiverCard> {
           const SizedBox(width: 8),
           Expanded(
             child: _audioController == null
-                ? const SizedBox(
+                ? Container(
                     height: 40,
                     width: 100,
-                    child: Center(child: Loader()),
+                    alignment: Alignment.center,
+                    child: Container(
+                      height: 2,
+                      color: Colors.black38,
+                    ),
                   )
                 : AudioFileWaveforms(
                     playerController: _audioController!,
@@ -756,7 +977,7 @@ class _ReceiverCardState extends State<ReceiverCard> {
   }
 
   Widget _buildMediaContent() {
-    if (widget.messageModel.messageType == "image" &&
+    if (getMessageType(widget.messageModel.messageType) == MessageType.image &&
         widget.messageModel.mediaUrl?.isNotEmpty == true) {
       return InkWell(
         onTap: () {
@@ -783,35 +1004,50 @@ class _ReceiverCardState extends State<ReceiverCard> {
       );
     }
 
-    if (widget.messageModel.messageType == "video") {
-      return _videoController != null && _videoController!.value.isInitialized
-          ? InkWell(
-              onTap: () {
-                Get.to(() => ViewMedialFullScreen(
-                      message: widget.messageModel,
-                    ));
-              },
-              child: SizedBox(
-                width: Get.width * 0.558,
-                height: Get.height * 0.32,
-                child: FittedBox(
-                  fit: BoxFit.cover,
+    if (getMessageType(widget.messageModel.messageType) == MessageType.video) {
+      return InkWell(
+        onTap: () async {
+          if (_videoController == null) {
+            await _ensureControllerInitialized();
+          }
+
+          Get.to(
+            () => ViewMedialFullScreen(
+              message: widget.messageModel,
+            ),
+          );
+        },
+        child: Container(
+          width: Get.width * 0.558,
+          height: Get.height * 0.32,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.black.withOpacity(0.1),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (_videoController != null &&
+                  _videoController!.value.isInitialized)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
                   child: SizedBox(
                     width: Get.width * 0.558,
                     height: Get.height * 0.32,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: VideoPlayer(_videoController!),
-                    ),
+                    child: VideoPlayer(_videoController!),
                   ),
                 ),
-              ),
-            )
-          : const Center(
-              child: CircularProgressIndicator(
-                color: Colors.orange,
-              ),
-            );
+              if (_videoController == null ||
+                  !_videoController!.value.isInitialized)
+                const Icon(
+                  Icons.play_circle_fill,
+                  color: Colors.black54,
+                  size: 50,
+                ),
+            ],
+          ),
+        ),
+      );
     }
 
     return const SizedBox.shrink();

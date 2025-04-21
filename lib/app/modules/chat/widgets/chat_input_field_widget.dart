@@ -1,5 +1,3 @@
-
-
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/widgets/media_picker_bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -40,10 +38,12 @@ class ChatInputField extends StatelessWidget {
             ),
             onPressed: () => _showMediaPickerBottomSheet(context),
           ),
-          
+
           // Text input field
           Expanded(
             child: TextField(
+              minLines: 1,
+              maxLines: 3,
               controller: controller.textMessageController,
               onChanged: controller.handleTyping,
               style: const TextStyle(
@@ -56,7 +56,7 @@ class ChatInputField extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Send button or mic button
           Obx(() {
             if (controller.wordsTyped.value.isNotEmpty ||
@@ -72,16 +72,16 @@ class ChatInputField extends StatelessWidget {
             } else {
               return IconButton(
                 icon: Icon(
-                  controller.audioController.isRecording.value 
-                    ? Icons.stop 
-                    : Icons.mic,
-                  color: controller.audioController.isRecording.value 
-                    ? Colors.red 
-                    : Colors.orange,
+                  controller.audioController.isRecording.value
+                      ? Icons.stop
+                      : Icons.mic,
+                  color: controller.audioController.isRecording.value
+                      ? Colors.red
+                      : Colors.orange,
                 ),
                 onPressed: controller.audioController.isRecording.value
-                  ? controller.audioController.stopRecording
-                  : controller.audioController.startRecording,
+                    ? controller.audioController.stopRecording
+                    : controller.audioController.startRecording,
               );
             }
           }),
