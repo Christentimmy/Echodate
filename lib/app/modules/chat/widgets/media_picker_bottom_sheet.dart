@@ -1,5 +1,6 @@
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class MediaPickerBottomSheet extends StatelessWidget {
   final ChatController controller;
@@ -20,7 +21,7 @@ class MediaPickerBottomSheet extends StatelessWidget {
             title: "Send Image",
             onTap: () async {
               await controller.mediaController.pickImageFromGallery();
-              Navigator.pop(context);
+              Navigator.pop(Get.context!);
             },
             bgColor: Colors.orange,
             iconColor: Colors.white,

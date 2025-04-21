@@ -93,35 +93,39 @@ class AudioController extends GetxController {
 
   Future<void> togglePlayback() async {
     try {
-      final currentState = playerController.playerState;
-      if (currentState == PlayerState.playing) {
-        await playerController.pausePlayer();
-        isPlaying.value = false;
-        return;
-      }
-
       if (selectedFile.value == null ||
           !isAudioFile(selectedFile.value!.path)) {
         CustomSnackbar.showErrorSnackBar("Invalid audio file");
         return;
       }
 
+      final currentState = playerController.playerState;
+
+      if (currentState == PlayerState.playing) {
+        await playerController.pausePlayer();
+        isPlaying.value = false;
+        return;
+      }
+
+      // Always prepare the player before starting playback
       await playerController.preparePlayer(
         path: selectedFile.value!.path,
         noOfSamples: 44100,
         shouldExtractWaveform: true,
       );
 
+      // Set up completion listener
+      playerController.onCompletion.listen((_) {
+        isPlaying.value = false;
+        playerController.pausePlayer();
+      });
+
       await playerController.startPlayer();
       isPlaying.value = true;
     } catch (e) {
       debugPrint("Error toggling playback: $e");
-      if (selectedFile.value != null && isAudioFile(selectedFile.value!.path)) {
-        await playerController.stopPlayer();
-        await playerController.preparePlayer(path: selectedFile.value!.path);
-        await playerController.startPlayer();
-        isPlaying.value = true;
-      }
+      CustomSnackbar.showErrorSnackBar("Error playing audio");
+      isPlaying.value = false;
     }
   }
 
@@ -134,7 +138,6 @@ class AudioController extends GetxController {
       isPlaying.value = false;
     }
   }
-
 
   @override
   void onClose() {

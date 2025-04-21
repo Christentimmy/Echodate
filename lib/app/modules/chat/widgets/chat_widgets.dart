@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;  
 
 
 class SenderCard extends StatefulWidget {
