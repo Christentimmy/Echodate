@@ -82,9 +82,9 @@ class SignUpController extends GetxController
 
   @override
   void onClose() {
-    _emailController.dispose();
-    _phoneNumberController.dispose();
-    _passwordController.dispose();
+    _emailController.clear();
+    _phoneNumberController.clear();
+    _passwordController.clear();
     _animationController.dispose();
     super.onClose();
   }

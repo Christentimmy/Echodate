@@ -169,7 +169,7 @@ class RegisterScreen extends StatelessWidget {
 
   Widget _buildDecorationElements() {
     return SizedBox(
-      height: Get.height * 0.2,
+      height: Get.height * 0.3,
       child: Stack(
         children: [
           // Animated rotating blob 1

@@ -6,7 +6,7 @@ import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/home/views/send_coins_screen.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
-import 'package:echodate/app/modules/notification/views/notification_screen.dart';
+import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
@@ -348,9 +348,9 @@ class HeaderHomeWidget extends StatelessWidget {
               // const SizedBox(width: 10),
               IconButton(
                 onPressed: () {
-                  Get.to(() => const NotificationScreen());
+                  Get.to(() => const SettingsScreen());
                 },
-                icon: const Icon(Icons.notifications, color: Colors.black),
+                icon: const Icon(Icons.settings, color: Colors.black),
               ),
 
               // const SizedBox(width: 20),

@@ -38,16 +38,16 @@ class MediaPickerBottomSheet extends StatelessWidget {
             icon: Icons.video_camera_back_sharp,
           ),
           const SizedBox(height: 15),
-          _buildOptionTile(
-            title: "Send Audio",
-            onTap: () async {
-              await controller.audioController.startRecording();
-              Navigator.pop(context);
-            },
-            bgColor: Colors.deepPurpleAccent,
-            iconColor: Colors.white,
-            icon: Icons.audiotrack_sharp,
-          ),
+          // _buildOptionTile(
+          //   title: "Send Audio",
+          //   onTap: () async {
+          //     await controller.audioController.startRecording();
+          //     Navigator.pop(context);
+          //   },
+          //   bgColor: Colors.deepPurpleAccent,
+          //   iconColor: Colors.white,
+          //   icon: Icons.audiotrack_sharp,
+          // ),
           const SizedBox(height: 15),
         ],
       ),
