@@ -275,6 +275,10 @@ class AuthController extends GetxController {
         Get.offAll(() => CompleteProfileScreen());
         return;
       }
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(message);
+        return;
+      }
       final userController = Get.find<UserController>();
       final storyController = Get.find<StoryController>();
       await userController.getUserDetails();
