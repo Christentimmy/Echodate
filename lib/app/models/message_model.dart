@@ -13,6 +13,7 @@ class MessageModel {
   DateTime? createdAt;
   DateTime? updatedAt;
   File? tempFile;
+  String? mediaIv;
 
 
   MessageModel({
@@ -27,6 +28,7 @@ class MessageModel {
     this.updatedAt,
     this.mediaUrl,
     this.tempFile,
+    this.mediaIv,
   });
 
 
@@ -39,9 +41,10 @@ class MessageModel {
       messageType: json["messageType"] ?? "text",
       mediaUrl: json["mediaUrl"] ?? "",
       status: json["status"] ?? "sent",
-      timestamp: json["timestamp"] != null ? DateTime.parse(json["timestamp"]) : null,
-      createdAt: json["createdAt"] != null ? DateTime.parse(json["createdAt"]) : null,
-      updatedAt: json["updatedAt"] != null ? DateTime.parse(json["updatedAt"]) : null,
+      mediaIv: json["mediaIv"] ?? "",
+      timestamp: json["timestamp"] != null ? DateTime.parse(json["timestamp"]) : DateTime.now(),
+      createdAt: json["createdAt"] != null ? DateTime.parse(json["createdAt"]) : DateTime.now(),
+      updatedAt: json["updatedAt"] != null ? DateTime.parse(json["updatedAt"]) : DateTime.now(),
     );
   }
 
@@ -59,6 +62,7 @@ class MessageModel {
     if (timestamp != null) data["timestamp"] = timestamp?.toIso8601String();
     if (createdAt != null) data["createdAt"] = createdAt?.toIso8601String();
     if (updatedAt != null) data["updatedAt"] = updatedAt?.toIso8601String();
+    if (mediaIv != null) data["mediaIv"] = mediaIv;
 
     return data;
   }

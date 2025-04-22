@@ -134,7 +134,7 @@ class MediaPreviewWidget extends StatelessWidget {
                           alignment: Alignment.center,
                           children: [
                             if (controller.thumbnailData.value != null)
-                              Image.memory(
+                              Image.file(
                                 controller.thumbnailData.value!,
                                 fit: BoxFit.cover,
                                 width: double.infinity,

@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'package:get/get.dart';
-import 'dart:typed_data';
 import 'package:echodate/app/utils/image_picker.dart';
 import 'package:video_compress/video_compress.dart';
 
 class ChatMediaController extends GetxController {
   final Rxn<File> selectedFile = Rxn<File>(null);
-  final Rxn<Uint8List> thumbnailData = Rxn<Uint8List>();
+  final Rxn<File> thumbnailData = Rxn<File>();
   final RxBool showMediaPreview = false.obs;
 
   bool isVideoFile(String path) {
@@ -38,18 +37,18 @@ class ChatMediaController extends GetxController {
 
   Future<void> pickVideoFromGallery() async {
     final file = await pickVideo();
-    if (file != null) {
-      selectedFile.value = file;
-      showMediaPreview.value = true;
+    if (file == null) return;
+    selectedFile.value = file;
+    showMediaPreview.value = true;
 
-      try {
-        thumbnailData.value = await VideoCompress.getByteThumbnail(
-          file.path,
-          quality: 50,
-          position: -1,
-        );
-      } catch (_) {}
-    }
+    try {
+      File? thumbnail = await VideoCompress.getFileThumbnail(
+        file.path,
+        quality: 100,
+        position: -1,
+      );
+      thumbnailData.value = thumbnail;
+    } catch (_) {}
   }
 
   void resetState() {

@@ -153,7 +153,7 @@ class RegisterScreen extends StatelessWidget {
                         ),
                 );
               }),
-              SizedBox(height: Get.height * 0.1),
+              SizedBox(height: Get.height * 0.04),
               TextButton(
                 onPressed: () => Get.to(() => LoginScreen()),
                 child: const Text(

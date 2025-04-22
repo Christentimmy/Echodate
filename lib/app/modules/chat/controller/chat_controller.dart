@@ -102,6 +102,11 @@ class ChatController extends GetxController {
       return;
     }
 
+    if(chatHead.userId == null){
+      CustomSnackbar.showErrorSnackBar("User not found");
+      return;
+    }
+
     final messageModel = MessageModel(
       receiverId: chatHead.userId ?? "",
       message: messageText,
@@ -135,13 +140,14 @@ class ChatController extends GetxController {
       }
       String? mediaUrl = res["mediaUrl"];
       String? uploadedMessageType = res["messageType"];
+      String? mediaIv = res["mediaIv"];
 
       isUploading.value = false;
 
-      if (mediaUrl != null && mediaUrl.isNotEmpty) {
+      if (mediaUrl != null && mediaUrl.isNotEmpty ) {
         messageModel.mediaUrl = mediaUrl;
         messageModel.messageType = uploadedMessageType;
-
+        messageModel.mediaIv = mediaIv;
         messageController.chatHistoryAndLiveMessage.removeWhere(
           (msg) => msg.status == "sending" && msg == tempMessage,
         );

@@ -108,7 +108,6 @@ class MessageService {
       'Content-Type': 'multipart/form-data',
     });
 
-    // Determine the media type based on file extension
     String fileExtension = file.path.split('.').last.toLowerCase();
     MediaType mediaType;
 

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/models/message_model.dart';
+import 'package:echodate/app/modules/chat/controller/chat_media_controller.dart';
 import 'package:echodate/app/modules/chat/enums/message_enum_type.dart';
 import 'package:echodate/app/modules/chat/views/view_medial_full_screen.dart';
 import 'package:echodate/app/utils/shimmer_effect.dart';
@@ -13,13 +14,15 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
-import 'package:http/http.dart' as http;  
-
+import 'package:http/http.dart' as http;
 
 class SenderCard extends StatefulWidget {
   final MessageModel messageModel;
 
-  const SenderCard({super.key, required this.messageModel});
+  const SenderCard({
+    super.key,
+    required this.messageModel,
+  });
 
   @override
   State<SenderCard> createState() => _SenderCardState();
@@ -36,6 +39,7 @@ class _SenderCardState extends State<SenderCard>
   bool _isCancelled = false;
   String? _oldMediaUrl;
   bool _hasInitialized = false;
+  final _chatMediaController = Get.find<ChatMediaController>();
 
   @override
   bool get wantKeepAlive => true;
@@ -437,7 +441,8 @@ class _SenderCardState extends State<SenderCard>
 
   Widget _buildMediaContent() {
     if (widget.messageModel.status == "sending" &&
-        getMessageType(widget.messageModel.messageType) == MessageType.image) {
+        (_chatMediaController.thumbnailData.value != null ||
+            widget.messageModel.tempFile != null)) {
       return Stack(
         alignment: Alignment.center,
         children: [
@@ -446,7 +451,8 @@ class _SenderCardState extends State<SenderCard>
             child: ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: Image.file(
-                widget.messageModel.tempFile!,
+                _chatMediaController.thumbnailData.value ??
+                    widget.messageModel.tempFile!,
                 width: Get.width * 0.558,
                 height: Get.height * 0.32,
                 fit: BoxFit.cover,
