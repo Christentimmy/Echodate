@@ -17,6 +17,7 @@ import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -33,7 +34,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _userController.userModel.value?.weekendAvailability ?? false;
   }
 
-  final _locationController = Get.put(LocationController());
+  final _locationController = Get.find<LocationController>();
   final _controller = Get.put(NotificationController());
   final _userController = Get.find<UserController>();
   final _authController = Get.find<AuthController>();
@@ -233,7 +234,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             await _locationController
                                 .requestLocationPermission();
                           } else {
-                            _locationController.isLocation.value = false;
+                            _locationController.disableLocation();
+                            Get.defaultDialog(
+                              title: 'Location Permission',
+                              middleText:
+                                  'If you want to fully revoke location access, please open App Settings.',
+                              textConfirm: 'Open Settings',
+                              textCancel: 'Cancel',
+                              onConfirm: () async {
+                                Get.back();
+                                await openAppSettings();
+                              },
+                              onCancel: (){},
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 20,
+                              ),
+                            );
                           }
                         },
                       ),
@@ -295,7 +311,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     final messageController = Get.find<MessageController>();
                     messageController.savedChatToAvoidLoading.clear();
                     CustomSnackbar.showSuccessSnackBar(
-                        "Caches Cleared Successfully,");
+                      "Caches Cleared Successfully,",
+                    );
                   },
                   child: const Text(
                     "Clear Chat Caches",

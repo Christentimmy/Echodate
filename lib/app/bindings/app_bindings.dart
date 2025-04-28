@@ -27,5 +27,6 @@ class AppBindings extends Bindings {
     Get.put(EditProfileController());
     Get.put(LifecycleController());
     Get.put(VerificationController());
+    Get.put(LocationController());
   }
 }

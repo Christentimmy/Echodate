@@ -49,12 +49,6 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: const Icon(Icons.info_outline, color: Colors.black),
-          ),
-        ],
       ),
       body: Column(
         children: [

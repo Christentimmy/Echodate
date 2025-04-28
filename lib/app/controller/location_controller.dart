@@ -9,6 +9,12 @@ class LocationController extends GetxController {
   RxBool get isLocation => _isLocation;
   Location location = Location();
 
+  @override
+  onInit() async {
+    super.onInit();
+    _isLocation.value =
+        await location.hasPermission() == PermissionStatus.granted;
+  }
 
   Future<void> requestLocationPermission() async {
     PermissionStatus permission = await location.requestPermission();
@@ -18,6 +24,10 @@ class LocationController extends GetxController {
     } else {
       _isLocation.value = false;
     }
+  }
+
+  Future<void> disableLocation() async {
+    _isLocation.value = false;
   }
 
   Future<void> getCurrentCity() async {
@@ -33,7 +43,7 @@ class LocationController extends GetxController {
       if (permission == PermissionStatus.denied) {
         permission = await location.requestPermission();
       }
-     LocationData locationData = await location.getLocation();
+      LocationData locationData = await location.getLocation();
       List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
         locationData.latitude ?? 0.0,
         locationData.longitude ?? 0.0,
