@@ -183,7 +183,7 @@ class AuthController extends GetxController {
         CustomSnackbar.showErrorSnackBar(message);
         return;
       }
-      
+
       if (whatNext != null) {
         whatNext();
         return;
@@ -392,11 +392,17 @@ class AuthController extends GetxController {
       );
       if (response == null) return;
       final data = jsonDecode(response.body);
-      if (response.statusCode != 200) {
-        debugPrint(data["message"].toString());
-        return;
-      }
-      CustomSnackbar.showSuccessSnackBar("OTP sent to your email.");
+      final StorageController storageController = Get.find<StorageController>();
+      String token = data["token"] ?? "";
+      // String message = data["message"] ?? "";
+      await storageController.storeToken(token);
+      // if (response.statusCode != 200) {
+      //   debugPrint(data["message"].toString());
+      //   CustomSnackbar.showErrorSnackBar(message);
+      //   return;
+      // }
+      CustomSnackbar.showSuccessSnackBar(
+          "Please check your inbox. If the email is linked to an account, an OTP has been sent.");
       Get.to(
         () => OTPVerificationScreen(
           email: email,

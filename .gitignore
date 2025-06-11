@@ -47,3 +47,8 @@ app.*.map.json
 **/key.properties
 **/*.jks
 key.properties
+
+firebase.json
+/lib/firebase_options.dart
+android/app/google-services.json
+

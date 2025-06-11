@@ -142,12 +142,14 @@ class UserController extends GetxController {
       if (token == null || token.isEmpty) return;
       final response = await _userService.getUserStatus(token: token);
       if (response == null) {
+        print("Code-Hereeeeeeeeeeeeeeeee1");
         Get.offAll(() => RegisterScreen());
         return;
       }
       final decoded = json.decode(response.body);
       String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
+        print("Code-Hereeeeeeeeeeeeeeeee2");
         Get.offAll(() => RegisterScreen());
         debugPrint(message);
         return;
@@ -185,6 +187,7 @@ class UserController extends GetxController {
             },
           ),
         );
+        return;
       }
       if (relationshipPreference.isEmpty) {
         CustomSnackbar.showErrorSnackBar("Relationship Preference is required");
@@ -195,6 +198,7 @@ class UserController extends GetxController {
             },
           ),
         );
+        return;
       }
       if (hobbies.isEmpty) {
         CustomSnackbar.showErrorSnackBar("Hobbies are required");
@@ -214,6 +218,7 @@ class UserController extends GetxController {
         return;
       }
       Get.offAll(() => BottomNavigationScreen());
+      print("Code-Hereeeeeeeeeeeeeeeee3");
     } catch (e) {
       debugPrint(e.toString());
     }

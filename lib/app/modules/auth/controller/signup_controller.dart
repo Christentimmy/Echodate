@@ -10,7 +10,7 @@ class SignUpController extends GetxController
   final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
   final otpCodeController = TextEditingController();
-  late GlobalKey<FormState> _signUpFormKey;
+  GlobalKey<FormState> _signUpFormKey = GlobalKey<FormState>();
   final _isCheckValue = false.obs;
   final selectedCountryCode = RxString("+233");
 

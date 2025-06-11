@@ -178,7 +178,8 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
                           CustomButton(
                             text: "Continue",
                             ontap: () async {
-                              _authController.verifyOtp(
+                              print("called");
+                              await _authController.verifyOtp(
                                 otpCode: _otpController.text,
                                 email: widget.email,
                                 phoneNumber: widget.phoneNumber,
@@ -198,33 +199,37 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
               ),
             ),
             // Preloader with Rotation and Bounce
-            if (_authController.isOtpVerifyLoading.value)
-              Padding(
-                padding: EdgeInsets.only(bottom: Get.height * 0.1),
-                child: Center(
-                  child: CircleAvatar(
-                    radius: 25,
-                    backgroundColor: AppColors.primaryColor,
+            Obx(() {
+              if (_authController.isOtpVerifyLoading.value) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: Get.height * 0.1),
+                  child: Center(
                     child: CircleAvatar(
-                        radius: 23,
-                        backgroundColor: Colors.white,
-                        child: ScaleTransition(
-                          scale: _scaleAnimation,
-                          child: RotationTransition(
-                            turns: _animationController,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Image.asset(
-                                "assets/images/ECHODATE.png",
-                                width: 50, // Reduced size
-                                height: 50,
+                      radius: 25,
+                      backgroundColor: AppColors.primaryColor,
+                      child: CircleAvatar(
+                          radius: 23,
+                          backgroundColor: Colors.white,
+                          child: ScaleTransition(
+                            scale: _scaleAnimation,
+                            child: RotationTransition(
+                              turns: _animationController,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Image.asset(
+                                  "assets/images/ECHODATE.png",
+                                  width: 50, // Reduced size
+                                  height: 50,
+                                ),
                               ),
                             ),
-                          ),
-                        )),
+                          )),
+                    ),
                   ),
-                ),
-              ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
           ],
         );
       }),
