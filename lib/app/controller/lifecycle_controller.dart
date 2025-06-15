@@ -1,4 +1,5 @@
 import 'package:echodate/app/controller/socket_controller.dart';
+import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,14 +24,16 @@ class LifecycleController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  void onAppResume() {
+  void onAppResume() async {
     final userController = Get.find<UserController>();
-    userController.getUserDetails();
+    final storageController = Get.put(StorageController());
+    final token = await storageController.getToken();
+    if (token?.isEmpty == true && userController.userModel.value?.fullName == null) {
+      userController.getUserDetails();
+    }
 
     final socketController = Get.find<SocketController>();
-    final socket = socketController.socket;
-
-    if (socket == null || socket.disconnected == true) {
+    if (socketController.socket?.connected != true) {
       socketController.initializeSocket();
     }
   }

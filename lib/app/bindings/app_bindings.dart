@@ -22,7 +22,6 @@ class AppBindings extends Bindings {
     Get.put(MessageController());
     // Get.put(LiveStreamController());
     Get.put(UserController());
-    Get.put(LocationController());
     Get.put(AuthController());
     Get.put(EditProfileController());
     Get.put(LifecycleController());
