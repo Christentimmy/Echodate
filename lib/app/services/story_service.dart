@@ -74,12 +74,23 @@ class StoryService {
     required String storyId,
     required String storyItemId,
   }) async {
+    print(storyId);
+    print(storyItemId);
     try {
-      final url = Uri.parse('$baseUrl/story/view-story/$storyId/$storyItemId');
-      final response = await http.get(
-        url,
-        headers: {'Authorization': 'Bearer $token'},
-      ).timeout(const Duration(seconds: 15));
+      final url = Uri.parse('$baseUrl/story/view-story');
+      debugPrint("Viewing story URL: $url");
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Authorization': 'Bearer $token',
+            },
+            body: jsonEncode({
+              "storyId": storyId,
+              "storyItemId": storyItemId,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
       return response;
     } on SocketException catch (e) {
       debugPrint("No internet connection $e");
@@ -97,7 +108,8 @@ class StoryService {
     required String storyItemId,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/story/get-story-viewers/$storyId/$storyItemId');
+      final url =
+          Uri.parse('$baseUrl/story/get-story-viewers/$storyId/$storyItemId');
       final response = await http.get(
         url,
         headers: {'Authorization': 'Bearer $token'},
@@ -179,5 +191,4 @@ class StoryService {
     }
     return null;
   }
-
 }

@@ -246,6 +246,7 @@ class AuthController extends GetxController {
       final decoded = json.decode(response.body);
       String message = decoded["message"] ?? "";
       String token = decoded["token"] ?? "";
+      print("Token:$token");
       final storageController = Get.find<StorageController>();
       await storageController.storeToken(token);
       if (response.statusCode == 404) {

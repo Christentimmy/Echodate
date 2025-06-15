@@ -5,6 +5,7 @@ import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/home/views/send_coins_screen.dart';
+import 'package:echodate/app/modules/home/widgets/alt_view_story_screen.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
@@ -232,9 +233,13 @@ Widget buildBasicInfoTile({
 
 class StoryCard extends StatefulWidget {
   final StoryModel story;
+  final List<StoryModel> allStories;
+  final int index;
   const StoryCard({
     super.key,
     required this.story,
+    required this.allStories,
+    required this.index,
   });
 
   @override
@@ -269,7 +274,16 @@ class _StoryCardState extends State<StoryCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.to(() => ViewStoryFullScreen(story: widget.story));
+        Get.to(
+          () => ViewStoryFullScreen(
+            users: widget.allStories,
+            index: widget.index,
+          ),
+        );
+        // Get.to(() => StoryViewer(
+        //       users: widget.allStories,
+        //       index: widget.index,
+        //     ));
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -394,7 +408,11 @@ class StoryCardBuilderWidget extends StatelessWidget {
           itemCount: _storyController.allstoriesList.length,
           itemBuilder: (context, index) {
             final story = _storyController.allstoriesList[index];
-            return StoryCard(story: story);
+            return StoryCard(
+              story: story,
+              allStories: _storyController.allstoriesList,
+              index: index,
+            );
           },
         );
       }),
@@ -486,6 +504,8 @@ class UserPostedStoryWidget extends StatelessWidget {
         children: [
           StoryCard(
             story: _storyController.userPostedStory.value ?? StoryModel(),
+            allStories: [],
+            index: 0,
           ),
           Positioned(
             bottom: 15,
