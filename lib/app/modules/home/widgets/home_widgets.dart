@@ -407,24 +407,28 @@ class StoryCardBuilderWidget extends StatelessWidget {
       }
       return ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: _storyController.allstoriesList.length,
+        itemCount: _storyController.allstoriesList.length + 1,
         itemBuilder: (context, index) {
-          final story = _storyController.allstoriesList[index];
-          final userId = _userController.userModel.value?.id ?? "";
-          if (story.userId == _userController.userModel.value?.id &&
-              index == 0) {
+          // Always show UserPostedStoryWidget first
+          if (index == 0) {
             return UserPostedStoryWidget(
-              story: story,
+              story: _storyController.allstoriesList.first,
               index: index,
               allStories: _storyController.allstoriesList,
             );
           }
 
+          // For other stories, adjust index since we added UserPostedStoryWidget
+          final story = _storyController.allstoriesList[index - 1];
+          final userId = _userController.userModel.value?.id ?? "";
           bool isSeen = story.stories!.first.viewedBy!.contains(userId);
+          if (userId == story.userId) {
+            return const SizedBox();
+          }
           return StoryCard(
             story: story,
             allStories: _storyController.allstoriesList,
-            index: index,
+            index: index - 1,
             isSeen: isSeen,
           );
         },
@@ -456,7 +460,8 @@ class UserPostedStoryWidget extends StatelessWidget {
           backgroundColor: AppColors.primaryColor,
         );
       }
-      if (storyModel.stories?.isEmpty == true) {
+      if (storyModel.stories?.isEmpty == true ||
+          story.userId != _userController.userModel.value?.id) {
         return Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 8.0,

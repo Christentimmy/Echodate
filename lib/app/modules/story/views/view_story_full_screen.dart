@@ -3,6 +3,8 @@ import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/modules/story/widgets/create_story_widgets.dart';
+import 'package:echodate/app/widget/loader.dart';
+import 'package:echodate/main.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
@@ -20,13 +22,29 @@ class ViewStoryFullScreen extends StatefulWidget {
   State<ViewStoryFullScreen> createState() => _ViewStoryFullScreenState();
 }
 
-class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
+class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
+    with RouteAware {
   final PageController _pageController = PageController();
   final _userController = Get.find<UserController>();
   final _storyController = Get.find<StoryController>();
   VideoPlayerController? _videoController;
   int currentUserIndex = 0;
   int currentStoryIndex = 0;
+
+  @override
+  void didPop() async {
+    await _storyController.markAllStoryViewed();
+    super.didPop();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
+  }
 
   @override
   void initState() {
@@ -45,7 +63,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
   void dispose() {
     _videoController?.dispose();
     _pageController.dispose();
-    _storyController.viewStory();
+    routeObserver.unsubscribe(this);
     super.dispose();
   }
 
@@ -111,7 +129,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
       body: Stack(
         children: [
           story.mediaType == 'video'
-              ? VideoPlayerWidget(url: story.mediaUrl ?? "")
+              ? Center(child: VideoPlayerWidget(url: story.mediaUrl ?? ""))
               : Center(
                   child: CachedNetworkImage(
                     imageUrl: story.mediaUrl ?? "",
@@ -252,6 +270,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             aspectRatio: _controller.value.aspectRatio,
             child: VideoPlayer(_controller),
           )
-        : const Center(child: CircularProgressIndicator());
+        : const Center(child: Loader());
   }
 }
