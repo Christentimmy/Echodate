@@ -5,7 +5,6 @@ import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/home/views/send_coins_screen.dart';
-import 'package:echodate/app/modules/home/widgets/alt_view_story_screen.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
@@ -235,11 +234,13 @@ class StoryCard extends StatefulWidget {
   final StoryModel story;
   final List<StoryModel> allStories;
   final int index;
+  final bool isSeen;
   const StoryCard({
     super.key,
     required this.story,
     required this.allStories,
     required this.index,
+    required this.isSeen,
   });
 
   @override
@@ -292,7 +293,8 @@ class _StoryCardState extends State<StoryCard> {
           children: [
             CircleAvatar(
               radius: 32,
-              backgroundColor: AppColors.primaryColor,
+              backgroundColor:
+                  widget.isSeen ? Colors.grey : AppColors.primaryColor,
               child: _isVideo(widget.story.stories?.first.mediaUrl ?? "")
                   ? Obx(() {
                       if (uint8list.value != null) {
@@ -395,48 +397,66 @@ class StoryCardBuilderWidget extends StatelessWidget {
   StoryCardBuilderWidget({super.key});
 
   final _storyController = Get.find<StoryController>();
+  final _userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Obx(() {
-        if (_storyController.allstoriesList.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: _storyController.allstoriesList.length,
-          itemBuilder: (context, index) {
-            final story = _storyController.allstoriesList[index];
-            return StoryCard(
+    return Obx(() {
+      if (_storyController.allstoriesList.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      return ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _storyController.allstoriesList.length,
+        itemBuilder: (context, index) {
+          final story = _storyController.allstoriesList[index];
+          final userId = _userController.userModel.value?.id ?? "";
+          if (story.userId == _userController.userModel.value?.id &&
+              index == 0) {
+            return UserPostedStoryWidget(
               story: story,
-              allStories: _storyController.allstoriesList,
               index: index,
+              allStories: _storyController.allstoriesList,
             );
-          },
-        );
-      }),
-    );
+          }
+
+          bool isSeen = story.stories!.first.viewedBy!.contains(userId);
+          return StoryCard(
+            story: story,
+            allStories: _storyController.allstoriesList,
+            index: index,
+            isSeen: isSeen,
+          );
+        },
+      );
+    });
   }
 }
 
 class UserPostedStoryWidget extends StatelessWidget {
-  UserPostedStoryWidget({super.key});
+  final StoryModel story;
+  final int index;
+  final List<StoryModel> allStories;
+  UserPostedStoryWidget({
+    super.key,
+    required this.story,
+    required this.index,
+    required this.allStories,
+  });
   final _userController = Get.find<UserController>();
-  final _storyController = Get.find<StoryController>();
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final userModel = _userController.userModel.value;
-      final storyModel = _storyController.userPostedStory.value;
+      final storyModel = story;
       if (userModel == null) {
         return CircleAvatar(
           radius: 32,
           backgroundColor: AppColors.primaryColor,
         );
       }
-      if (storyModel == null || storyModel.stories?.isEmpty == true) {
+      if (storyModel.stories?.isEmpty == true) {
         return Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 8.0,
@@ -503,9 +523,10 @@ class UserPostedStoryWidget extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           StoryCard(
-            story: _storyController.userPostedStory.value ?? StoryModel(),
-            allStories: [],
-            index: 0,
+            story: storyModel,
+            allStories: allStories,
+            index: index,
+            isSeen: false,
           ),
           Positioned(
             bottom: 15,

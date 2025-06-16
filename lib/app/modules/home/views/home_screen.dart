@@ -69,13 +69,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 const HeaderHomeWidget(),
                 SizedBox(
                   height: 90,
-                  child: Row(
-                    children: [
-                      UserPostedStoryWidget(),
-                      StoryCardBuilderWidget(),
-                    ],
-                  ),
+                  width: Get.width,
+                  child: StoryCardBuilderWidget(),
                 ),
+                // SizedBox(
+                //   height: 90,
+                //   child: Row(
+                //     children: [
+                //       UserPostedStoryWidget(),
+                //       StoryCardBuilderWidget(),
+                //     ],
+                //   ),
+                // ),
                 const SizedBox(height: 15),
                 GetPotentialMatchesBuilder(),
               ],

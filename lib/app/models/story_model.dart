@@ -1,4 +1,3 @@
-
 class StoryModel {
   final String? id;
   final String? userId;
@@ -14,10 +13,12 @@ class StoryModel {
 
   factory StoryModel.fromJson(Map<String, dynamic> json) {
     return StoryModel(
-      id: json['_id'] as String?,
-      userId: json['userId'] as String?,
+      id: json['_id'] ?? "",
+      userId: json['userId'] ?? "",
       fullName: json['full_name'] as String?,
-      stories: json['stories'] != null ? List<Stories>.from(json['stories'].map((x) => Stories.fromMap(x))) : <Stories>[],
+      stories: json['stories'] != null
+          ? List<Stories>.from(json['stories'].map((x) => Stories.fromMap(x)))
+          : <Stories>[],
     );
   }
 
@@ -66,16 +67,20 @@ class Stories {
 
   factory Stories.fromMap(Map<String, dynamic> map) {
     return Stories(
-      content:  map['content'] ?? "",
-      mediaUrl:  map['mediaUrl'] ?? "",
+      content: map['content'] ?? "",
+      mediaUrl: map['mediaUrl'] ?? "",
       mediaType: map['mediaType'] ?? "",
-      createdAt: map['createdAt'] != null ? DateTime.tryParse(map['createdAt'].toString()) : DateTime.now(),
-      expiresAt: map['expiresAt'] != null ? DateTime.tryParse(map['expiresAt'].toString()) : DateTime.now(),
-      viewedBy: map['viewedBy'] != null ? List<String>.from((map['viewedBy'])) : [],
-      id: map['_id'] ?? "",
+      createdAt: map['createdAt'] != null
+          ? DateTime.tryParse(map['createdAt'].toString())
+          : DateTime.now(),
+      expiresAt: map['expiresAt'] != null
+          ? DateTime.tryParse(map['expiresAt'].toString())
+          : DateTime.now(),
+      viewedBy:
+          map['viewedBy'] != null ? List<String>.from((map['viewedBy'])) : [],
+      id: map['id'] ?? "",
     );
   }
-
 
   @override
   String toString() {
@@ -90,5 +95,4 @@ class Stories {
     id: $id 
     )''';
   }
-
 }

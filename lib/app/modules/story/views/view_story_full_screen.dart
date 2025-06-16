@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
-import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/modules/story/widgets/create_story_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -38,7 +37,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
       });
       final user = widget.users[currentUserIndex];
       final story = user.stories![currentStoryIndex];
-      await viewStory(user.userId ?? "", story.id ?? "");
+      _storyController.markStoryAsSeen(user.id, story.id, user.userId);
     });
   }
 
@@ -46,16 +45,8 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
   void dispose() {
     _videoController?.dispose();
     _pageController.dispose();
+    _storyController.viewStory();
     super.dispose();
-  }
-
-  Future<void> viewStory(String storyId, String storyItemId) async {
-    if (_userController.userModel.value?.id != storyId) {
-      await _storyController.viewStory(
-        storyId: storyId,
-        storyItemId: storyItemId,
-      );
-    }
   }
 
   void goToNextStory() {
@@ -66,11 +57,23 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
 
     if (currentStoryIndex < stories.length - 1) {
       setState(() => currentStoryIndex++);
+      final story = stories[currentStoryIndex];
+      _storyController.markStoryAsSeen(
+        widget.users[currentUserIndex].id ?? "",
+        story.id ?? "",
+        widget.users[currentUserIndex].userId ?? "",
+      );
     } else if (currentUserIndex < widget.users.length - 1) {
       setState(() {
         currentUserIndex++;
         currentStoryIndex = 0;
       });
+      final story = widget.users[currentUserIndex].stories![0];
+      _storyController.markStoryAsSeen(
+        widget.users[currentUserIndex].id ?? "",
+        story.id ?? "",
+        widget.users[currentUserIndex].userId ?? "",
+      );
     } else {
       Navigator.pop(context); // end of all stories
     }
@@ -79,11 +82,23 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
   void goToPreviousStory() {
     if (currentStoryIndex > 0) {
       setState(() => currentStoryIndex--);
+      final story = widget.users[currentUserIndex].stories![currentStoryIndex];
+      _storyController.markStoryAsSeen(
+        widget.users[currentUserIndex].id ?? "",
+        story.id ?? "",
+        widget.users[currentUserIndex].userId ?? "",
+      );
     } else if (currentUserIndex > 0) {
       setState(() {
         currentUserIndex--;
         currentStoryIndex = widget.users[currentUserIndex].stories!.length - 1;
       });
+      final story = widget.users[currentUserIndex].stories![currentStoryIndex];
+      _storyController.markStoryAsSeen(
+        widget.users[currentUserIndex].id ?? "",
+        story.id ?? "",
+        widget.users[currentUserIndex].userId ?? "",
+      );
     }
   }
 
@@ -91,25 +106,29 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
   Widget build(BuildContext context) {
     final storyModel = widget.users[currentUserIndex];
     final story = storyModel.stories![currentStoryIndex];
-    viewStory(storyModel.id ?? "", story.id ?? "");
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         children: [
           story.mediaType == 'video'
               ? VideoPlayerWidget(url: story.mediaUrl ?? "")
-              : CachedNetworkImage(
-                  imageUrl: story.mediaUrl ?? "",
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  // fit: BoxFit.cover,
-                  placeholder: (context, url) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    );
-                  },
+              : Center(
+                  child: CachedNetworkImage(
+                    imageUrl: story.mediaUrl ?? "",
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.67,
+                    fit: BoxFit.fitHeight,
+                    errorWidget: (context, url, error) {
+                      return const Icon(Icons.broken_image);
+                    },
+                    placeholder: (context, url) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      );
+                    },
+                  ),
                 ),
 
           // Gesture detection
@@ -196,43 +215,6 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen> {
       ),
     );
   }
-  // return Scaffold(
-  //   backgroundColor: Colors.black,
-  //   body: Stack(
-  //     children: [
-  //       // Story Media Viewer
-  //       PageView.builder(
-  //         controller: _pageController,
-  //         itemCount: widget.story.stories?.length ?? 0,
-  //         onPageChanged: (index) {
-  //           setState(() {
-  //             _currentIndex = index;
-  //             _initializeMedia(index);
-  //           });
-  //         },
-  //         itemBuilder: (context, index) {
-  //           final storiesModel = widget.story.stories?[index] ?? Stories();
-  //           return ViewStoryFullSceenCard(
-  //             pageController: _pageController,
-  //             story: widget.story,
-  //             storiesModel: storiesModel,
-  //             videoController: _videoController,
-  //           );
-  //         },
-  //       ),
-
-  //       // Close Button (Top Left)
-  //       Positioned(
-  //         top: 40,
-  //         left: 10,
-  //         child: IconButton(
-  //           icon: const Icon(Icons.close, color: Colors.white),
-  //           onPressed: () => Navigator.pop(context),
-  //         ),
-  //       ),
-  //     ],
-  //   ),
-  // );
 }
 
 class VideoPlayerWidget extends StatefulWidget {

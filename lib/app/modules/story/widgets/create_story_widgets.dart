@@ -302,17 +302,17 @@ class _ViewStoryFullSceenCardState extends State<ViewStoryFullSceenCard> {
   @override
   void initState() {
     super.initState();
-    viewStory();
+    // viewStory();
   }
 
-  void viewStory() async {
-    if (_userController.userModel.value?.id != widget.story.userId) {
-      await _storyController.viewStory(
-        storyId: widget.story.id ?? "",
-        storyItemId: widget.storiesModel.id ?? "",
-      );
-    }
-  }
+  // void viewStory() async {
+  //   if (_userController.userModel.value?.id != widget.story.userId) {
+  //     await _storyController.viewStory(
+  //       storyId: widget.story.id ?? "",
+  //       storyItemId: widget.storiesModel.id ?? "",
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

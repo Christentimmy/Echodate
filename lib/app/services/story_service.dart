@@ -71,23 +71,19 @@ class StoryService {
 
   Future<http.Response?> viewStory({
     required String token,
-    required String storyId,
-    required String storyItemId,
+    required List<Map> storyItems,
   }) async {
-    print(storyId);
-    print(storyItemId);
     try {
       final url = Uri.parse('$baseUrl/story/view-story');
-      debugPrint("Viewing story URL: $url");
-      final response = await http
+      final response = await client
           .post(
             url,
             headers: {
               'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
             },
             body: jsonEncode({
-              "storyId": storyId,
-              "storyItemId": storyItemId,
+              "storyItems": storyItems,
             }),
           )
           .timeout(const Duration(seconds: 15));

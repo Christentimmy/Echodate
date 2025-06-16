@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:echodate/app/controller/storage_controller.dart';
+import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
@@ -16,7 +17,7 @@ class StoryController extends GetxController {
   RxList<StoryModel> allstoriesList = RxList<StoryModel>();
   RxList<UserModel> allStoryViewers = RxList<UserModel>();
   Rxn<StoryModel> userPostedStory = Rxn<StoryModel>();
-
+  RxList<Map> seenStoryIds = <Map>[].obs;
   @override
   void onInit() {
     getAllStories();
@@ -86,10 +87,18 @@ class StoryController extends GetxController {
     }
   }
 
-  Future<void> viewStory({
-    required String storyId,
-    required String storyItemId,
-  }) async {
+  void markStoryAsSeen(
+    String? storyId,
+    String? storyItemId,
+    String? storyUserId,
+  ) {
+    final userController = Get.find<UserController>();
+    if (userController.userModel.value?.id == storyUserId) return;
+    if (storyId == null || storyItemId == null) return;
+    seenStoryIds.add({"storyId": storyId, "storyItemId": storyItemId});
+  }
+
+  Future<void> viewStory() async {
     isloading.value = true;
     try {
       final storageController = Get.find<StorageController>();
@@ -97,15 +106,18 @@ class StoryController extends GetxController {
       if (token == null) return;
       final response = await _storyService.viewStory(
         token: token,
-        storyId: storyId,
-        storyItemId: storyItemId,
+        storyItems: seenStoryIds,
       );
+
       if (response == null) return;
       final decoded = json.decode(response.body);
+      String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
-        debugPrint(decoded["message"].toString());
+        debugPrint(message);
         return;
       }
+      seenStoryIds.clear();
+      await getAllStories();
     } catch (e) {
       debugPrint(e.toString());
     } finally {
