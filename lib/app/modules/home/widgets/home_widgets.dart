@@ -7,6 +7,7 @@ import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/home/views/send_coins_screen.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
+import 'package:echodate/app/modules/story/controller/view_story_full_screen_controller.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
@@ -235,12 +236,14 @@ class StoryCard extends StatefulWidget {
   final List<StoryModel> allStories;
   final int index;
   final bool isSeen;
+  final VoidCallback onTap;
   const StoryCard({
     super.key,
     required this.story,
     required this.allStories,
     required this.index,
     required this.isSeen,
+    required this.onTap,
   });
 
   @override
@@ -274,18 +277,7 @@ class _StoryCardState extends State<StoryCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Get.to(
-          () => ViewStoryFullScreen(
-            users: widget.allStories,
-            index: widget.index,
-          ),
-        );
-        // Get.to(() => StoryViewer(
-        //       users: widget.allStories,
-        //       index: widget.index,
-        //     ));
-      },
+      onTap: widget.onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Column(
@@ -398,6 +390,7 @@ class StoryCardBuilderWidget extends StatelessWidget {
 
   final _storyController = Get.find<StoryController>();
   final _userController = Get.find<UserController>();
+  final _viewStoryScreenController = Get.put(ViewStoryFullScreenController());
 
   @override
   Widget build(BuildContext context) {
@@ -409,7 +402,6 @@ class StoryCardBuilderWidget extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: _storyController.allstoriesList.length + 1,
         itemBuilder: (context, index) {
-          // Always show UserPostedStoryWidget first
           if (index == 0) {
             return UserPostedStoryWidget(
               story: _storyController.allstoriesList.first,
@@ -417,11 +409,11 @@ class StoryCardBuilderWidget extends StatelessWidget {
               allStories: _storyController.allstoriesList,
             );
           }
-
-          // For other stories, adjust index since we added UserPostedStoryWidget
           final story = _storyController.allstoriesList[index - 1];
           final userId = _userController.userModel.value?.id ?? "";
-          bool isSeen = story.stories!.first.viewedBy!.contains(userId);
+          bool isSeen = story.stories
+                  ?.every((s) => s.viewedBy?.contains(userId) ?? false) ??
+              false;
           if (userId == story.userId) {
             return const SizedBox();
           }
@@ -430,6 +422,10 @@ class StoryCardBuilderWidget extends StatelessWidget {
             allStories: _storyController.allstoriesList,
             index: index - 1,
             isSeen: isSeen,
+            onTap: () {
+              _viewStoryScreenController.tapIndexHomePage.value = index - 1;
+              Get.to(() => const ViewStoryFullScreen());
+            },
           );
         },
       );
@@ -532,6 +528,9 @@ class UserPostedStoryWidget extends StatelessWidget {
             allStories: allStories,
             index: index,
             isSeen: false,
+            onTap: () {
+              Get.to(() => ViewStoryFullScreen());
+            },
           ),
           Positioned(
             bottom: 15,

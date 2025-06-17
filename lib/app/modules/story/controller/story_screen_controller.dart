@@ -25,6 +25,8 @@ class StoryScreenController extends GetxController {
     selectedMedia.removeAt(index);
   }
 
+  
+
   @override
   void dispose() {
     descriptionController.clear();
