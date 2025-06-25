@@ -1,6 +1,6 @@
 import 'package:echodate/app/bindings/app_bindings.dart';
 import 'package:echodate/app/controller/one_signal_controller.dart';
-import 'package:echodate/app/modules/splash/views/splash_screen.dart';
+import 'package:echodate/app/modules/auth/views/alt_login_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,7 +33,7 @@ class MainApp extends StatelessWidget {
         splashFactory: NoSplash.splashFactory,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const SplashScreen1(),
+      home: const AltLoginScreen(),
       initialBinding: AppBindings(),
     );
   }

@@ -136,6 +136,7 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class NewCustomTextField extends StatelessWidget {
   TextEditingController? controller;
   int? maxLines;
