@@ -20,7 +20,7 @@ class CustomButton extends StatelessWidget {
     required this.ontap,
     this.textColor,
     this.border,
-    this.borderRadius,
+    this.borderRadius,                                                
     this.height,
     this.width,
     this.child,

@@ -38,6 +38,11 @@ class LoginController extends GetxController
     _formKey = GlobalKey<FormState>();
   }
 
+  void clean() {
+    _emailController.clear();
+    _passwordController.clear();
+  }
+
   @override
   void onClose() {
     _emailController.clear();

@@ -18,6 +18,11 @@ class StoryController extends GetxController {
   RxList<UserModel> allStoryViewers = RxList<UserModel>();
   Rxn<StoryModel> userPostedStory = Rxn<StoryModel>();
   RxList<Map> seenStoryIds = <Map>[].obs;
+  final emptyStoryModel = StoryModel(
+    userId: "",
+    stories: [],
+  );
+
   @override
   void onInit() {
     getAllStories();

@@ -396,7 +396,14 @@ class StoryCardBuilderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       if (_storyController.allstoriesList.isEmpty) {
-        return const SizedBox.shrink();
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: UserPostedStoryWidget(
+            story: _storyController.emptyStoryModel,
+            index: 0,
+            allStories: const [],
+          ),
+        );
       }
       return ListView.builder(
         scrollDirection: Axis.horizontal,

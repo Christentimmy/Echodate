@@ -83,6 +83,7 @@ class LoginScreen extends StatelessWidget {
                           identifier: _loginController.emailController.text,
                           password: _loginController.passwordController.text,
                         );
+                        _loginController.clean();
                       }
                     },
                     child: Obx(
@@ -215,4 +216,6 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
 }
+

@@ -80,6 +80,13 @@ class SignUpController extends GetxController
     _signUpFormKey = GlobalKey<FormState>();
   }
 
+  void clean() {
+    _emailController.clear();
+    _phoneNumberController.clear();
+    _passwordController.clear();
+    otpCodeController.clear();
+  }
+
   @override
   void onClose() {
     _emailController.clear();

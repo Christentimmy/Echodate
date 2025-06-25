@@ -17,7 +17,7 @@ import 'package:get/get.dart';
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
 
-  final _signUpController = Get.put(SignUpController(), permanent: true);
+  final _signUpController = Get.put(SignUpController());
   final _authController = Get.find<AuthController>();
 
   @override
@@ -140,6 +140,7 @@ class RegisterScreen extends StatelessWidget {
                     await _authController.signUpUSer(
                       userModel: userModel,
                     );
+                    _signUpController.clean();
                   },
                   child: _authController.isLoading.value
                       ? const Loader()
