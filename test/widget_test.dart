@@ -631,7 +631,7 @@ void main() {
       for (int i = 0; i < 44; i++) {
         await tester.pump(const Duration(milliseconds: 16));
       }
-     
+
       // Verify animation completed a cycle (values should be close to initial)
       expect(maxTransform, isNot(equals(initialTransform)));
       // Note: Due to easeInOut curve, final position might not be exactly initial
@@ -672,4 +672,75 @@ void main() {
     });
   });
 
+  group('AltLoginScreen Animation Integration Tests', () {
+    testWidgets('Integration test - All animations work together smoothly',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const GetMaterialApp(home: AltLoginScreen()),
+      );
+
+      // Verify all animations are present
+      expect(find.byType(RotatingImage), findsOneWidget);
+      expect(find.byType(BouncingBallWidget), findsOneWidget);
+      expect(find.byType(RotatingStarWidget), findsOneWidget);
+
+      // Run all animations together and measure performance
+      final List<Duration> integrationTimes = [];
+
+      for (int i = 0; i < 300; i++) {
+        // 5 seconds of integration testing
+        final stopwatch = Stopwatch()..start();
+        await tester.pump(const Duration(milliseconds: 16));
+        stopwatch.stop();
+        integrationTimes.add(stopwatch.elapsed);
+      }
+
+      // Calculate performance metrics
+      final averageTime = integrationTimes
+              .map((d) => d.inMicroseconds)
+              .reduce((a, b) => a + b) /
+          integrationTimes.length;
+
+      // Verify smooth performance during integration
+      expect(averageTime, lessThan(15000)); // Less than 15ms average
+
+      // Verify no widgets were disposed during animation
+      expect(find.byType(RotatingImage), findsOneWidget);
+      expect(find.byType(BouncingBallWidget), findsOneWidget);
+      expect(find.byType(RotatingStarWidget), findsOneWidget);
+    });
+
+    testWidgets('Integration test - Animations with user interactions',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const GetMaterialApp(home: AltLoginScreen()),
+      );
+
+      // Perform various user interactions while animations are running
+      final emailField = find.byType(NewCustomTextField).first;
+      final passwordField = find.byType(NewCustomTextField).last;
+      final signInButton = find.byType(CustomButton);
+
+      // Tap text fields while animations are running
+      await tester.tap(emailField);
+      await tester.pump();
+
+      await tester.tap(passwordField);
+      await tester.pump();
+
+      // Scroll while animations are running
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -50));
+      await tester.pump();
+
+      // Tap button while animations are running
+      await tester.tap(signInButton);
+      await tester.pump();
+
+      // Verify animations are still running after interactions
+      expect(find.byType(RotatingImage), findsOneWidget);
+      expect(find.byType(BouncingBallWidget), findsOneWidget);
+      expect(find.byType(RotatingStarWidget), findsOneWidget);
+    });
+  });
 }
