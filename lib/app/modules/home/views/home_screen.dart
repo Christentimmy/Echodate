@@ -72,15 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: Get.width,
                   child: StoryCardBuilderWidget(),
                 ),
-                // SizedBox(
-                //   height: 90,
-                //   child: Row(
-                //     children: [
-                //       UserPostedStoryWidget(),
-                //       StoryCardBuilderWidget(),
-                //     ],
-                //   ),
-                // ),
                 const SizedBox(height: 15),
                 GetPotentialMatchesBuilder(),
               ],

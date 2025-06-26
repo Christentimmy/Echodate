@@ -275,7 +275,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
               imageUrl: story.mediaUrl ?? "",
               width: Get.width,
               height: Get.height * 0.67,
-              fit: BoxFit.cover,
+              // fit: BoxFit.cover,
               errorWidget: (context, url, error) =>
                   const Icon(Icons.broken_image),
               placeholder: (context, url) => const Center(

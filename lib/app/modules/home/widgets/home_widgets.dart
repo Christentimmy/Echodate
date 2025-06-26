@@ -486,29 +486,28 @@ class UserPostedStoryWidget extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    bottom: -5,
-                    right: -5,
+                    bottom: -2,
+                    right: -2,
                     child: InkWell(
                       onTap: () {
                         Get.to(() => CreateStoryScreen());
                       },
                       child: Container(
-                        height: 35,
-                        width: 35,
+                        height: 25,
+                        width: 25,
                         alignment: Alignment.center,
-                        padding: const EdgeInsets.all(7),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            width: 2,
+                            width: 1,
                             color: Colors.white,
                           ),
                           color: AppColors.primaryColor,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          Icons.camera_alt,
+                          Icons.add,
                           color: Colors.white,
-                          size: 18,
+                          size: 12,
                         ),
                       ),
                     ),
@@ -536,21 +535,21 @@ class UserPostedStoryWidget extends StatelessWidget {
             index: index,
             isSeen: false,
             onTap: () {
-              Get.to(() => ViewStoryFullScreen());
+              Get.to(() => const ViewStoryFullScreen());
             },
           ),
           Positioned(
-            bottom: 15,
+            bottom: 20,
             right: 5,
             child: InkWell(
               onTap: () {
                 Get.to(() => CreateStoryScreen());
               },
               child: Container(
-                height: 35,
-                width: 35,
+                height: 25,
+                width: 25,
                 alignment: Alignment.center,
-                padding: const EdgeInsets.all(7),
+                // padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
@@ -560,9 +559,9 @@ class UserPostedStoryWidget extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.camera_alt,
+                  Icons.add,
                   color: Colors.white,
-                  size: 18,
+                  size: 12,
                 ),
               ),
             ),
