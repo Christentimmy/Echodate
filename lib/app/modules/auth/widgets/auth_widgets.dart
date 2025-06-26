@@ -1,9 +1,13 @@
 import 'dart:math';
-
+import 'dart:ui';
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/modules/auth/controller/login_controller.dart';
 import 'package:echodate/app/modules/auth/controller/signup_controller.dart';
+import 'package:echodate/app/modules/auth/views/signup_screen.dart';
+import 'package:echodate/app/modules/auth/views/reset_password_screen.dart';
+import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,31 +16,128 @@ import 'package:get/get.dart';
 class LoginFormField extends StatelessWidget {
   LoginFormField({super.key});
 
-  final _loginController = Get.find<LoginController>();
+  final _loginController = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _loginController.formKey,
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 8,
+        horizontal: 20,
+      ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CustomTextField(
-            controller: _loginController.emailController,
-            hintText: "Email/Number",
-            prefixIcon: Icons.email,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return "";
-              }
-              return null;
-            },
+          const Text(
+            "Sign In",
+            style: TextStyle(
+              fontSize: 23,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          const SizedBox(height: 10),
-          CustomTextField(
-            controller: _loginController.passwordController,
-            hintText: "Password",
-            isObscure: true,
-            prefixIcon: Icons.lock,
+          const SizedBox(height: 2),
+          const Text(
+            "Enter your credentials to continue",
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 15),
+          Form(
+            key: _loginController.formKey,
+            child: Column(
+              children: [
+                NewCustomTextField(
+                  bgColor: Colors.grey.shade50,
+                  prefixIconColor: Colors.orange,
+                  controller: _loginController.emailController,
+                  hintText: "Email/Number",
+                  prefixIcon: Icons.email,
+                ),
+                const SizedBox(height: 15),
+                NewCustomTextField(
+                  controller: _loginController.passwordController,
+                  hintText: "Password",
+                  isObscure: true,
+                  prefixIcon: Icons.lock,
+                  bgColor: Colors.grey.shade50,
+                  prefixIconColor: Colors.orange,
+                ),
+                const SizedBox(height: 30),
+              ],
+            ),
+          ),
+          CustomButton(
+            ontap: () async {
+              FocusManager.instance.primaryFocus?.unfocus();
+              if (_loginController.formKey.currentState!.validate()) {
+                await _loginController.authController.loginUser(
+                  identifier: _loginController.emailController.text,
+                  password: _loginController.passwordController.text,
+                );
+                _loginController.clean();
+              }
+            },
+            child: Obx(
+              () => _loginController.authController.isLoading.value
+                  ? const Loader()
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Sign in",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Icon(
+                          Icons.arrow_forward,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              onTap: () {
+                Get.to(() => const ResetPasswordScreen());
+              },
+              child: const Text(
+                "Forgot your password?",
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: Get.height * 0.05),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 4,
+            children: [
+              const Text("New to EchoDate? "),
+              InkWell(
+                onTap: () {
+                  Get.to(() => RegisterScreen());
+                },
+                child: const Text(
+                  "Create account",
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -52,56 +153,79 @@ class SignUpFormFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _signController.signUpFormKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CustomTextField(
-            controller: _signController.emailController,
-            hintText: "Email",
-            prefixIcon: Icons.email,
-          ),
-          // const SizedBox(height: 15),
-          // CustomPhoneNumberField(
-          //   phoneNumberController: phoneNUmberController,
-          //   selectedCountryCode: selectedCountryCode,
-          // ),
-          const SizedBox(height: 15),
-          CustomTextField(
-            controller: _signController.passwordController,
-            hintText: "Password",
-            isObscure: true,
-            prefixIcon: Icons.lock,
-          ),
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              Expanded(
-                child: CustomTextField(
-                  hintText: "Code",
-                  prefixIcon: Icons.code,
-                  controller: _signController.otpCodeController,
-                  keyboardType: TextInputType.number,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        NewCustomTextField(
+          hintText: "Email",
+          prefixIcon: Icons.email,
+          bgColor: Colors.grey.shade50,
+          prefixIconColor: Colors.orange,
+          controller: _signController.emailController,
+        ),
+        const SizedBox(height: 15),
+        NewCustomTextField(
+          hintText: "Password",
+          controller: _signController.passwordController,
+          prefixIcon: Icons.lock,
+          bgColor: Colors.grey.shade50,
+          prefixIconColor: Colors.orange,
+        ),
+        const SizedBox(height: 15),
+        Row(
+          children: [
+            Expanded(
+              child: NewCustomTextField(
+                hintText: "Code",
+                prefixIcon: Icons.code,
+                controller: _signController.otpCodeController,
+                keyboardType: TextInputType.number,
+                bgColor: Colors.grey.shade50,
+                prefixIconColor: Colors.orange,
               ),
-              const SizedBox(width: 10),
-              AnimatedSendButton(
-                onTap: () async {
-                  String email = _signController.emailController.text.trim();
-                  if (email.isEmpty) {
-                    CustomSnackbar.showErrorSnackBar("Email is required");
-                    return;
-                  }
-                  await _authController.sendSignUpOtp(email: email);
-                },
-              ),
-            ],
-          )
-        ],
-      ),
+            ),
+            const SizedBox(width: 10),
+            AnimatedSendButton(
+              onTap: () async {
+                String email = _signController.emailController.text.trim();
+                if (email.isEmpty) {
+                  CustomSnackbar.showErrorSnackBar("Email is required");
+                  return;
+                }
+                await _authController.sendSignUpOtp(email: email);
+              },
+            ),
+          ],
+        )
+      ],
     );
   }
+}
+
+Container buildGradientOverlay() {
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(20),
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.transparent,
+          Colors.pink.withOpacity(0.05),
+        ],
+      ),
+    ),
+  );
+}
+
+ClipRRect buildBackDrop() {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(20),
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+      child: Container(color: Colors.transparent),
+    ),
+  );
 }
 
 class CustomPhoneNumberField extends StatelessWidget {
@@ -518,7 +642,8 @@ class _AnimatedSendButtonState extends State<AnimatedSendButton>
         height: 51,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
+          color: Colors.grey.shade50,
+          border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(12),
         ),
         child: AnimatedBuilder(

@@ -1,6 +1,9 @@
 import 'dart:math' as math;
+import 'package:echodate/app/controller/auth_controller.dart';
+import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/utils/privacy.dart';
 import 'package:echodate/app/utils/terms.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -10,9 +13,9 @@ class SignUpController extends GetxController
   final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
   final otpCodeController = TextEditingController();
-  GlobalKey<FormState> _signUpFormKey = GlobalKey<FormState>();
   final _isCheckValue = false.obs;
   final selectedCountryCode = RxString("+233");
+  final _authController = Get.find<AuthController>();
 
   // Animation controllers
   late AnimationController _animationController;
@@ -21,7 +24,7 @@ class SignUpController extends GetxController
   TextEditingController get emailController => _emailController;
   TextEditingController get phoneNumberController => _phoneNumberController;
   TextEditingController get passwordController => _passwordController;
-  GlobalKey<FormState> get signUpFormKey => _signUpFormKey;
+  // GlobalKey<FormState> get signUpFormKey => _signUpFormKey;
   RxBool get isCheckValue => _isCheckValue;
   RxString get countryCode => selectedCountryCode;
   AnimationController get animationController => _animationController;
@@ -29,7 +32,7 @@ class SignUpController extends GetxController
 
   @override
   void onInit() {
-    _signUpFormKey = GlobalKey<FormState>();
+    // _signUpFormKey = GlobalKey<FormState>();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 20),
@@ -77,7 +80,38 @@ class SignUpController extends GetxController
   }
 
   void recreateFormKey() {
-    _signUpFormKey = GlobalKey<FormState>();
+    // _signUpFormKey = GlobalKey<FormState>();
+  }
+
+  Future<void> signUp(var signUpFormKey) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (!signUpFormKey.currentState!.validate()) {
+      return;
+    }
+    if (!isCheckValue.value) {
+      CustomSnackbar.showErrorSnackBar(
+        "Accept our terms and condition",
+      );
+      return;
+    }
+    if (selectedCountryCode.value.isEmpty) {
+      CustomSnackbar.showErrorSnackBar(
+        "Select your country code",
+      );
+      return;
+    }
+    final String email = emailController.text;
+    final otpCode = otpCodeController.text;
+    final userModel = UserModel(
+      email: email,
+      otpCode: otpCode,
+      password: passwordController.text,
+    );
+
+    await _authController.signUpUSer(
+      userModel: userModel,
+    );
+    clean();
   }
 
   void clean() {

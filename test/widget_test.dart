@@ -1,4 +1,4 @@
-import 'package:echodate/app/modules/auth/views/alt_login_screen.dart';
+import 'package:echodate/app/modules/auth/views/login_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/bouncing_ball.dart';
 import 'package:echodate/app/modules/auth/widgets/rotating_star.dart';
 import 'package:echodate/app/modules/auth/widgets/rotation_logo.dart';
@@ -18,7 +18,7 @@ void main() {
       tester.view.physicalSize = const Size(250, 300);
 
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+        GetMaterialApp(home: AltLoginScreen()),
       );
 
       expect(find.text("Welcome Back"), findsOneWidget);
@@ -42,7 +42,7 @@ void main() {
       tester.view.physicalSize = const Size(375, 667); // iPhone 6/7/8 size
 
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+        GetMaterialApp(home: AltLoginScreen()),
       );
 
       expect(find.text("Welcome Back"), findsOneWidget);
@@ -61,7 +61,7 @@ void main() {
       tester.view.physicalSize = const Size(414, 896); // iPhone 11 Pro Max size
 
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+        GetMaterialApp(home: AltLoginScreen()),
       );
 
       expect(find.text("Welcome Back"), findsOneWidget);
@@ -77,7 +77,7 @@ void main() {
     testWidgets('Sign in form elements are present and functional',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+        GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Check if sign in form title exists
@@ -102,7 +102,7 @@ void main() {
 
     testWidgets('Text field hints are correct', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Find text fields by their icons and verify hints
@@ -121,7 +121,7 @@ void main() {
 
     testWidgets('Animated widgets are present', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Check if all animated widgets are present
@@ -133,7 +133,7 @@ void main() {
     testWidgets('Backdrop filter and gradient effects are applied',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Check if backdrop filter is present
@@ -146,7 +146,7 @@ void main() {
     testWidgets('Screen scrolls properly when keyboard appears',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Verify SingleChildScrollView exists for keyboard handling
@@ -160,7 +160,7 @@ void main() {
     testWidgets('Colors and styling are applied correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Check if scaffold has the correct background color
@@ -175,7 +175,7 @@ void main() {
 
     testWidgets('Button tap functionality works', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Find and tap the sign in button
@@ -191,7 +191,7 @@ void main() {
 
     testWidgets('Widget positioning is correct', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Check if Stack is used for positioning animated elements
@@ -204,7 +204,7 @@ void main() {
     testWidgets('Form container has correct decoration',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Verify that the form container has the expected decoration properties
@@ -218,7 +218,7 @@ void main() {
     testWidgets('All text content is displayed correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Verify all static text content
@@ -241,7 +241,7 @@ void main() {
       tester.view.physicalSize = const Size(375, 667);
 
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       expect(find.text("Welcome Back"), findsOneWidget);
@@ -263,7 +263,7 @@ void main() {
     testWidgets('Performance test - Animation frame rate consistency',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Measure frame times during animation
@@ -298,7 +298,7 @@ void main() {
     testWidgets('Performance test - Memory usage during animations',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Pump multiple animation cycles to test for memory leaks
@@ -452,7 +452,7 @@ void main() {
     testWidgets('Performance test - Multiple animations running simultaneously',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Test performance when all animations are running together
@@ -490,7 +490,7 @@ void main() {
     testWidgets('Performance test - Scroll performance with animations',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Test scrolling performance while animations are running
@@ -524,7 +524,7 @@ void main() {
     testWidgets('Performance test - Animation cleanup on dispose',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Let animations run for a bit
@@ -671,12 +671,11 @@ void main() {
           greaterThan(5)); // Should have multiple different rotation states
     });
   });
-
   group('AltLoginScreen Animation Integration Tests', () {
     testWidgets('Integration test - All animations work together smoothly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Verify all animations are present
@@ -713,7 +712,7 @@ void main() {
     testWidgets('Integration test - Animations with user interactions',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: AltLoginScreen()),
+         GetMaterialApp(home: AltLoginScreen()),
       );
 
       // Perform various user interactions while animations are running
@@ -743,4 +742,5 @@ void main() {
       expect(find.byType(RotatingStarWidget), findsOneWidget);
     });
   });
+
 }
