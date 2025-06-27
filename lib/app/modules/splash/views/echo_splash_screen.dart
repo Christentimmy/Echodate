@@ -9,7 +9,6 @@ class EchodateSplashScreen extends StatelessWidget {
 
   final _splashController = Get.put(SplashController());
 
-  // late AnimationController _mainController;
   @override
   Widget build(BuildContext context) {
     return Scaffold(

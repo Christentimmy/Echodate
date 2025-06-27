@@ -70,11 +70,11 @@ class TinderCard extends StatelessWidget {
           width: double.infinity,
           height: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(60),
             border: Border.all(width: 3, color: Colors.orange),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(17),
+            borderRadius: BorderRadius.circular(57),
             child: CachedNetworkImage(
               width: double.infinity,
               height: double.infinity,
@@ -93,7 +93,7 @@ class TinderCard extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(57),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -135,22 +135,23 @@ class TinderCard extends StatelessWidget {
             : const SizedBox.shrink(),
         Positioned(
           top: 0,
-          left: MediaQuery.of(context).size.width * 0.32,
+          left: MediaQuery.of(context).size.width * 0.27,
           child: Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: 10,
+              horizontal: 25,
               vertical: 5,
             ),
             decoration: const BoxDecoration(
               color: Colors.orange,
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10),
+                bottomLeft: Radius.circular(22),
+                bottomRight: Radius.circular(22),
               ),
             ),
             child: Text(
               "${profile.matchPercentage.toString()}% Match",
               style: const TextStyle(
+                fontSize: 14,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
@@ -549,7 +550,6 @@ class UserPostedStoryWidget extends StatelessWidget {
                 height: 25,
                 width: 25,
                 alignment: Alignment.center,
-                // padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
@@ -706,25 +706,13 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
             }
 
             if (_userController.potentialMatchesList.isEmpty) {
-              return const AnimationConfiguration.synchronized(
-                duration: Duration(milliseconds: 200),
-                child: SlideAnimation(
-                  verticalOffset: 50.0,
-                  child: FadeInAnimation(
-                    child: Center(
-                      child: Text(
-                        "No matches found",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ),
-                ),
-              );
+              return _buildEmptySwipeCardWidget();
             }
 
             return CardSwiper(
               controller: _cardSwipeController,
               isLoop: false,
+              backCardOffset: const Offset(0, 30),
               cardsCount: _userController.potentialMatchesList.length,
               onSwipe: (previousIndex, currentIndex, direction) {
                 if (_userController.potentialMatchesList.isEmpty ||
@@ -794,13 +782,30 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
       ),
     );
   }
+
+  AnimationConfiguration _buildEmptySwipeCardWidget() {
+    return const AnimationConfiguration.synchronized(
+      duration: Duration(milliseconds: 200),
+      child: SlideAnimation(
+        verticalOffset: 50.0,
+        child: FadeInAnimation(
+          child: Center(
+            child: Text(
+              "No matches found",
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class ReportBottomSheet extends StatefulWidget {
   const ReportBottomSheet({super.key});
 
   @override
-  _ReportBottomSheetState createState() => _ReportBottomSheetState();
+  State<ReportBottomSheet> createState() => _ReportBottomSheetState();
 }
 
 class _ReportBottomSheetState extends State<ReportBottomSheet> {

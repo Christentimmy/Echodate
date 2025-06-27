@@ -23,7 +23,7 @@ class BottomNavigationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(()=> _pages[_currentIndex.value]),
+      body: Obx(() => _pages[_currentIndex.value]),
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
           unselectedItemColor: Colors.grey,
@@ -35,23 +35,38 @@ class BottomNavigationScreen extends StatelessWidget {
           },
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.house),
+              icon: Icon(
+                FontAwesomeIcons.house,
+                size: 21,
+              ),
               label: "",
             ),
             BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.solidHeart),
+              icon: Icon(
+                FontAwesomeIcons.solidThumbsUp,
+                size: 22,
+              ),
               label: "",
             ),
             BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.peopleGroup),
+              icon: Icon(
+                FontAwesomeIcons.solidHeart,
+                size: 21,
+              ),
               label: "",
             ),
             BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.message),
+              icon: Icon(
+                FontAwesomeIcons.solidMessage,
+                size: 20,
+              ),
               label: "",
             ),
             BottomNavigationBarItem(
-              icon: Icon(FontAwesomeIcons.person),
+              icon: Icon(
+                FontAwesomeIcons.solidUser,
+                size: 20,
+              ),
               label: "",
             ),
           ],
@@ -60,5 +75,3 @@ class BottomNavigationScreen extends StatelessWidget {
     );
   }
 }
-
-
