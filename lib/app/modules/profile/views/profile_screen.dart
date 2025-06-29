@@ -8,7 +8,6 @@ import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/modules/withdraw/views/coin_history_screen.dart';
 import 'package:echodate/app/modules/withdraw/views/withdraw_history_screen.dart';
-import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/age_calculator.dart';
 import 'package:echodate/app/utils/shimmer_effect.dart';
@@ -195,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildProfileSettingTiles(
                   title: "Earning and Withdrawal",
                   onTap: () {
-                    Get.to(() => const WithdrawalScreen());
+                    // Get.to(() => const WithdrawalScreen());
                   },
                   bgColor: Colors.blueGrey,
                   iconColor: Colors.white,

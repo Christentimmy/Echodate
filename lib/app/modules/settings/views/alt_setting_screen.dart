@@ -5,9 +5,6 @@ import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
 import 'package:echodate/app/modules/withdraw/views/alt_withraw_screen.dart';
-import 'package:echodate/app/modules/withdraw/views/coin_history_screen.dart';
-import 'package:echodate/app/modules/withdraw/views/withdraw_history_screen.dart';
-import 'package:echodate/app/modules/withdraw/views/withdrawal_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/shimmer_effect.dart';
 import 'package:flutter/material.dart';
@@ -116,19 +113,6 @@ class _DatingAppSettingsState extends State<DatingAppSettings>
     );
   }
 
-  Widget _renderScreen() {
-    switch (currentScreen) {
-      case 'notifications':
-        return _buildNotificationSettings();
-      case 'privacy':
-        return _buildPrivacySettings();
-      case 'subscription':
-        return _buildSubscriptionScreen();
-      default:
-        return _buildMainSettings();
-    }
-  }
-
   Widget _buildMainSettings() {
     return SingleChildScrollView(
       child: Column(
@@ -166,6 +150,13 @@ class _DatingAppSettingsState extends State<DatingAppSettings>
                     children: [
                       Obx(() {
                         final userModel = _userController.userModel.value;
+                        if (userModel == null) {
+                          return const ShimmerWrapper(
+                            child: CircleAvatar(
+                              radius: 30,
+                            ),
+                          );
+                        }
                         return CircleAvatar(
                           radius: 30,
                           backgroundColor: Colors.grey[200],
@@ -176,13 +167,9 @@ class _DatingAppSettingsState extends State<DatingAppSettings>
                                 width: Get.width * 0.2,
                                 height: Get.height * 0.11,
                                 fit: BoxFit.cover,
-                                imageUrl: userModel?.avatar ?? "",
+                                imageUrl: userModel.avatar ?? "",
                                 placeholder: (context, url) {
-                                  return const ShimmerWrapper(
-                                    child: CircleAvatar(
-                                      radius: 30,
-                                    ),
-                                  );
+                                  return const CircleAvatar(radius: 30);
                                 },
                                 errorWidget: (context, url, error) =>
                                     const Icon(Icons.error),
@@ -289,7 +276,7 @@ class _DatingAppSettingsState extends State<DatingAppSettings>
                     // Get.to(() => const WithdrawalScreen());
 
                     // Get.to(() => const CoinWithdrawalScreen());
-                    Get.to(() =>  const NewCoinWithdrawalScreen());
+                    Get.to(() => const WithdrawalScreen());
                   },
                 ),
                 Divider(height: 1, color: Colors.grey[100]),
@@ -353,330 +340,6 @@ class _DatingAppSettingsState extends State<DatingAppSettings>
                   showChevron: false,
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotificationSettings() {
-    return SingleChildScrollView(
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey[100]!),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Push Notifications',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Choose what notifications you\'d like to receive',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            _buildSettingsItem(
-              icon: Icons.favorite,
-              title: 'New Matches',
-              subtitle: 'When someone likes you back',
-              hasToggle: true,
-              toggleValue: notifications['matches']!,
-              onToggle: (value) =>
-                  setState(() => notifications['matches'] = value),
-              showChevron: false,
-            ),
-            Divider(height: 1, color: Colors.grey[100]),
-            _buildSettingsItem(
-              icon: Icons.message,
-              title: 'Messages',
-              subtitle: 'New message alerts',
-              hasToggle: true,
-              toggleValue: notifications['messages']!,
-              onToggle: (value) =>
-                  setState(() => notifications['messages'] = value),
-              showChevron: false,
-            ),
-            Divider(height: 1, color: Colors.grey[100]),
-            _buildSettingsItem(
-              icon: Icons.thumb_up,
-              title: 'Profile Likes',
-              subtitle: 'When someone likes your profile',
-              hasToggle: true,
-              toggleValue: notifications['likes']!,
-              onToggle: (value) =>
-                  setState(() => notifications['likes'] = value),
-              showChevron: false,
-            ),
-            Divider(height: 1, color: Colors.grey[100]),
-            _buildSettingsItem(
-              icon: Icons.local_offer,
-              title: 'Promotions',
-              subtitle: 'Special offers and deals',
-              hasToggle: true,
-              toggleValue: notifications['promotions']!,
-              onToggle: (value) =>
-                  setState(() => notifications['promotions'] = value),
-              showChevron: false,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPrivacySettings() {
-    return SingleChildScrollView(
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey[100]!),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Profile Visibility',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Control what information is visible to others',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            _buildSettingsItem(
-              icon: Icons.cake,
-              title: 'Show Age',
-              subtitle: 'Display your age on profile',
-              hasToggle: true,
-              toggleValue: privacy['showAge']!,
-              onToggle: (value) => setState(() => privacy['showAge'] = value),
-              showChevron: false,
-            ),
-            Divider(height: 1, color: Colors.grey[100]),
-            _buildSettingsItem(
-              icon: Icons.location_on,
-              title: 'Show Distance',
-              subtitle: 'Display distance to matches',
-              hasToggle: true,
-              toggleValue: privacy['showDistance']!,
-              onToggle: (value) =>
-                  setState(() => privacy['showDistance'] = value),
-              showChevron: false,
-            ),
-            Divider(height: 1, color: Colors.grey[100]),
-            _buildSettingsItem(
-              icon: Icons.visibility_off,
-              title: 'Incognito Mode',
-              subtitle: 'Browse profiles privately',
-              hasToggle: true,
-              toggleValue: privacy['incognito']!,
-              onToggle: (value) => setState(() => privacy['incognito'] = value),
-              showChevron: false,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubscriptionScreen() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 24),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primaryOrange, AppColors.secondaryOrange],
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  child: const Icon(
-                    Icons.favorite,
-                    color: Colors.white,
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Premium Features',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Unlock the full dating experience',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.8),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(bottom: 24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                'Unlimited Likes',
-                'See Who Likes You',
-                'Boost Your Profile',
-                'Advanced Filters',
-                'Read Receipts',
-              ].asMap().entries.map((entry) {
-                int index = entry.key;
-                String feature = entry.value;
-                return Column(
-                  children: [
-                    if (index > 0) Divider(height: 1, color: Colors.grey[100]),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: Colors.green[100],
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Icon(
-                              Icons.check,
-                              color: Colors.green[600],
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Text(
-                            feature,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            height: 56,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primaryOrange, AppColors.secondaryOrange],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryOrange.withOpacity(0.4),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(16),
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                },
-                child: const Center(
-                  child: Text(
-                    'Upgrade to Premium',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
             ),
           ),
         ],
@@ -803,14 +466,5 @@ class _DatingAppSettingsState extends State<DatingAppSettings>
         ),
       ),
     );
-  }
-
-  void _navigateToScreen(String screen) {
-    HapticFeedback.lightImpact();
-    setState(() {
-      currentScreen = screen;
-    });
-    _slideController.reset();
-    _slideController.forward();
   }
 }

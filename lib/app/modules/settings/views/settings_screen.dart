@@ -5,7 +5,6 @@ import 'package:echodate/app/controller/notification_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
 import 'package:echodate/app/modules/auth/views/change_password_screen.dart';
-import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/profile/widgets/profile_widgets.dart';
 import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
 import 'package:echodate/app/modules/settings/views/verification_badge_screen.dart';
