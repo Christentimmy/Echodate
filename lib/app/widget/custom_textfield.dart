@@ -160,9 +160,11 @@ class NewCustomTextField extends StatelessWidget {
   InputBorder? focusedBorder;
   InputBorder? enabledBorder;
   Function()? onTap;
+  Widget? prefix;
   NewCustomTextField({
     super.key,
     this.hintStyle,
+    this.prefix,
     this.maxLines,
     this.focusedBorder,
     this.enabledBorder,
@@ -230,6 +232,7 @@ class NewCustomTextField extends StatelessWidget {
                 fontSize: 14,
                 color: const Color(0xff000000).withOpacity(0.25),
               ),
+          prefix: prefix,
           prefixIcon: prefixIcon == null
               ? null
               : Icon(

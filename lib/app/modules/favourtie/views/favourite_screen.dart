@@ -27,6 +27,8 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 2,
         title: const Text(
           "Likes",
           style: TextStyle(
@@ -34,7 +36,15 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-    ),
+        actions: [
+          buildFilterIcon(
+            context,
+            (value) async {
+              await _userController.getUserWhoLikesMe(filter: value);
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           color: AppColors.primaryColor,

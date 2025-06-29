@@ -5,6 +5,7 @@ import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class LikeAndMatchCard extends StatelessWidget {
@@ -171,4 +172,49 @@ class DisplayFreeCard extends StatelessWidget {
       ),
     );
   }
+}
+
+Theme buildFilterIcon(BuildContext context, Function(String)? onSelectedMethod) {
+  return Theme(
+    data: Theme.of(context).copyWith(
+      popupMenuTheme: PopupMenuThemeData(
+        color: Colors.white,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        textStyle: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+    child: PopupMenuButton<String>(
+      icon: const FaIcon(
+        FontAwesomeIcons.filter,
+        size: 20,
+      ),
+      onSelected: (value) {
+        onSelectedMethod!(value);
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'recent',
+          child: Text('Recent'),
+        ),
+        const PopupMenuItem(
+          value: 'nearby',
+          child: Text('Nearby'),
+        ),
+        const PopupMenuItem(
+          value: 'likes-sent',
+          child: Text('Active'),
+        ),
+        const PopupMenuItem(
+          value: 'verified',
+          child: Text('Verified'),
+        ),
+      ],
+    ),
+  );
 }

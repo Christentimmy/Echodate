@@ -1,5 +1,3 @@
-
-
 class BankModel {
   String? recipientCode;
   String? accountNumber;
@@ -9,6 +7,7 @@ class BankModel {
   String? currency;
   Map<String, dynamic>? metadata;
   String? id;
+  final bool isVerified;
 
   BankModel({
     this.recipientCode,
@@ -19,6 +18,7 @@ class BankModel {
     this.currency,
     this.metadata,
     this.id,
+    this.isVerified = true,
   });
 
   // Convert from JSON (Map)

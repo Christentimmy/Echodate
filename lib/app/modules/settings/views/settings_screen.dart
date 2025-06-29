@@ -92,21 +92,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(width: 10),
                 ListTile(
                   onTap: () {
-                    Get.to(() => EditProfileScreen());
-                  },
-                  minTileHeight: 30,
-                  contentPadding: const EdgeInsets.all(5),
-                  leading: const Text(
-                    "Edit Profile",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-                ),
-                ListTile(
-                  onTap: () {
                     Get.to(() => const ChangePasswordScreen());
                   },
                   minTileHeight: 30,
@@ -245,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 Get.back();
                                 await openAppSettings();
                               },
-                              onCancel: (){},
+                              onCancel: () {},
                               contentPadding: const EdgeInsets.symmetric(
                                 vertical: 20,
                               ),

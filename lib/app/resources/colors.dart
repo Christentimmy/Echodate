@@ -12,4 +12,10 @@ class AppColors {
   static Color bgOrange800 = const Color(0xFF9A3412);
   static Color pink500 = const Color(0xFFEC4899);
   static Color pink600 = const Color(0xFFDB2777);
+  static Color primaryOrange = const Color(0xFFFB923C);
+  static Color secondaryOrange = const Color(0xFFF59E0B);
+  static Color secondaryColor = const Color(0xFF666666);
+  static Color lightGrey = const Color(0xFFF5F5F5);
+  static Color borderColor = const Color(0xFFE0E0E0);
+  static Color darkColor = const Color(0xFF1A1A1A);
 }

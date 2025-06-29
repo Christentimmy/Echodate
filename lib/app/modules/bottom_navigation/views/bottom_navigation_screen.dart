@@ -3,6 +3,7 @@ import 'package:echodate/app/modules/favourtie/views/favourite_screen.dart';
 import 'package:echodate/app/modules/favourtie/views/matches_screen.dart';
 import 'package:echodate/app/modules/home/views/home_screen.dart';
 import 'package:echodate/app/modules/profile/views/profile_screen.dart';
+import 'package:echodate/app/modules/settings/views/alt_setting_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -18,6 +19,7 @@ class BottomNavigationScreen extends StatelessWidget {
     const MatchesScreen(),
     const ChatListScreen(),
     const ProfileScreen(),
+    const DatingAppSettings(),
   ];
 
   @override
@@ -65,6 +67,13 @@ class BottomNavigationScreen extends StatelessWidget {
             BottomNavigationBarItem(
               icon: Icon(
                 FontAwesomeIcons.solidUser,
+                size: 20,
+              ),
+              label: "",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                FontAwesomeIcons.gear,
                 size: 20,
               ),
               label: "",

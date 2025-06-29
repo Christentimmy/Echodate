@@ -642,16 +642,22 @@ class UserService {
 
   Future<http.Response?> getUserWhoLikesMe({
     required String token,
+    String? filter,
   }) async {
     try {
-      final response = await client.get(
-          Uri.parse(
-            "$baseUrl/user/get-likes",
-          ),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          }).timeout(const Duration(seconds: 15));
+      final response = await client
+          .post(
+              Uri.parse(
+                "$baseUrl/user/get-likes",
+              ),
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({
+                "filter": filter,
+              }))
+          .timeout(const Duration(seconds: 15));
       return response;
     } on SocketException catch (e) {
       debugPrint("No internet connection $e");

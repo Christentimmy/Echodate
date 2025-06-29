@@ -262,8 +262,6 @@ class UserController extends GetxController {
         coinPackageId: coinPackageId,
       );
 
-      print(response?.body);
-
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
@@ -910,14 +908,17 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> getUserWhoLikesMe() async {
+  Future<void> getUserWhoLikesMe({String? filter = "recent"}) async {
     isloading.value = true;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
       if (token == null || token.isEmpty) return;
 
-      final response = await _userService.getUserWhoLikesMe(token: token);
+      final response = await _userService.getUserWhoLikesMe(
+        token: token,
+        filter: filter,
+      );
       if (response == null) return;
       final decoded = json.decode(response.body);
       if (response.statusCode != 200) {
@@ -1283,7 +1284,7 @@ class UserController extends GetxController {
     return;
   }
 
-  Future<void> withdrawCoin({
+  Future<bool?> withdrawCoin({
     required String coins,
     required String recipientCode,
   }) async {
@@ -1291,29 +1292,31 @@ class UserController extends GetxController {
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
-      if (token == null || token.isEmpty) return;
+      if (token == null || token.isEmpty) return null;
       final response = await _userService.withdrawCoin(
         token: token,
         coins: coins,
         recipientCode: recipientCode,
       );
-      if (response == null) return;
+      if (response == null) return null;
       final decoded = json.decode(response.body);
       String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
         CustomSnackbar.showErrorSnackBar(message);
         debugPrint(message);
-        return;
+        return null;
       }
       await getUserDetails();
       await getEchoCoinBalance();
       await getUserPaymentHistory();
-      CustomSnackbar.showSuccessSnackBar(message);
+      // CustomSnackbar.showSuccessSnackBar(message);
+      return true;
     } catch (e) {
       debugPrint(e.toString());
     } finally {
       isPaymentProcessing.value = false;
     }
+    return null;
   }
 
   Future<void> sendGift({

@@ -21,14 +21,11 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_userController.isAllLinkedBankFetched.value) {
-        // coins.value =
-        //     _userController.userModel.value?.echocoinsBalance.toString() ?? "";
         _userController.fetchAllLinkedBanks();
       }
     });
   }
 
-  // final _coinController = TextEditingController();
   final _userController = Get.find<UserController>();
   final RxInt selectedIndex = (-1).obs;
   final RxString recipientCode = "".obs;

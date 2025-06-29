@@ -34,6 +34,14 @@ class _MatchesScreenState extends State<MatchesScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          buildFilterIcon(
+            context,
+            (value) async {
+              await _userController.getUserWhoLikesMe(filter: value);
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
