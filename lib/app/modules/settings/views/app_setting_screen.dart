@@ -4,7 +4,7 @@ import 'package:echodate/app/modules/echocoin/views/all_echo_coins_screen.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
-import 'package:echodate/app/modules/withdraw/views/alt_withraw_screen.dart';
+import 'package:echodate/app/modules/withdraw/views/withdraw_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/shimmer_effect.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +12,14 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-class DatingAppSettings extends StatefulWidget {
-  const DatingAppSettings({super.key});
+class AppSettings extends StatefulWidget {
+  const AppSettings({super.key});
 
   @override
-  State<DatingAppSettings> createState() => _DatingAppSettingsState();
+  State<AppSettings> createState() => _AppSettingsState();
 }
 
-class _DatingAppSettingsState extends State<DatingAppSettings>
+class _AppSettingsState extends State<AppSettings>
     with TickerProviderStateMixin {
   final _userController = Get.find<UserController>();
 
@@ -76,17 +76,6 @@ class _DatingAppSettingsState extends State<DatingAppSettings>
     _slideController.dispose();
     super.dispose();
   }
-
-  final Map<String, String> screens = {
-    'main': 'Settings',
-    'profile': 'Edit Profile',
-    'notifications': 'Notifications',
-    'privacy': 'Privacy & Safety',
-    'subscription': 'Premium Features',
-  };
-
-  // Color get primaryOrange => const Color(0xFFFB923C);
-  // Color get secondaryOrange => const Color(0xFFF59E0B);
 
   @override
   Widget build(BuildContext context) {
@@ -391,7 +380,7 @@ class _DatingAppSettingsState extends State<DatingAppSettings>
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey[800],
                       ),
@@ -401,7 +390,7 @@ class _DatingAppSettingsState extends State<DatingAppSettings>
                       Text(
                         subtitle,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 10,
                           color: Colors.grey[500],
                         ),
                       ),
