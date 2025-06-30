@@ -61,7 +61,7 @@ class UserController extends GetxController {
     getUserDetails();
     getPotentialMatches();
     getMatches();
-    getUserPaymentHistory();
+    getUserCoinHistory();
   }
 
   void addSwipeToQueue(String userId, CardSwiperDirection direction) async {
@@ -247,7 +247,8 @@ class UserController extends GetxController {
   }
 
   Future<void> buyCoin({
-    required String coinPackageId,
+    String? coinPackageId,
+    String? coins,
   }) async {
     isPaymentProcessing.value = true;
     try {
@@ -257,15 +258,19 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar("Authentication required");
         return;
       }
+      // print(coinPackageId);
+
       final response = await _userService.initiateStripePayment(
         token: token,
         coinPackageId: coinPackageId,
+        coins: coins,
       );
 
       if (response == null) return;
       final decoded = json.decode(response.body);
+      String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
-        CustomSnackbar.showErrorSnackBar(decoded["message"]);
+        CustomSnackbar.showErrorSnackBar(message);
         return;
       }
 
@@ -273,7 +278,7 @@ class UserController extends GetxController {
       if (authorizationUrl != null && authorizationUrl.isNotEmpty) {
         urlLauncher(authorizationUrl);
       }
-      await getUserPaymentHistory();
+      await getUserCoinHistory();
       await getUserDetails();
     } catch (e) {
       debugPrint(e.toString());
@@ -282,22 +287,23 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> getUserPaymentHistory({
+  Future<void> getUserCoinHistory({
     String? type,
     int? page = 1,
     int? limit = 10,
     String? status,
     String? startDate,
     String? endDate,
+    bool showLoader = true,
   }) async {
     if (isloading.value) return;
-    isloading.value = true;
+    isloading.value = showLoader;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
       if (token == null || token.isEmpty) return;
 
-      final response = await _userService.getUserPaymentHistory(
+      final response = await _userService.getUserCoinHistory(
         token: token,
         type: type,
         limit: limit,
@@ -1308,7 +1314,7 @@ class UserController extends GetxController {
       }
       await getUserDetails();
       await getEchoCoinBalance();
-      await getUserPaymentHistory();
+      await getUserCoinHistory();
       // CustomSnackbar.showSuccessSnackBar(message);
       return true;
     } catch (e) {
@@ -1343,7 +1349,7 @@ class UserController extends GetxController {
       }
       await getUserDetails();
       await getEchoCoinBalance();
-      await getUserPaymentHistory();
+      await getUserCoinHistory();
     } catch (e) {
       debugPrint(e.toString());
     } finally {

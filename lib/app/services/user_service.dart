@@ -78,17 +78,26 @@ class UserService {
 
   Future<http.Response?> initiateStripePayment({
     required String token,
-    required String coinPackageId,
+    String? coinPackageId,
+    String? coins,
   }) async {
     try {
+      final url = Uri.parse('$baseUrl/paystack/initialize');
+      final body = {};
+      if (coinPackageId != null) {
+        body["coinPackageId"] = coinPackageId;
+      }
+      if (coins != null) {
+        body["coins"] = coins;
+      }
       final response = await client
           .post(
-            Uri.parse('$baseUrl/paystack/initialize'),
+            url,
             headers: {
               'Authorization': 'Bearer $token',
               'Content-Type': 'application/json',
             },
-            body: jsonEncode({'coinPackageId': coinPackageId}),
+            body: jsonEncode(body),
           )
           .timeout(const Duration(seconds: 15));
       return response;
@@ -154,7 +163,7 @@ class UserService {
     return null;
   }
 
-  Future<http.Response?> getUserPaymentHistory({
+  Future<http.Response?> getUserCoinHistory({
     required String token,
     String? type,
     int? limit,
@@ -164,7 +173,7 @@ class UserService {
     int? page = 1,
   }) async {
     try {
-      String url = "$baseUrl/user/get-user-payment-history?";
+      String url = "$baseUrl/user/get-user-coin-history?";
       if (type != null && type.isNotEmpty) {
         url += "&type=$type";
       }

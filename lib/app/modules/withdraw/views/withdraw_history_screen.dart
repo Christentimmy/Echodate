@@ -18,7 +18,7 @@ class WithdrawHistoryScreen extends StatefulWidget {
 
 class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
   final _userController = Get.find<UserController>();
-  int _page = 1;  // Track the current page
+  int _page = 1; // Track the current page
 
   @override
   void initState() {
@@ -34,7 +34,7 @@ class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
     setState(() {
       _page++;
     });
-    _userController.getUserWithdawHistory(page: _page);  
+    _userController.getUserWithdawHistory(page: _page);
   }
 
   @override
@@ -75,14 +75,15 @@ class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
                                     showModalBottomSheet(
                                       context: context,
                                       builder: (context) {
-                                        return FilterHistory();
+                                        return FilterWithdrawHistory();
                                       },
                                     );
                                   },
                                   child: Row(
                                     children: [
                                       Text(
-                                        DateFormat("MMM").format(DateTime.now()),
+                                        DateFormat("MMM")
+                                            .format(DateTime.now()),
                                         style: const TextStyle(fontSize: 20),
                                       ),
                                       const Icon(Icons.arrow_drop_down),
@@ -97,16 +98,20 @@ class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
                               ListView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
-                                itemCount: _userController.userWithdrawHistory.length,
+                                itemCount:
+                                    _userController.userWithdrawHistory.length,
                                 itemBuilder: (context, index) {
-                                  final payment = _userController.userWithdrawHistory[index];
+                                  final payment = _userController
+                                      .userWithdrawHistory[index];
                                   return ListTile(
                                     horizontalTitleGap: 5.0,
                                     minTileHeight: 90,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
                                     leading: CircleAvatar(
                                       radius: 20,
-                                      backgroundColor: const Color.fromARGB(255, 245, 245, 245),
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 245, 245, 245),
                                       child: Icon(
                                         payment.status == "pending"
                                             ? Icons.hourglass_top_sharp
@@ -136,12 +141,14 @@ class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
                                       ],
                                     ),
                                     subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
                                             Text(
-                                              convertDateToNormal(payment.createdAt.toString()),
+                                              convertDateToNormal(
+                                                  payment.createdAt.toString()),
                                               style: const TextStyle(
                                                 fontSize: 10,
                                                 color: Colors.black54,
@@ -155,17 +162,21 @@ class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
                                                   fontSize: 10,
                                                 ),
                                                 children: [
-                                                  const TextSpan(text: "status: "),
+                                                  const TextSpan(
+                                                      text: "status: "),
                                                   TextSpan(
                                                     text: payment.status,
                                                     style: TextStyle(
                                                       fontSize: 10,
-                                                      color: payment.status == "successful"
+                                                      color: payment.status ==
+                                                              "successful"
                                                           ? Colors.green
-                                                          : payment.status == "failed"
+                                                          : payment.status ==
+                                                                  "failed"
                                                               ? Colors.red
                                                               : Colors.grey,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
                                                 ],
@@ -177,11 +188,13 @@ class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
                                           children: [
                                             Text(
                                               "${payment.reference.toString().substring(0, 5)}...",
-                                              style: const TextStyle(fontSize: 12),
+                                              style:
+                                                  const TextStyle(fontSize: 12),
                                             ),
                                             InkWell(
                                               onTap: () {
-                                                Clipboard.setData(ClipboardData(text: payment.reference));
+                                                Clipboard.setData(ClipboardData(
+                                                    text: payment.reference));
                                               },
                                               child: const Icon(Icons.copy),
                                             ),
@@ -193,7 +206,9 @@ class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
                                 },
                               ),
                               if (_userController.isloading.value)
-                                const Center(child: CircularProgressIndicator()),
+                                const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
                               GestureDetector(
                                 onTap: _loadNextPage,
                                 child: const Padding(
@@ -257,9 +272,8 @@ class _WithdrawHistoryScreenState extends State<WithdrawHistoryScreen> {
   }
 }
 
-
-class FilterHistory extends StatelessWidget {
-  FilterHistory({super.key});
+class FilterWithdrawHistory extends StatelessWidget {
+  FilterWithdrawHistory({super.key});
 
   final _userController = Get.find<UserController>();
   final Rxn<DateTime> _startDate = Rxn<DateTime>();
@@ -339,7 +353,7 @@ class FilterHistory extends StatelessWidget {
           const SizedBox(height: 20),
           CustomButton(
             ontap: () async {
-              _userController.getUserPaymentHistory(
+              _userController.getUserWithdawHistory(
                 startDate: _startDate.value.toString(),
                 endDate: _endDate.value.toString(),
               );

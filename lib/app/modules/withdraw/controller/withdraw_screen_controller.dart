@@ -1,6 +1,6 @@
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/bank_model.dart';
-import 'package:echodate/app/modules/withdraw/views/coin_history_screen.dart';
+import 'package:echodate/app/modules/echocoin/views/coin_history_screen.dart';
 import 'package:echodate/app/modules/withdraw/views/withdraw_history_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';

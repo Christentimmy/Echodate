@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+// import 'package:echodate/app/modules/echocoin/views/all_echo_coins_screen.dart';
 import 'package:echodate/app/modules/echocoin/views/all_echo_coins_screen.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
