@@ -2,7 +2,7 @@ import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
 import 'package:echodate/app/modules/Interest/widgets/interest_widgets.dart';
 import 'package:echodate/app/modules/profile/controller/edit_profile_controller.dart';
-import 'package:echodate/app/modules/profile/widgets/profile_widgets.dart';
+import 'package:echodate/app/modules/profile/widgets/edit_profile_widgets.dart';
 import 'package:echodate/app/utils/date_converter.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';

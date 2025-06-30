@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
-// import 'package:echodate/app/modules/echocoin/views/all_echo_coins_screen.dart';
 import 'package:echodate/app/modules/echocoin/views/all_echo_coins_screen.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
@@ -23,22 +23,10 @@ class AppSettings extends StatefulWidget {
 class _AppSettingsState extends State<AppSettings>
     with TickerProviderStateMixin {
   final _userController = Get.find<UserController>();
+  final _authController = Get.find<AuthController>();
 
   String currentScreen = 'main';
   bool darkMode = false;
-
-  Map<String, bool> notifications = {
-    'matches': true,
-    'messages': true,
-    'likes': false,
-    'promotions': false,
-  };
-
-  Map<String, bool> privacy = {
-    'showAge': true,
-    'showDistance': true,
-    'incognito': false,
-  };
 
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -240,32 +228,12 @@ class _AppSettingsState extends State<AppSettings>
                   },
                 ),
                 Divider(height: 1, color: Colors.grey[100]),
-                // _buildSettingsItem(
-                //   icon: Icons.security,
-                //   title: 'Coin History',
-                //   subtitle: 'View coin history',
-                //   onTap: () {
-                //     Get.to(() => const CoinHistoryScreen());
-                //   },
-                // ),
-                // Divider(height: 1, color: Colors.grey[100]),
-                // _buildSettingsItem(
-                //   icon: FontAwesomeIcons.addressBook,
-                //   title: 'Withdraw History',
-                //   subtitle: 'View withdraw history',
-                //   onTap: () {
-                //     Get.to(() => const WithdrawHistoryScreen());
-                //   },
-                // ),
                 Divider(height: 1, color: Colors.grey[100]),
                 _buildSettingsItem(
                   icon: FontAwesomeIcons.creditCard,
                   title: 'Withdraw Coin',
                   subtitle: 'Unlock unlimited likes',
                   onTap: () {
-                    // Get.to(() => const WithdrawalScreen());
-
-                    // Get.to(() => const CoinWithdrawalScreen());
                     Get.to(() => const WithdrawalScreen());
                   },
                 ),
@@ -322,13 +290,18 @@ class _AppSettingsState extends State<AppSettings>
                   onTap: () {},
                 ),
                 Divider(height: 1, color: Colors.grey[100]),
-                _buildSettingsItem(
-                  icon: Icons.logout,
-                  title: 'Sign Out',
-                  subtitle: 'See you later!',
-                  onTap: () {},
-                  showChevron: false,
-                ),
+                Obx(() {
+                  final isloading = _authController.isLoading.value;
+                  return _buildSettingsItem(
+                    icon: isloading ? FontAwesomeIcons.spinner : Icons.logout,
+                    title: 'Sign Out',
+                    subtitle: 'See you later!',
+                    onTap: () async {
+                      await _authController.logout();
+                    },
+                    showChevron: false,
+                  );
+                }),
               ],
             ),
           ),

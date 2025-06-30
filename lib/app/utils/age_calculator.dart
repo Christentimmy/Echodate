@@ -1,8 +1,5 @@
-
-
-
-int calculateAge(String isoDate) {
-  if (isoDate.isEmpty) {
+int calculateAge(String? isoDate) {
+  if (isoDate == null || isoDate.isEmpty) {
     return 0;
   }
   DateTime birthDate = DateTime.parse(isoDate);

@@ -34,6 +34,7 @@ class UserModel {
   final bool? isVerified;
   String? password;
   String? otpCode;
+  Stats? stats;
 
   UserModel({
     this.id,
@@ -69,6 +70,7 @@ class UserModel {
     this.createdAt,
     this.otpCode,
     this.isVerified,
+    this.stats,
   });
 
   factory UserModel.fromJson(json) {
@@ -227,5 +229,25 @@ class Location {
   @override
   String toString() {
     return jsonEncode(toJson());
+  }
+}
+
+class Stats {
+  final int totalMatches;
+  final int totalSwipes;
+  final int totalPhotos;
+
+  Stats({
+    required this.totalMatches,
+    required this.totalSwipes,
+    required this.totalPhotos,
+  });
+
+  factory Stats.fromJson(json) {
+    return Stats(
+      totalMatches: json["totalMatches"] ?? "",
+      totalSwipes: json["totalSwipes"] ?? "",
+      totalPhotos: json["totalPhotos"] ?? "",
+    );
   }
 }

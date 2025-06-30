@@ -6,7 +6,7 @@ import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/home/views/send_coins_screen.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
-import 'package:echodate/app/modules/settings/views/settings_screen.dart';
+import 'package:echodate/app/modules/profile/views/alt_profile_screen.dart';
 import 'package:echodate/app/modules/story/controller/view_story_full_screen_controller.dart';
 import 'package:echodate/app/modules/story/views/create_story_screen.dart';
 import 'package:echodate/app/modules/story/views/view_story_full_screen.dart';
@@ -355,12 +355,20 @@ class HeaderHomeWidget extends StatelessWidget {
               //   ),
               // ),
               // const SizedBox(width: 10),
-              IconButton(
-                onPressed: () {
-                  Get.to(() => const SettingsScreen());
-                },
-                icon: const Icon(Icons.settings, color: Colors.black),
-              ),
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: AppColors.lightGrey,
+                child: IconButton(
+                  onPressed: () {
+                    Get.to(() => const ProfileScreen());
+                  },
+                  icon: Icon(
+                    Icons.person,
+                    color: AppColors.primaryColor,
+                    size: 17,
+                  ),
+                ),
+              )
 
               // const SizedBox(width: 20),
               // InkWell(

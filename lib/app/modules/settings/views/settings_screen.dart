@@ -5,12 +5,14 @@ import 'package:echodate/app/controller/notification_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
 import 'package:echodate/app/modules/auth/views/change_password_screen.dart';
-import 'package:echodate/app/modules/profile/widgets/profile_widgets.dart';
+import 'package:echodate/app/modules/profile/widgets/edit_profile_widgets.dart';
 import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
 import 'package:echodate/app/modules/settings/views/verification_badge_screen.dart';
 import 'package:echodate/app/modules/settings/widgets/setting_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -176,51 +178,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: 32),
 
-                // Action Button
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.red[400]!,
-                        Colors.red[500]!,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.red.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
+                CustomButton(
+                  ontap: () {
+                    final messageController = Get.find<MessageController>();
+                    messageController.savedChatToAvoidLoading.clear();
+                    CustomSnackbar.showSuccessSnackBar(
+                      "Caches Cleared Successfully",
+                    );
+                  },
+                  bgColor: Colors.red,
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.cleaning_services_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        "Clear Chat Caches",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () {
-                        final messageController = Get.find<MessageController>();
-                        messageController.savedChatToAvoidLoading.clear();
-                        CustomSnackbar.showSuccessSnackBar(
-                          "Caches Cleared Successfully",
-                        );
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 18),
-                        child: Row(
+                ),
+                const SizedBox(height: 10),
+                CustomButton(
+                  ontap: () {
+                    showDeleteAccountDialog(context, () async {
+                      await _authController.deleteAccount();
+                    });
+                  },
+                  bgColor: Colors.red,
+                  child: _authController.isLoading.value
+                      ? const Loader()
+                      : const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.cleaning_services_outlined,
+                              Icons.delete,
                               color: Colors.white,
                               size: 20,
                             ),
                             SizedBox(width: 8),
                             Text(
-                              "Clear Chat Caches",
+                              "Delete Accoount",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -229,11 +236,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
                 ),
-
                 const SizedBox(height: 24),
               ],
             ),

@@ -25,6 +25,7 @@ import 'package:get/get.dart';
 class UserController extends GetxController {
   final UserService _userService = UserService();
   Rxn<UserModel> userModel = Rxn<UserModel>();
+  Rxn<Stats> userProfileStat = Rxn<Stats>();
   RxList<UserModel> potentialMatchesList = <UserModel>[].obs;
   RxList<UserModel> matchesList = <UserModel>[].obs;
   RxList<UserModel> usersWhoLikesMeList = <UserModel>[].obs;
@@ -46,6 +47,7 @@ class UserController extends GetxController {
   RxBool isSubscriptionPlansFetched = false.obs;
   RxBool isEchoCoinsListFetched = false.obs;
   RxBool isAllLinkedBankFetched = false.obs;
+  RxBool isStatFetched = false.obs;
   final RxList<Map<String, dynamic>> _swipeQueue = <Map<String, dynamic>>[].obs;
   bool _isProcessingQueue = false;
 
@@ -128,6 +130,37 @@ class UserController extends GetxController {
       userModel.value = mapped;
       userModel.refresh();
       if (response.statusCode == 200) isUserDetailsFetched.value = true;
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> getProfileStats() async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null || token.isEmpty) return;
+
+      final response = await _userService.getProfileStats(token: token);
+      if (response == null) return;
+      final decoded = json.decode(response.body);
+      String message = decoded["message"];
+      if (message == "Token has expired.") {
+        Get.offAll(() => RegisterScreen());
+        return;
+      }
+      if (response.statusCode != 200) {
+        debugPrint(message);
+        return;
+      }
+      var userData = decoded["data"];
+      Stats mapped = Stats.fromJson(userData);
+      userProfileStat.value = mapped;
+      userProfileStat.refresh();
+      if (response.statusCode == 200) isStatFetched.value = true;
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -1435,5 +1468,7 @@ class UserController extends GetxController {
     isEchoCoinsListFetched.value = false;
     isAllLinkedBankFetched.value = false;
     isWithdrawHistoryFetched.value = false;
+    userProfileStat.value = null;
+    isStatFetched.value = false;
   }
 }
