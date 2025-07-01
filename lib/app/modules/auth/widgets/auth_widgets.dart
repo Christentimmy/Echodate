@@ -56,14 +56,23 @@ class LoginFormField extends StatelessWidget {
                   prefixIcon: Icons.email,
                 ),
                 const SizedBox(height: 15),
-                NewCustomTextField(
-                  controller: _loginController.passwordController,
-                  hintText: "Password",
-                  isObscure: true,
-                  prefixIcon: Icons.lock,
-                  bgColor: Colors.grey.shade50,
-                  prefixIconColor: Colors.orange,
-                ),
+                Obx(() {
+                  RxBool isVsibile = _loginController.isPasswordVisible;
+                  return NewCustomTextField(
+                    controller: _loginController.passwordController,
+                    hintText: "Password",
+                    isObscure: isVsibile.value,
+                    prefixIcon: Icons.lock,
+                    bgColor: Colors.grey.shade50,
+                    prefixIconColor: Colors.orange,
+                    suffixIcon: !isVsibile.value
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    onSuffixTap: () {
+                      isVsibile.value = !isVsibile.value;
+                    },
+                  );
+                }),
                 const SizedBox(height: 30),
               ],
             ),

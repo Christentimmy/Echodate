@@ -241,7 +241,11 @@ class NewCustomTextField extends StatelessWidget {
                 ),
           suffixIcon: IconButton(
             onPressed: onSuffixTap,
-            icon: Icon(suffixIcon, size: 20, color: const Color(0xff36534F)),
+            icon: Icon(
+              suffixIcon,
+              size: 20,
+              color: Colors.grey.shade600,
+            ),
           ),
           enabledBorder: enabledBorder ??
               OutlineInputBorder(
