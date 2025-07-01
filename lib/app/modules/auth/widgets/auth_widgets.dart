@@ -173,13 +173,22 @@ class SignUpFormFields extends StatelessWidget {
           controller: _signController.emailController,
         ),
         const SizedBox(height: 15),
-        NewCustomTextField(
-          hintText: "Password",
-          controller: _signController.passwordController,
-          prefixIcon: Icons.lock,
-          bgColor: Colors.grey.shade50,
-          prefixIconColor: Colors.orange,
-        ),
+        Obx(() {
+          RxBool isVisible = _signController.isPasswordVisible;
+          return NewCustomTextField(
+            hintText: "Password",
+            controller: _signController.passwordController,
+            prefixIcon: Icons.lock,
+            bgColor: Colors.grey.shade50,
+            prefixIconColor: Colors.orange,
+            isObscure: isVisible.value,
+            suffixIcon:
+                !isVisible.value ? Icons.visibility : Icons.visibility_off,
+            onSuffixTap: () {
+              isVisible.value = !isVisible.value;
+            },
+          );
+        }),
         const SizedBox(height: 15),
         Row(
           children: [

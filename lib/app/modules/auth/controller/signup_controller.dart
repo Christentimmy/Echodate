@@ -16,6 +16,7 @@ class SignUpController extends GetxController
   final _isCheckValue = false.obs;
   final selectedCountryCode = RxString("+233");
   final _authController = Get.find<AuthController>();
+  final isPasswordVisible = true.obs;
 
   // Animation controllers
   late AnimationController _animationController;

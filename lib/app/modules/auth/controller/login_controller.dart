@@ -11,7 +11,7 @@ class LoginController extends GetxController
   late GlobalKey<FormState> _formKey;
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
-  final isPasswordVisible = false.obs;
+  final isPasswordVisible = true.obs;
 
   TextEditingController get emailController => _emailController;
   TextEditingController get passwordController => _passwordController;
