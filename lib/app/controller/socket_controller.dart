@@ -169,47 +169,15 @@ class SocketController extends GetxController {
       if (index != -1) {
         messageController.chatHistoryAndLiveMessage[index].mediaUrl =
             messageModel.mediaUrl;
+        messageController.chatHistoryAndLiveMessage[index].avater =
+            messageModel.avater;
+
         messageController.chatHistoryAndLiveMessage.refresh();
       } else {
         messageController.chatHistoryAndLiveMessage.add(messageModel);
       }
     });
-
-    // socket?.on("receive-message", (data) {
-    //   final userModel = _userController.userModel.value;
-    //   final message = Map<String, dynamic>.from(data);
-    //   final messageModel = MessageModel.fromJson(message);
-    //   final messageController = Get.find<MessageController>();
-
-    //   final exists = messageController.chatHistoryAndLiveMessage.any(
-    //     (msg) => msg.id == messageModel.id,
-    //   );
-
-    //   if (exists) return;
-    //   final index = messageController.chatHistoryAndLiveMessage.indexWhere(
-    //     (msg) => msg.clientGeneratedId == messageModel.clientGeneratedId,
-    //   );
-    //   print(index);
-    //   if (index != -1) {
-    //     final msg = messageController.chatHistoryAndLiveMessage[index];
-    //     msg.id = messageModel.id;
-    //     msg.senderId = messageModel.senderId;
-    //     msg.receiverId = messageModel.receiverId;
-    //     msg.message = messageModel.message;
-    //     msg.messageType = messageModel.messageType;
-    //     msg.mediaUrl = messageModel.mediaUrl;
-    //     msg.status = messageModel.status;
-    //     msg.timestamp = messageModel.timestamp;
-    //     msg.createdAt = messageModel.createdAt;
-    //     msg.updatedAt = messageModel.updatedAt;
-    //     msg.mediaIv = messageModel.mediaIv;
-    //     msg.clientGeneratedId = messageModel.clientGeneratedId;
-    //     // messageController.chatHistoryAndLiveMessage.refresh();
-    //   } else {
-    //     messageController.chatHistoryAndLiveMessage.add(messageModel);
-    //   }
-    // });
-
+    
     socket?.on("error", (data) {
       String error = data["message"] ?? "";
       if (error.contains("limit")) {

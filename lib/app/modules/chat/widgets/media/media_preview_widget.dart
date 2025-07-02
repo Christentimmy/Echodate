@@ -98,7 +98,7 @@ class AudioPreviewWidget extends StatelessWidget {
 }
 
 class MediaPreviewWidget extends StatelessWidget {
-  final ChatMediaController controller;
+  final ChatMediaPickerHelper controller;
 
   const MediaPreviewWidget({
     super.key,

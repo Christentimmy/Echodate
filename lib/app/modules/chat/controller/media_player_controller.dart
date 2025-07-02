@@ -1,4 +1,3 @@
-
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,15 +9,17 @@ import 'package:http/http.dart' as http;
 
 class MediaPlayerController extends GetxController {
   VideoPlayerController? _videoController;
-  PlayerController? _audioController;
-  
+  // PlayerController? _audioController;
+  final Rxn<PlayerController> _audioController = Rxn<PlayerController>(null);
+
   final RxBool isPlaying = false.obs;
   final RxBool isLoading = false.obs;
   final RxString localPath = ''.obs;
   final RxBool hasInitialized = false.obs;
-  
+
   bool _isCancelled = false;
   String? _oldMediaUrl;
+  ValueKey waveFormKey = ValueKey(DateTime.now().microsecondsSinceEpoch);
 
   // Video Controller Management
   Future<void> initializeVideoController(String mediaUrl) async {
@@ -29,7 +30,7 @@ class MediaPlayerController extends GetxController {
     if (mediaUrl.isEmpty) return;
 
     _videoController = VideoPlayerController.networkUrl(Uri.parse(mediaUrl));
-    
+
     _videoController!.addListener(() {
       if (!_isCancelled) update();
     });
@@ -44,11 +45,10 @@ class MediaPlayerController extends GetxController {
       debugPrint("Video initialization error: $error");
     }
   }
-
-  // Audio Controller Management
+  //Audio Controller Management
   Future<void> initializeAudioController(String mediaUrl) async {
     if (isLoading.value && mediaUrl == _oldMediaUrl) return;
-    
+
     isLoading.value = true;
     await _disposeAudioController();
 
@@ -60,9 +60,9 @@ class MediaPlayerController extends GetxController {
       }
 
       localPath.value = downloadedPath;
-      _audioController = PlayerController();
+      _audioController.value = PlayerController();
 
-      await _audioController!.preparePlayer(
+      await _audioController.value!.preparePlayer(
         path: downloadedPath,
         shouldExtractWaveform: true,
         noOfSamples: 100,
@@ -74,10 +74,16 @@ class MediaPlayerController extends GetxController {
         return;
       }
 
-      _audioController!.onPlayerStateChanged.listen((state) {
+      _audioController.value!.onPlayerStateChanged.listen((state) {
         if (!_isCancelled) {
           isPlaying.value = state == PlayerState.playing;
         }
+      });
+
+      _audioController.value?.onCompletion.listen((_) async {
+        _audioController.value?.seekTo(0);
+        _audioController.value?.setRefresh(true);
+        waveFormKey = ValueKey(DateTime.now().microsecondsSinceEpoch);
       });
 
       hasInitialized.value = true;
@@ -92,7 +98,7 @@ class MediaPlayerController extends GetxController {
   Future<String> _downloadAudio(String url) async {
     try {
       if (_isCancelled) return "";
-      
+
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200 || _isCancelled) return "";
 
@@ -101,7 +107,7 @@ class MediaPlayerController extends GetxController {
       final tempDir = await getTemporaryDirectory();
       final savePath = '${tempDir.path}/$filename';
       final saveFile = File(savePath);
-      
+
       await saveFile.writeAsBytes(response.bodyBytes);
       return savePath;
     } catch (e) {
@@ -112,21 +118,21 @@ class MediaPlayerController extends GetxController {
 
   Future<void> playPauseAudio() async {
     try {
-      final state = _audioController?.playerState;
+      final state = _audioController.value?.playerState;
 
       switch (state) {
         case PlayerState.playing:
-          await _audioController?.pausePlayer();
+          await _audioController.value?.pausePlayer();
           break;
         case PlayerState.paused:
         case PlayerState.initialized:
-          await _audioController?.startPlayer();
+          await _audioController.value?.startPlayer();
           break;
         case PlayerState.stopped:
           await _reinitializeAudioController();
           break;
         default:
-          if (_audioController == null) {
+          if (_audioController.value == null) {
             // Handle reinitialization if needed
           }
       }
@@ -136,34 +142,36 @@ class MediaPlayerController extends GetxController {
   }
 
   Future<void> _reinitializeAudioController() async {
-    _audioController = null;
+    _audioController.value = null;
     if (localPath.value.isNotEmpty) {
-      _audioController = PlayerController();
-      await _audioController!.preparePlayer(
+      _audioController.value = PlayerController();
+      await _audioController.value!.preparePlayer(
         path: localPath.value,
         shouldExtractWaveform: true,
         noOfSamples: 100,
       );
 
+      waveFormKey = ValueKey(DateTime.now().microsecondsSinceEpoch);
+
       if (!_isCancelled) {
-        _audioController!.onPlayerStateChanged.listen((state) {
+        _audioController.value!.onPlayerStateChanged.listen((state) {
           if (!_isCancelled) {
             isPlaying.value = state == PlayerState.playing;
           }
         });
-        await _audioController?.startPlayer();
+        await _audioController.value?.startPlayer();
       }
     }
   }
 
   Future<void> _disposeAudioController() async {
-    if (_audioController == null) return;
-    
+    if (_audioController.value == null) return;
+
     try {
-      await _audioController!.pausePlayer();
-      _audioController!.dispose();
+      await _audioController.value!.pausePlayer();
+      _audioController.value!.dispose();
     } catch (_) {}
-    _audioController = null;
+    _audioController.value = null;
   }
 
   void reset() {
@@ -175,16 +183,16 @@ class MediaPlayerController extends GetxController {
   }
 
   VideoPlayerController? get videoController => _videoController;
-  PlayerController? get audioController => _audioController;
+  Rxn<PlayerController> get audioController => _audioController;
 
   @override
   void onClose() {
     _isCancelled = true;
-    
-    if (_audioController != null) {
+
+    if (_audioController.value != null) {
       try {
-        _audioController!.pausePlayer();
-        _audioController!.dispose();
+        _audioController.value!.pausePlayer();
+        _audioController.value!.dispose();
       } catch (_) {}
     }
 

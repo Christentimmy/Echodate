@@ -1,5 +1,5 @@
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
-import 'package:echodate/app/modules/chat/widgets/media_picker_bottom_sheet.dart';
+import 'package:echodate/app/modules/chat/widgets/media/media_picker_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

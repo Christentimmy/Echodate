@@ -18,7 +18,7 @@ class ChatController extends GetxController {
   final UserController userController = Get.find<UserController>();
 
   late AudioController audioController;
-  late ChatMediaController mediaController;
+  late ChatMediaPickerHelper mediaController;
 
   final TextEditingController textMessageController = TextEditingController();
   final RxString wordsTyped = "".obs;
@@ -29,7 +29,7 @@ class ChatController extends GetxController {
   void onInit() {
     super.onInit();
     audioController = Get.put(AudioController());
-    mediaController = Get.put(ChatMediaController());
+    mediaController = Get.put(ChatMediaPickerHelper());
   }
 
   void initialize(ChatListModel chat) {

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:echodate/app/utils/image_picker.dart';
 import 'package:video_compress/video_compress.dart';
 
-class ChatMediaController extends GetxController {
+class ChatMediaPickerHelper extends GetxController {
   final Rxn<File> selectedFile = Rxn<File>(null);
   final Rxn<File> thumbnailData = Rxn<File>();
   final RxBool showMediaPreview = false.obs;

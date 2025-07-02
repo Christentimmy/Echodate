@@ -1,9 +1,10 @@
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/controller/sender_card_controller.dart';
 import 'package:echodate/app/modules/chat/enums/message_enum_type.dart';
-import 'package:echodate/app/modules/chat/widgets/media/audio_content_widget.dart';
-import 'package:echodate/app/modules/chat/widgets/media/media_content_widget.dart';
-import 'package:echodate/app/modules/chat/widgets/message_timestamp_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/media/sender_audio_content_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/media/sender_media_content_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/shared/message_container_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/shared/message_timestamp_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -30,7 +31,7 @@ class _SenderCardState extends State<SenderCard>
   @override
   void initState() {
     super.initState();
-    controller = Get.put(SenderCardController(), tag: widget.messageModel.id);
+    controller = Get.put(SenderCardController(messageModel: widget.messageModel), tag: widget.messageModel.id);
     _oldMediaUrl = widget.messageModel.mediaUrl;
   }
 
@@ -55,7 +56,6 @@ class _SenderCardState extends State<SenderCard>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     return Align(
       alignment: Alignment.centerRight,
       child: GestureDetector(
@@ -67,25 +67,17 @@ class _SenderCardState extends State<SenderCard>
             scale: controller.scale.value,
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 5),
-              padding: _getPadding(messageType),
-              constraints: BoxConstraints(
-                maxWidth: Get.width * 0.6,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                borderRadius: BorderRadius.circular(10),
-              ),
+            child: MessageContainerWidget(
+              messageType: messageType,
               child: IntrinsicWidth(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildContent(),
+                    _buildContent(messageType),
                     if (widget.messageModel.message?.isNotEmpty == true)
                       _buildMessageText(),
-                    const SizedBox(height: 3),
+                    // const SizedBox(height: 3),
                     Align(
                       alignment: Alignment.centerRight,
                       child: MessageTimestampWidget(
@@ -102,18 +94,16 @@ class _SenderCardState extends State<SenderCard>
     );
   }
 
-  Widget _buildContent() {
-    final messageType = getMessageType(widget.messageModel.messageType);
-
+  Widget _buildContent(MessageType messageType) {
     switch (messageType) {
       case MessageType.image:
       case MessageType.video:
-        return MediaContentWidget(
+        return SenderMediaContentWidget(
           messageModel: widget.messageModel,
           controller: controller,
         );
       case MessageType.audio:
-        return AudioContentWidget(
+        return SenderAudioContentWidget(
           messageModel: widget.messageModel,
           controller: controller,
         );
@@ -139,35 +129,4 @@ class _SenderCardState extends State<SenderCard>
     );
   }
 
-  EdgeInsets _imagePadding() {
-    return const EdgeInsets.only(
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 5,
-    );
-  }
-
-  EdgeInsets _videoPadding() {
-    return const EdgeInsets.only(
-      left: 3,
-      right: 3,
-      top: 3,
-      bottom: 5,
-    );
-  }
-
-  EdgeInsets _getPadding(MessageType messageType) {
-    switch (messageType) {
-      case MessageType.image:
-        return _imagePadding();
-      case MessageType.video:
-        return _videoPadding();
-      default:
-        return const EdgeInsets.symmetric(
-          horizontal: 5,
-          vertical: 6,
-        );
-    }
-  }
 }

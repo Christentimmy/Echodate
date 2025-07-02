@@ -7,13 +7,15 @@ import 'media_player_controller.dart';
 class ReceiverCardController extends GetxController {
   final RxDouble scale = 1.0.obs;
   late final MediaPlayerController mediaController;
+  final MessageModel messageModel;
+  ReceiverCardController({required this.messageModel});
 
   @override
   void onInit() {
     super.onInit();
     mediaController = Get.put(
       MediaPlayerController(),
-      tag: 'receiver_${Get.currentRoute}',
+      tag: 'receiver_${messageModel.id}',
     );
   }
 
@@ -53,7 +55,7 @@ class ReceiverCardController extends GetxController {
 
   @override
   void onClose() {
-    Get.delete<MediaPlayerController>(tag: 'receiver_${Get.currentRoute}');
+    Get.delete<MediaPlayerController>(tag: 'receiver_${messageModel.id}');
     super.onClose();
   }
 }

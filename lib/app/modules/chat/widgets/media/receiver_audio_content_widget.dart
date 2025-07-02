@@ -1,5 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/modules/chat/controller/receiver_card_controller.dart';
-import 'package:echodate/app/modules/chat/widgets/base_audio_content_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/shared/base_audio_content_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
@@ -7,23 +8,24 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 class ReceiverAudioContentWidget extends BaseAudioContentWidget {
   final ReceiverCardController controller;
 
-  const ReceiverAudioContentWidget({
+  ReceiverAudioContentWidget({
     super.key,
     required super.messageModel,
     required this.controller,
-  }) : super(
-          isReceiver: true,
-        );
+  }) : super(isReceiver: true);
+
+  final List<double> _speeds = [1.0, 1.5, 2.0];
+  final RxInt _speedIndex = 0.obs;
 
   @override
   Widget buildPlayPauseButton() {
     return InkWell(
       onTap: () async {
-        if (controller.mediaController.audioController == null &&
+        if (controller.mediaController.audioController.value == null &&
             !controller.mediaController.isLoading.value) {
           await controller.ensureControllerInitialized(messageModel);
         }
-        if (controller.mediaController.audioController != null &&
+        if (controller.mediaController.audioController.value != null &&
             !controller.mediaController.isLoading.value) {
           await controller.mediaController.playPauseAudio();
         }
@@ -52,7 +54,7 @@ class ReceiverAudioContentWidget extends BaseAudioContentWidget {
     return Obx(() {
       final audioController = controller.mediaController.audioController;
 
-      if (audioController == null) {
+      if (audioController.value == null) {
         return Container(
           height: 40,
           width: 100,
@@ -65,8 +67,9 @@ class ReceiverAudioContentWidget extends BaseAudioContentWidget {
       }
 
       return AudioFileWaveforms(
-        playerController: audioController,
-        size: Size(Get.width * 0.4, 40),
+        playerController: audioController.value!,
+        size: Size(Get.width * 0.8, 40),
+        // backgroundColor: Colors.red,
         playerWaveStyle: PlayerWaveStyle(
           fixedWaveColor: waveformFixedColor,
           liveWaveColor: waveformLiveColor,
@@ -78,5 +81,54 @@ class ReceiverAudioContentWidget extends BaseAudioContentWidget {
         waveformType: WaveformType.long, // Different from sender
       );
     });
+  }
+
+  @override
+  Widget buildSpeedButton() {
+    return Obx(() {
+      final audioController = controller.mediaController.audioController.value;
+      final isPlaying = controller.mediaController.isPlaying.value;
+      return AnimatedSwitcher(
+        // opacity: (audioController != null && isPlaying) ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 300),
+        child: isPlaying
+            ? _buildSpeedButton(audioController, isPlaying)
+            : avaterBuilder(),
+      );
+    });
+  }
+
+  Widget avaterBuilder() {
+    return CircleAvatar(
+      radius: 22,
+      backgroundImage: CachedNetworkImageProvider(
+        messageModel.avater ?? "",
+      ),
+    );
+  }
+
+  Widget _buildSpeedButton(
+    PlayerController? audioController,
+    bool isPlaying,
+  ) {
+    if (audioController == null) return const SizedBox.shrink();
+    return TextButton(
+      style: TextButton.styleFrom(
+        minimumSize: const Size(36, 36),
+        padding: EdgeInsets.zero,
+      ),
+      onPressed: () {
+        _speedIndex.value = (_speedIndex.value + 1) % _speeds.length;
+        audioController.setRate(_speeds[_speedIndex.value]);
+      },
+      child: Obx(() => Text(
+            '${_speeds[_speedIndex.value]}x',
+            style: TextStyle(
+              color: iconColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          )),
+    );
   }
 }

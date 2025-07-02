@@ -1,7 +1,8 @@
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
-import 'package:echodate/app/modules/chat/widgets/chat_input_field_widget.dart';
-import 'package:echodate/app/modules/chat/widgets/media_preview_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/textfield/chat_input_field_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/media/media_preview_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/receiver_card.dart';
 import 'package:echodate/app/modules/chat/widgets/sender_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,7 +11,6 @@ import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/resources/colors.dart';
-import 'package:echodate/app/modules/chat/widgets/chat_widgets.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatListModel chatHead;
@@ -30,7 +30,9 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _chatController.initialize(widget.chatHead);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _chatController.initialize(widget.chatHead);
+    });
   }
 
   @override
@@ -200,9 +202,9 @@ class _ChatScreenState extends State<ChatScreen> {
       itemBuilder: (context, index) {
         final reversedIndex = messages.length - 1 - index;
         final message = messages[reversedIndex];
-        final isSent = message.senderId ==
+        final isSender = message.senderId ==
             _chatController.userController.userModel.value!.id;
-        final bubble = isSent
+        final bubble = isSender
             ? RepaintBoundary(child: SenderCard(messageModel: message))
             : RepaintBoundary(child: ReceiverCard(messageModel: message));
         if (index == 0) {
@@ -230,4 +232,5 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
+
 }

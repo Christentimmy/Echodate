@@ -5,6 +5,7 @@ class MessageModel {
   String? senderId;
   String? receiverId;
   String? message;
+  String? avater;
   String? messageType;
   String? mediaUrl;
   String? status;
@@ -14,6 +15,7 @@ class MessageModel {
   File? tempFile;
   String? mediaIv;
   String? clientGeneratedId;
+  
 
   MessageModel({
     this.id,
@@ -21,6 +23,7 @@ class MessageModel {
     this.receiverId,
     this.message,
     this.messageType,
+    this.avater,
     this.status,
     this.timestamp,
     this.createdAt,
@@ -83,6 +86,7 @@ class MessageModel {
           ? DateTime.parse(json["updatedAt"])
           : DateTime.now(),
       clientGeneratedId: json["clientGeneratedId"] ?? "",
+      avater: json["avater"] ?? "",
     );
   }
 

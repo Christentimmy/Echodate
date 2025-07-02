@@ -7,14 +7,18 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 
 class SenderCardController extends GetxController {
+  final MessageModel messageModel;
+  SenderCardController({required this.messageModel});
   final RxDouble scale = 1.0.obs;
   late final MediaPlayerController mediaController;
-  final ChatMediaController chatMediaController = Get.find<ChatMediaController>();
+  final ChatMediaPickerHelper chatMediaController =
+      Get.find<ChatMediaPickerHelper>();
 
   @override
   void onInit() {
     super.onInit();
-    mediaController = Get.put(MediaPlayerController(), tag: Get.currentRoute);
+    mediaController =
+        Get.put(MediaPlayerController(), tag: 'sender${messageModel.id}');
   }
 
   Future<void> onLongPress() async {
@@ -53,7 +57,7 @@ class SenderCardController extends GetxController {
 
   @override
   void onClose() {
-    Get.delete<MediaPlayerController>(tag: Get.currentRoute);
+    Get.delete<MediaPlayerController>(tag: 'sender${messageModel.id}');
     super.onClose();
   }
 }

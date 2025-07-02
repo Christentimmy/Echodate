@@ -1,4 +1,3 @@
-
 import 'package:echodate/app/models/message_model.dart';
 import 'package:flutter/material.dart';
 
@@ -15,10 +14,12 @@ abstract class BaseAudioContentWidget extends StatelessWidget {
   // Abstract methods to be implemented by subclasses
   Widget buildPlayPauseButton();
   Widget buildWaveform();
+  Widget buildSpeedButton() => const SizedBox.shrink();
 
   // Computed properties based on receiver/sender type
   Color get iconColor => isReceiver ? Colors.black54 : Colors.white;
-  Color get waveformFixedColor => isReceiver ? Colors.black38 : Colors.white54;
+  Color get waveformFixedColor =>
+      isReceiver ? Colors.black38 : const Color.fromARGB(255, 206, 206, 206);
   Color get waveformLiveColor => isReceiver ? Colors.black87 : Colors.white;
   Color get loadingColor => isReceiver ? Colors.black54 : Colors.white;
 
@@ -39,11 +40,8 @@ abstract class BaseAudioContentWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: containerDecoration(),
-      child: Center(
-        child: CircularProgressIndicator(
-          color: loadingColor,
-          strokeWidth: 2,
-        ),
+      child: const LinearProgressIndicator(
+        color: Colors.white,
       ),
     );
   }
@@ -63,7 +61,7 @@ abstract class BaseAudioContentWidget extends StatelessWidget {
 
   Widget buildAudioPlayer() {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(2),
       decoration: containerDecoration(),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -71,6 +69,8 @@ abstract class BaseAudioContentWidget extends StatelessWidget {
           buildPlayPauseButton(),
           const SizedBox(width: 8),
           Expanded(child: buildWaveform()),
+          const SizedBox(width: 8),
+          buildSpeedButton(),
         ],
       ),
     );
@@ -78,7 +78,6 @@ abstract class BaseAudioContentWidget extends StatelessWidget {
 
   BoxDecoration containerDecoration() {
     return BoxDecoration(
-      color: Colors.black.withOpacity(0.1),
       borderRadius: BorderRadius.circular(10),
     );
   }
