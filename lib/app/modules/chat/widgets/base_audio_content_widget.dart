@@ -1,0 +1,85 @@
+
+import 'package:echodate/app/models/message_model.dart';
+import 'package:flutter/material.dart';
+
+abstract class BaseAudioContentWidget extends StatelessWidget {
+  final MessageModel messageModel;
+  final bool isReceiver;
+
+  const BaseAudioContentWidget({
+    super.key,
+    required this.messageModel,
+    this.isReceiver = false,
+  });
+
+  // Abstract methods to be implemented by subclasses
+  Widget buildPlayPauseButton();
+  Widget buildWaveform();
+
+  // Computed properties based on receiver/sender type
+  Color get iconColor => isReceiver ? Colors.black54 : Colors.white;
+  Color get waveformFixedColor => isReceiver ? Colors.black38 : Colors.white54;
+  Color get waveformLiveColor => isReceiver ? Colors.black87 : Colors.white;
+  Color get loadingColor => isReceiver ? Colors.black54 : Colors.white;
+
+  @override
+  Widget build(BuildContext context) {
+    if (messageModel.status == "sending") {
+      return buildLoadingState();
+    }
+
+    if (messageModel.mediaUrl == null || messageModel.mediaUrl!.isEmpty) {
+      return buildUnavailableState();
+    }
+
+    return buildAudioPlayer();
+  }
+
+  Widget buildLoadingState() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: containerDecoration(),
+      child: Center(
+        child: CircularProgressIndicator(
+          color: loadingColor,
+          strokeWidth: 2,
+        ),
+      ),
+    );
+  }
+
+  Widget buildUnavailableState() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: containerDecoration(),
+      child: Center(
+        child: Text(
+          "Audio unavailable",
+          style: TextStyle(color: iconColor),
+        ),
+      ),
+    );
+  }
+
+  Widget buildAudioPlayer() {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: containerDecoration(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          buildPlayPauseButton(),
+          const SizedBox(width: 8),
+          Expanded(child: buildWaveform()),
+        ],
+      ),
+    );
+  }
+
+  BoxDecoration containerDecoration() {
+    return BoxDecoration(
+      color: Colors.black.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(10),
+    );
+  }
+}
