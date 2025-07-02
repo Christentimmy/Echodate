@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 class MessageModel {
@@ -14,7 +13,7 @@ class MessageModel {
   DateTime? updatedAt;
   File? tempFile;
   String? mediaIv;
-
+  String? clientGeneratedId;
 
   MessageModel({
     this.id,
@@ -29,8 +28,40 @@ class MessageModel {
     this.mediaUrl,
     this.tempFile,
     this.mediaIv,
+    this.clientGeneratedId,
   });
 
+  MessageModel copyWith({
+    String? id,
+    String? senderId,
+    String? receiverId,
+    String? message,
+    String? messageType,
+    String? status,
+    DateTime? timestamp,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? mediaUrl,
+    File? tempFile,
+    String? mediaIv,
+    String? clientGeneratedId,
+  }) {
+    return MessageModel(
+      id: id ?? this.id,
+      senderId: senderId ?? this.senderId,
+      receiverId: receiverId ?? this.receiverId,
+      message: message ?? this.message,
+      messageType: messageType ?? this.messageType,
+      status: status ?? this.status,
+      timestamp: timestamp ?? this.timestamp,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      mediaUrl: mediaUrl ?? this.mediaUrl,
+      tempFile: tempFile ?? this.tempFile,
+      mediaIv: mediaIv ?? this.mediaIv,
+      clientGeneratedId: clientGeneratedId ?? this.clientGeneratedId,
+    );
+  }
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
@@ -42,13 +73,19 @@ class MessageModel {
       mediaUrl: json["mediaUrl"] ?? "",
       status: json["status"] ?? "sent",
       mediaIv: json["mediaIv"] ?? "",
-      timestamp: json["timestamp"] != null ? DateTime.parse(json["timestamp"]) : DateTime.now(),
-      createdAt: json["createdAt"] != null ? DateTime.parse(json["createdAt"]) : DateTime.now(),
-      updatedAt: json["updatedAt"] != null ? DateTime.parse(json["updatedAt"]) : DateTime.now(),
+      timestamp: json["timestamp"] != null
+          ? DateTime.parse(json["timestamp"])
+          : DateTime.now(),
+      createdAt: json["createdAt"] != null
+          ? DateTime.parse(json["createdAt"])
+          : DateTime.now(),
+      updatedAt: json["updatedAt"] != null
+          ? DateTime.parse(json["updatedAt"])
+          : DateTime.now(),
+      clientGeneratedId: json["clientGeneratedId"] ?? "",
     );
   }
 
-  // Method to convert the Message instance back to JSON, omitting null values
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
 
@@ -63,7 +100,29 @@ class MessageModel {
     if (createdAt != null) data["createdAt"] = createdAt?.toIso8601String();
     if (updatedAt != null) data["updatedAt"] = updatedAt?.toIso8601String();
     if (mediaIv != null) data["mediaIv"] = mediaIv;
+    if (clientGeneratedId != null) {
+      data["clientGeneratedId"] = clientGeneratedId;
+    }
 
     return data;
+  }
+
+  @override
+  String toString() {
+    return 'MessageModel('
+        'id: $id, '
+        'senderId: $senderId, '
+        'receiverId: $receiverId, '
+        'message: $message, '
+        'messageType: $messageType, '
+        'mediaUrl: $mediaUrl, '
+        'status: $status, '
+        'timestamp: $timestamp, '
+        'createdAt: $createdAt, '
+        'updatedAt: $updatedAt, '
+        'tempFile: ${tempFile?.path}, '
+        'mediaIv: $mediaIv, '
+        'clientGeneratedId: $clientGeneratedId'
+        ')';
   }
 }

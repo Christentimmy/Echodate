@@ -1,6 +1,7 @@
 import 'package:echodate/app/modules/chat/controller/audio_controller.dart';
 import 'package:echodate/app/modules/chat/controller/chat_media_controller.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:echodate/app/controller/message_controller.dart';
@@ -9,6 +10,7 @@ import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/services/message_service.dart';
+import 'package:uuid/uuid.dart';
 
 class ChatController extends GetxController {
   final MessageController messageController = Get.find<MessageController>();
@@ -87,6 +89,7 @@ class ChatController extends GetxController {
   }
 
   Future<void> sendMessage() async {
+    HapticFeedback.lightImpact();
     FocusManager.instance.primaryFocus?.unfocus();
     mediaController.showMediaPreview.value = false;
     audioController.showAudioPreview.value = false;
@@ -102,15 +105,17 @@ class ChatController extends GetxController {
       return;
     }
 
-    if(chatHead.userId == null){
+    if (chatHead.userId == null) {
       CustomSnackbar.showErrorSnackBar("User not found");
       return;
     }
 
+    final tempId = const Uuid().v4();
     final messageModel = MessageModel(
       receiverId: chatHead.userId ?? "",
       message: messageText,
       messageType: "text",
+      clientGeneratedId: tempId,
     );
 
     final selectedFile = mediaController.selectedFile.value ??
@@ -128,6 +133,7 @@ class ChatController extends GetxController {
         senderId: userController.userModel.value!.id,
         status: "sending",
         tempFile: selectedFile,
+        clientGeneratedId: tempId,
       );
 
       messageController.chatHistoryAndLiveMessage.add(tempMessage);
@@ -144,13 +150,16 @@ class ChatController extends GetxController {
 
       isUploading.value = false;
 
-      if (mediaUrl != null && mediaUrl.isNotEmpty ) {
+      if (mediaUrl != null && mediaUrl.isNotEmpty) {
         messageModel.mediaUrl = mediaUrl;
         messageModel.messageType = uploadedMessageType;
         messageModel.mediaIv = mediaIv;
-        messageController.chatHistoryAndLiveMessage.removeWhere(
-          (msg) => msg.status == "sending" && msg == tempMessage,
-        );
+
+        tempMessage.mediaUrl = mediaUrl;
+        tempMessage.messageType = uploadedMessageType;
+        tempMessage.mediaIv = mediaIv;
+        tempMessage.status = "sent";
+        // messageController.chatHistoryAndLiveMessage.refresh();
       }
     }
 

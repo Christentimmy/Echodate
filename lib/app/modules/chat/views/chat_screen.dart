@@ -2,6 +2,7 @@ import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/widgets/chat_input_field_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/media_preview_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/sender_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -199,12 +200,33 @@ class _ChatScreenState extends State<ChatScreen> {
       itemBuilder: (context, index) {
         final reversedIndex = messages.length - 1 - index;
         final message = messages[reversedIndex];
-        return message.senderId ==
-                _chatController.userController.userModel.value!.id
-            ? RepaintBoundary(
-                child: SenderCard(messageModel: message),
-              )
+        final isSent = message.senderId ==
+            _chatController.userController.userModel.value!.id;
+        final bubble = isSent
+            ? RepaintBoundary(child: SenderCard(messageModel: message))
             : RepaintBoundary(child: ReceiverCard(messageModel: message));
+        if (index == 0) {
+          return TweenAnimationBuilder<Offset>(
+            key: ValueKey(
+              message.id ?? message.createdAt?.toIso8601String() ?? index,
+            ),
+            tween: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ),
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOutCubic,
+            builder: (context, offset, child) {
+              return Transform.translate(
+                offset: Offset(0, offset.dy * 50),
+                child: child,
+              );
+            },
+            child: bubble,
+          );
+        } else {
+          return bubble;
+        }
       },
     );
   }
