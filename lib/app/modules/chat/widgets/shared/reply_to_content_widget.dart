@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:echodate/app/controller/message_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/message_model.dart';
@@ -28,14 +27,14 @@ class ReplyToContent extends StatelessWidget {
   });
 
   final _userController = Get.find<UserController>();
-  final _messageController = Get.find<MessageController>();
+  // final _messageController = Get.find<MessageController>();
 
   @override
   Widget build(BuildContext context) {
     if (messageModel != null) {
       return InkWell(
         onTap: () {
-          _messageController.scrollToMessage(messageModel!.id);
+          controller.scrollToMessage(messageModel!.id);
         },
         child: Container(
           constraints: BoxConstraints(
@@ -281,7 +280,7 @@ class ReplyToContent extends StatelessWidget {
       );
     }
     if (messageType == MessageType.video) {
-      final cached = _messageController.get(messageModel.mediaUrl ?? "");
+      final cached = controller.get(messageModel.mediaUrl ?? "");
 
       return Row(
         children: [

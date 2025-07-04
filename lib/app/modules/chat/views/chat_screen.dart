@@ -53,7 +53,50 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(height: 10),
           _buildSecurityMessage(),
           const SizedBox(height: 10),
-          Expanded(child: _buildMessageList()),
+          Expanded(
+            child: Stack(
+              children: [
+                _buildMessageList(),
+                Obx(() {
+                  if (_chatController.showScrollToBottomButton.value &&
+                      _chatController.isVisible.value) {
+                    return Positioned(
+                      bottom: 0,
+                      left: Get.width / 2.3,
+                      child: GestureDetector(
+                        onTap: () {
+                          _chatController.scrollToBottom();
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const CircleAvatar(
+                            radius: 25,
+                            backgroundColor: Colors.transparent,
+                            child: Icon(
+                              Icons.keyboard_arrow_down_sharp,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+              ],
+            ),
+          ),
           Obx(() {
             if (_chatController.mediaController.showMediaPreview.value) {
               return MediaPreviewWidget(
@@ -182,7 +225,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageListView(List<MessageModel> messages) {
     return ScrollablePositionedList.builder(
       key: PageStorageKey<String>('chat_list_${widget.chatHead.userId}'),
-      itemScrollController: _chatController.messageController.scrollController,
+      itemScrollController: _chatController.scrollController,
+      itemPositionsListener: _chatController.itemPositionsListener,
       itemCount: messages.length,
       reverse: true,
       // cacheExtent: 1000,

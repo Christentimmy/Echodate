@@ -34,6 +34,7 @@ class _ReceiverCardState extends State<ReceiverCard>
     with AutomaticKeepAliveClientMixin {
   late final ReceiverCardController controller;
   String? _oldMediaUrl;
+  final Map<String, bool> _expandedStates = {};
 
   @override
   bool get wantKeepAlive => true;
@@ -134,6 +135,7 @@ class _ReceiverCardState extends State<ReceiverCard>
       return ReceiverMediaContentWidget(
         messageModel: widget.messageModel,
         controller: controller,
+        chatController: widget.chatController,
       );
     }
 
@@ -142,18 +144,58 @@ class _ReceiverCardState extends State<ReceiverCard>
 
   Widget _buildMessageText() {
     final mType = getMessageType(widget.messageModel.messageType);
+    final messageText = widget.messageModel.message ?? "";
+    final messageId = widget.messageModel.id ?? "";
+    final needsTruncation = messageText.length > 100;
+    final isExpanded = _expandedStates[messageId] ?? false;
     return Padding(
       padding: mType == MessageType.image || mType == MessageType.video
           ? const EdgeInsets.only(left: 3.0)
           : EdgeInsets.zero,
-      child: Text(
-        widget.messageModel.message ?? "",
-        style: const TextStyle(
-          color: AppColors.receiverText,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isExpanded ? messageText : _getTruncatedText(messageText),
+            style: const TextStyle(
+              color: AppColors.receiverText,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (needsTruncation)
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _expandedStates[messageId] = !isExpanded;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2.0),
+                child: Text(
+                  isExpanded ? "Show less" : "Show more",
+                  style: TextStyle(
+                    color: AppColors.primaryColor,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
+  }
+
+  String _getTruncatedText(String text) {
+    if (text.length <= 100) return text;
+    final truncated = text.substring(0, 100);
+    final lastSpaceIndex = truncated.lastIndexOf(' ');
+    if (lastSpaceIndex > 80) {
+      return '${truncated.substring(0, lastSpaceIndex)}...';
+    } else {
+      return '$truncated...';
+    }
   }
 }

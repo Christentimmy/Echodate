@@ -1,6 +1,5 @@
 import 'dart:typed_data';
-
-import 'package:echodate/app/controller/message_controller.dart';
+import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/controller/receiver_card_controller.dart';
 import 'package:echodate/app/modules/chat/widgets/animated/animated_widgets.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/base_media_content_widget.dart';
@@ -11,18 +10,18 @@ import 'package:get/get.dart';
 
 class ReceiverMediaContentWidget extends BaseMediaContentWidget {
   final ReceiverCardController controller;
+  final ChatController chatController;
 
-  ReceiverMediaContentWidget({
+  const ReceiverMediaContentWidget({
     super.key,
     required super.messageModel,
     required this.controller,
+    required this.chatController,
   }) : super(isReceiver: true);
-
-  final _messageController = Get.find<MessageController>();
 
   @override
   Widget buildVideoPreview() {
-    final cached = _messageController.get(messageModel.mediaUrl ?? "");
+    final cached = chatController.get(messageModel.mediaUrl ?? "");
     if (cached != null) {
       return _buildThumbnailWidget(cached);
     }
@@ -33,7 +32,7 @@ class ReceiverMediaContentWidget extends BaseMediaContentWidget {
           return buildShimmerVideoLoading();
         }
         if (snapshot.hasData) {
-          _messageController.set(messageModel.mediaUrl ?? "", snapshot.data!);
+          chatController.set(messageModel.mediaUrl ?? "", snapshot.data!);
           return _buildThumbnailWidget(snapshot.data!);
         }
         return const AnimatedVideoPreview(

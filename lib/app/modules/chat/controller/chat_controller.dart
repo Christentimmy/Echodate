@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:echodate/app/modules/chat/controller/audio_controller.dart';
 import 'package:echodate/app/modules/chat/controller/chat_media_controller.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
@@ -10,6 +11,7 @@ import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/services/message_service.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatController extends GetxController {
@@ -26,11 +28,100 @@ class ChatController extends GetxController {
   late ChatListModel chatHead;
   Rxn<MessageModel> replyToMessage = Rxn<MessageModel>(null);
 
+  // Scroll position tracking
+  final RxBool isAtBottom = true.obs;
+  final RxBool showScrollToBottomButton = false.obs;
+  final scrollController = ItemScrollController();
+  final itemPositionsListener = ItemPositionsListener.create();
+
+  //Cache-System
+  final Map<String, Uint8List> _cache = {};
+  Uint8List? get(String url) => _cache[url];
+  void set(String url, Uint8List data) => _cache[url] = data;
+
+  final isVisible = true.obs;
+
   @override
   void onInit() {
     super.onInit();
+    _setupScrollListener();
     audioController = Get.put(AudioController());
     mediaController = Get.put(ChatMediaPickerHelper());
+  }
+
+  void scrollToBottom() async {
+    scrollController.scrollTo(
+      index: 0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _setupScrollListener() {
+    itemPositionsListener.itemPositions.addListener(() {
+      _updateScrollPosition();
+    });
+  }
+
+  Timer? _visibilityTimer;
+
+  void _updateScrollPosition() {
+    final positions = itemPositionsListener.itemPositions.value;
+    if (positions.isEmpty) return;
+
+    final firstVisibleIndex = positions.first.index;
+    final isCurrentlyAtBottom = firstVisibleIndex == 0;
+
+    isAtBottom.value = isCurrentlyAtBottom;
+    showScrollToBottomButton.value = !isCurrentlyAtBottom;
+
+    // Show button when user scrolls away from bottom
+    if (!isCurrentlyAtBottom) {
+      isVisible.value = true;
+      // Cancel previous timer if it exists
+      _visibilityTimer?.cancel();
+      // Start new timer to hide button after 3 seconds
+      _visibilityTimer = Timer(const Duration(seconds: 3), () {
+        isVisible.value = false;
+      });
+    } else {
+      // Hide button immediately when at bottom
+      isVisible.value = false;
+      _visibilityTimer?.cancel();
+    }
+  }
+
+  void scrollToMessage(String? messageId) {
+    final messageController = Get.find<MessageController>();
+    if (messageId == null) return;
+    final messageIndex = messageController.chatHistoryAndLiveMessage
+        .indexWhere((msg) => msg.id == messageId);
+    if (messageIndex == -1) return;
+    final reversedIndex =
+        messageController.chatHistoryAndLiveMessage.length - 1 - messageIndex;
+    scrollController.scrollTo(
+      index: reversedIndex,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      alignment: 0.1, // Show item at 10% from top
+    );
+    Future.delayed(const Duration(milliseconds: 600), () {
+      _highlightMessage(messageId);
+    });
+  }
+
+  void _highlightMessage(String messageId) {
+    final messageController = Get.find<MessageController>();
+    messageController.highlightedMessageId.value = messageId;
+    messageController.highlightOpacity.value = 1.0;
+
+    Future.delayed(const Duration(seconds: 2), () async {
+      for (double i = 1.0; i >= 0; i -= 0.1) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        messageController.highlightOpacity.value = i;
+      }
+      messageController.highlightedMessageId.value = null;
+    });
   }
 
   void initialize(ChatListModel chat) {
@@ -47,7 +138,11 @@ class ChatController extends GetxController {
     });
     messageController.chatHistoryAndLiveMessage.listen((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        messageController.scrollToBottom();
+        // Only auto-scroll to bottom if user is already at bottom
+        // This prevents disrupting users who are reading old messages
+        if (isAtBottom.value) {
+          scrollToBottom();
+        }
         socketController.markMessageRead(chatHead.userId ?? "");
       });
     });
@@ -172,7 +267,8 @@ class ChatController extends GetxController {
     // Send the message
     socketController.sendMessage(message: messageModel);
     replyToMessage.value = null;
-    messageController.scrollToBottom();
+    // Always scroll to bottom when user sends a message (they're at bottom)
+    scrollToBottom();
     socketController.stopTyping(receiverId: messageModel.receiverId ?? "");
 
     // Clear input
@@ -199,6 +295,7 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    _visibilityTimer?.cancel();
     closeScreen();
     super.onClose();
   }
