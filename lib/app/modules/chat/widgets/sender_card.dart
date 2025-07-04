@@ -70,7 +70,6 @@ class _SenderCardState extends State<SenderCard>
 
   @override
   Widget build(BuildContext context) {
-    print("Statu=${widget.messageModel.status}");
     super.build(context);
     return Align(
       alignment: Alignment.centerRight,

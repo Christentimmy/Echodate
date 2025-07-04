@@ -50,12 +50,17 @@ class ChatController extends GetxController {
     mediaController = Get.put(ChatMediaPickerHelper());
   }
 
+  RxBool firsTimeChatLoad = true.obs;
+
   void scrollToBottom() async {
-    scrollController.scrollTo(
-      index: 0,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+    if (scrollController.isAttached &&
+        messageController.chatHistoryAndLiveMessage.isNotEmpty) {
+      return scrollController.scrollTo(
+        index: 0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   void _setupScrollListener() {
@@ -137,14 +142,13 @@ class ChatController extends GetxController {
     });
     messageController.chatHistoryAndLiveMessage.listen((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Only auto-scroll to bottom if user is already at bottom
-        // This prevents disrupting users who are reading old messages
-        if (isAtBottom.value) {
+        if (isAtBottom.value && !firsTimeChatLoad.value) {
           scrollToBottom();
         }
         socketController.markMessageRead(chatHead.userId ?? "");
       });
     });
+    firsTimeChatLoad.value = false;
   }
 
   void _setupSocketListeners() {
