@@ -171,13 +171,14 @@ class SocketController extends GetxController {
             messageModel.mediaUrl;
         messageController.chatHistoryAndLiveMessage[index].avater =
             messageModel.avater;
-
+        messageController.chatHistoryAndLiveMessage[index].createdAt =
+            messageModel.createdAt;
         messageController.chatHistoryAndLiveMessage.refresh();
       } else {
         messageController.chatHistoryAndLiveMessage.add(messageModel);
       }
     });
-    
+
     socket?.on("error", (data) {
       String error = data["message"] ?? "";
       if (error.contains("limit")) {

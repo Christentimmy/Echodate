@@ -18,9 +18,7 @@ class MessageTimestampWidget extends StatelessWidget {
           ? const EdgeInsets.only(left: 5.0)
           : const EdgeInsets.only(right: 8.0),
       child: Text(
-        createdAt != null
-            ? DateFormat("hh:mm a").format(createdAt!)
-            : "",
+        createdAt != null ? DateFormat("hh:mm a").format(createdAt!) : "",
         style: TextStyle(
           fontSize: 8,
           color: isReceiver ? Colors.grey : Colors.white70,

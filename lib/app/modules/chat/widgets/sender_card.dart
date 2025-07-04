@@ -70,6 +70,7 @@ class _SenderCardState extends State<SenderCard>
 
   @override
   Widget build(BuildContext context) {
+    print("Statu=${widget.messageModel.status}");
     super.build(context);
     return Align(
       alignment: Alignment.centerRight,
@@ -105,11 +106,26 @@ class _SenderCardState extends State<SenderCard>
                     _buildContent(messageType),
                     if (widget.messageModel.message?.isNotEmpty == true)
                       _buildMessageText(),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: MessageTimestampWidget(
-                        createdAt: widget.messageModel.createdAt,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        MessageTimestampWidget(
+                          createdAt: widget.messageModel.createdAt,
+                        ),
+                        Padding(
+                          padding: messageType == MessageType.image ||
+                                  messageType == MessageType.video
+                              ? const EdgeInsets.only(right: 5.0)
+                              : EdgeInsets.zero,
+                          child: Icon(
+                            Icons.done_all,
+                            color: widget.messageModel.status != "read"
+                                ? Colors.grey.shade50
+                                : const Color(0xFF66BB6A),
+                            size: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -71,8 +71,6 @@ abstract class BaseMediaContentWidget extends StatelessWidget {
       child: Container(
         width: mediaWidth,
         height: mediaHeight,
-        // width: double.infinity,
-        // height: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: videoBackgroundColor,
