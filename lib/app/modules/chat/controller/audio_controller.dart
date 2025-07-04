@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:path_provider/path_provider.dart';
@@ -7,13 +8,14 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 
 class AudioController extends GetxController {
-  final RecorderController recorderController = RecorderController();
-  final PlayerController playerController = PlayerController();
+  RecorderController recorderController = RecorderController();
+  PlayerController playerController = PlayerController();
 
   final Rxn<File> selectedFile = Rxn<File>(null);
   final RxBool isRecording = false.obs;
   final RxBool isPlaying = false.obs;
   final RxBool showAudioPreview = false.obs;
+  final RxBool isRecordingPaused = false.obs;
 
   String? _audioFilePath;
 
@@ -22,12 +24,12 @@ class AudioController extends GetxController {
     super.onInit();
     playerController.onCompletion.listen((_) async {
       isPlaying.value = false;
-      if (selectedFile.value != null && isAudioFile(selectedFile.value!.path)) {
-        await playerController.stopPlayer();
-        await playerController.preparePlayer(
-          path: selectedFile.value!.path,
-        );
-      }
+      // if (selectedFile.value != null && isAudioFile(selectedFile.value!.path)) {
+      //   await playerController.stopPlayer();
+      //   await playerController.preparePlayer(
+      //     path: selectedFile.value!.path,
+      //   );
+      // }
     });
   }
 
@@ -46,6 +48,7 @@ class AudioController extends GetxController {
 
   Future<void> startRecording() async {
     try {
+      HapticFeedback.lightImpact();
       PermissionStatus status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
         CustomSnackbar.showErrorSnackBar("Permission denied");
@@ -70,23 +73,46 @@ class AudioController extends GetxController {
     }
   }
 
-  Future<void> stopRecording() async {
+  Future<void> pauseRecording() async {
+    HapticFeedback.lightImpact();
     try {
       final path = await recorderController.stop();
-      isRecording.value = false;
-
-      if (path != null) {
-        selectedFile.value = File(path);
-        showAudioPreview.value = true;
-        await playerController.preparePlayer(
-          path: path,
-          noOfSamples: 100,
-          shouldExtractWaveform: true,
-        );
-      }
+      isRecordingPaused.value = true;
+      if (path == null) return;
+      selectedFile.value = File(path);
+      await playerController.preparePlayer(
+        path: path,
+        shouldExtractWaveform: true,
+        noOfSamples: 100,
+      );
     } catch (e) {
-      debugPrint("Error stopping recording: $e");
-      CustomSnackbar.showErrorSnackBar("Failed to process recording");
+      debugPrint("Error pausing recording: $e");
+      CustomSnackbar.showErrorSnackBar("Failed to pause recording");
+    }
+  }
+
+  void deleteRecording() {
+    HapticFeedback.lightImpact();
+    try {
+      selectedFile.value = null;
+      isRecording.value = false;
+      showAudioPreview.value = false;
+      isRecordingPaused.value = false;
+    } catch (_) {}
+  }
+
+  Future<void> resumeRecording() async {
+    try {
+      if (_audioFilePath == null) {
+        CustomSnackbar.showErrorSnackBar("No recording to resume");
+        return;
+      }
+      await recorderController.record(path: _audioFilePath);
+      // isRecording.value = true;
+      isRecordingPaused.value = false;
+    } catch (e) {
+      debugPrint("Error resuming recording: $e");
+      CustomSnackbar.showErrorSnackBar("Failed to resume recording");
       isRecording.value = false;
     }
   }
@@ -133,10 +159,15 @@ class AudioController extends GetxController {
   void resetState() {
     selectedFile.value = null;
     showAudioPreview.value = false;
-    if (isPlaying.value) {
-      playerController.pausePlayer();
-      isPlaying.value = false;
-    }
+    isPlaying.value = false;
+    isRecordingPaused.value = false;
+    isRecordingPaused.value = false;
+    recorderController = RecorderController();
+    playerController = PlayerController();
+    // if (isPlaying.value) {
+    //   playerController.pausePlayer();
+    //   isPlaying.value = false;
+    // }
   }
 
   @override

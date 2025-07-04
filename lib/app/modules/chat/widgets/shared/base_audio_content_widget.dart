@@ -66,11 +66,13 @@ abstract class BaseAudioContentWidget extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          !isReceiver ? buildSpeedButton() : const SizedBox.shrink(),
+          !isReceiver ? const SizedBox(width: 8) : const SizedBox.shrink(),
           buildPlayPauseButton(),
           const SizedBox(width: 8),
           Expanded(child: buildWaveform()),
           const SizedBox(width: 8),
-          buildSpeedButton(),
+          isReceiver ? buildSpeedButton() : const SizedBox.shrink(),
         ],
       ),
     );

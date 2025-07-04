@@ -1,19 +1,26 @@
+import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/message_model.dart';
+import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/controller/sender_card_controller.dart';
 import 'package:echodate/app/modules/chat/enums/message_enum_type.dart';
 import 'package:echodate/app/modules/chat/widgets/media/sender_audio_content_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/media/sender_media_content_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/shared/reply_to_content_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/message_container_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/message_timestamp_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/shared/swipeable_widget.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SenderCard extends StatefulWidget {
   final MessageModel messageModel;
+  final ChatListModel chatHead;
 
   const SenderCard({
     super.key,
     required this.messageModel,
+    required this.chatHead,
   });
 
   @override
@@ -24,6 +31,7 @@ class _SenderCardState extends State<SenderCard>
     with AutomaticKeepAliveClientMixin {
   late final SenderCardController controller;
   String? _oldMediaUrl;
+  late final ChatController _chatController;
 
   @override
   bool get wantKeepAlive => true;
@@ -31,7 +39,13 @@ class _SenderCardState extends State<SenderCard>
   @override
   void initState() {
     super.initState();
-    controller = Get.put(SenderCardController(messageModel: widget.messageModel), tag: widget.messageModel.id);
+    _chatController = Get.find<ChatController>(
+      tag: widget.messageModel.receiverId,
+    );
+    controller = Get.put(
+      SenderCardController(messageModel: widget.messageModel),
+      tag: widget.messageModel.id,
+    );
     _oldMediaUrl = widget.messageModel.mediaUrl;
   }
 
@@ -67,17 +81,29 @@ class _SenderCardState extends State<SenderCard>
             scale: controller.scale.value,
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
-            child: MessageContainerWidget(
-              messageType: messageType,
-              child: IntrinsicWidth(
+            child: SwipeableMessage(
+              isSender: true,
+              onSwipe: () {
+                _chatController.replyToMessage.value = widget.messageModel;
+                _chatController.replyToMessage.refresh();
+              },
+              child: MessageContainerWidget(
+                messageType: messageType,
+                messageModel: widget.messageModel,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (widget.messageModel.replyToMessage != null)
+                      ReplyToContent(
+                        controller: _chatController,
+                        chatHead: widget.chatHead,
+                        messageModel: widget.messageModel.replyToMessage,
+                        isSender: true,
+                      ),
                     _buildContent(messageType),
                     if (widget.messageModel.message?.isNotEmpty == true)
                       _buildMessageText(),
-                    // const SizedBox(height: 3),
                     Align(
                       alignment: Alignment.centerRight,
                       child: MessageTimestampWidget(
@@ -121,12 +147,11 @@ class _SenderCardState extends State<SenderCard>
       child: Text(
         widget.messageModel.message ?? "",
         style: const TextStyle(
-          color: Colors.white,
-          fontSize: 13,
+          color: AppColors.senderText,
+          fontSize: 12,
           fontWeight: FontWeight.bold,
         ),
       ),
     );
   }
-
 }

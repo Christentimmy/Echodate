@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/message_model.dart';
@@ -6,6 +7,7 @@ import 'package:echodate/app/services/message_service.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class MessageController extends GetxController {
   RxBool isloading = false.obs;
@@ -15,9 +17,18 @@ class MessageController extends GetxController {
   RxList<ChatListModel> allChattedUserList = <ChatListModel>[].obs;
   RxList<ChatListModel> activeFriends = <ChatListModel>[].obs;
   RxList<MessageModel> chatHistoryAndLiveMessage = <MessageModel>[].obs;
-  final scrollController = ScrollController();
+  final scrollController = ItemScrollController();
   RxMap<String, RxList<MessageModel>> savedChatToAvoidLoading =
       <String, RxList<MessageModel>>{}.obs;
+
+  final RxnString highlightedMessageId = RxnString();
+  final RxDouble highlightOpacity = 1.0.obs;
+  final Map<String, GlobalKey> messageKeys = {};
+
+  //cache-system
+  final Map<String, Uint8List> _cache = {};
+  Uint8List? get(String url) => _cache[url];
+  void set(String url, Uint8List data) => _cache[url] = data;
 
   Future<void> sendMessage({
     required MessageModel messageModel,
@@ -160,15 +171,48 @@ class MessageController extends GetxController {
   }
 
   void scrollToBottom() async {
-    if (scrollController.hasClients) {
-      scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
+    // if (scrollController.hasClients) {
+    //   scrollController.scrollTo(
+    //     index: 0,
+    //     duration: const Duration(milliseconds: 300),
+    //     curve: Curves.easeOut,
+    //   );
+    // }
+    scrollController.scrollTo(
+      index: 0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
+  void scrollToMessage(String? messageId) {
+    if (messageId == null) return;
+    final messageIndex = chatHistoryAndLiveMessage.indexWhere((msg) => msg.id == messageId);
+    if (messageIndex == -1) return;
+    final reversedIndex = chatHistoryAndLiveMessage.length - 1 - messageIndex;
+    scrollController.scrollTo(
+      index: reversedIndex,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      alignment: 0.1, // Show item at 10% from top
+    );
+    Future.delayed(const Duration(milliseconds: 600), () {
+      _highlightMessage(messageId);
+    });
+  }
+
+  void _highlightMessage(String messageId) {
+    highlightedMessageId.value = messageId;
+    highlightOpacity.value = 1.0;
+
+    Future.delayed(const Duration(seconds: 2), () async {
+      for (double i = 1.0; i >= 0; i -= 0.1) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        highlightOpacity.value = i;
+      }
+      highlightedMessageId.value = null;
+    });
+  }
 
   clearChatHistory() {
     isChattedListFetched.value = false;
@@ -176,5 +220,6 @@ class MessageController extends GetxController {
     allChattedUserList.clear();
     chatHistoryAndLiveMessage.clear();
     savedChatToAvoidLoading.clear();
+    _cache.clear();
   }
 }

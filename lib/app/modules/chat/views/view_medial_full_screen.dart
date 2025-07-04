@@ -3,6 +3,7 @@ import 'package:chewie/chewie.dart';
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
 class ViewMedialFullScreen extends StatefulWidget {
@@ -87,12 +88,14 @@ class _ViewMedialFullScreenState extends State<ViewMedialFullScreen> {
                         color: Colors.orange,
                       ),
                     ))
-              : GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Expanded(
+              : Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
                     child: CachedNetworkImage(
                       imageUrl: widget.message.mediaUrl ?? "",
-                      fit: BoxFit.fitWidth,
+                      fit: BoxFit.cover,
+                      width: Get.width,
+                      height: Get.height,
                       placeholder: (context, url) {
                         return const Center(
                           child: CircularProgressIndicator(

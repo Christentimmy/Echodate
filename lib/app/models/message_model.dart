@@ -15,12 +15,13 @@ class MessageModel {
   File? tempFile;
   String? mediaIv;
   String? clientGeneratedId;
-  
+  MessageModel? replyToMessage;
 
   MessageModel({
     this.id,
     this.senderId,
     this.receiverId,
+    this.replyToMessage,
     this.message,
     this.messageType,
     this.avater,
@@ -48,6 +49,7 @@ class MessageModel {
     File? tempFile,
     String? mediaIv,
     String? clientGeneratedId,
+    MessageModel? replyToMessage,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -63,6 +65,7 @@ class MessageModel {
       tempFile: tempFile ?? this.tempFile,
       mediaIv: mediaIv ?? this.mediaIv,
       clientGeneratedId: clientGeneratedId ?? this.clientGeneratedId,
+      replyToMessage: replyToMessage ?? this.replyToMessage,
     );
   }
 
@@ -87,6 +90,9 @@ class MessageModel {
           : DateTime.now(),
       clientGeneratedId: json["clientGeneratedId"] ?? "",
       avater: json["avater"] ?? "",
+      replyToMessage: json["replyToMessage"] != null
+          ? MessageModel.fromJson(json["replyToMessage"])
+          : null,
     );
   }
 
@@ -107,7 +113,9 @@ class MessageModel {
     if (clientGeneratedId != null) {
       data["clientGeneratedId"] = clientGeneratedId;
     }
-
+    if (replyToMessage?.id != null) {
+      data["replyToMessageId"] = replyToMessage?.id;
+    }
     return data;
   }
 
@@ -126,7 +134,8 @@ class MessageModel {
         'updatedAt: $updatedAt, '
         'tempFile: ${tempFile?.path}, '
         'mediaIv: $mediaIv, '
-        'clientGeneratedId: $clientGeneratedId'
+        'clientGeneratedId: $clientGeneratedId, '
+        'replyToMessage: ${replyToMessage?.id}'
         ')';
   }
 }

@@ -1,4 +1,7 @@
+import 'package:echodate/app/controller/message_controller.dart';
+import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/enums/message_enum_type.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -6,29 +9,122 @@ class MessageContainerWidget extends StatelessWidget {
   final Widget child;
   final bool isReceiver;
   final MessageType messageType;
+  final MessageModel messageModel;
 
-  const MessageContainerWidget({
+  MessageContainerWidget({
     super.key,
     required this.child,
     this.isReceiver = false,
     required this.messageType,
+    required this.messageModel,
   });
+
+  final _messageController = Get.find<MessageController>();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      padding: _getPadding(messageType),
-      constraints: messageType == MessageType.audio
-          ? null
-          : BoxConstraints(maxWidth: Get.width * 0.6),
-      width: messageType == MessageType.audio ? Get.width * 0.8 : null,
-      decoration: BoxDecoration(
-        color: isReceiver ? Colors.grey.shade300 : Colors.orange,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: child,
-    );
+    return Obx(() {
+      final isHighlighted =
+          _messageController.highlightedMessageId.value == messageModel.id;
+      final opacity =
+          isHighlighted ? _messageController.highlightOpacity.value : 0.0;
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        transform: Matrix4.identity()..scale(isHighlighted ? 1.02 : 1.0),
+        margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+        padding: _getPadding(messageType),
+        constraints: _getConstraits(messageType),
+        width: messageType == MessageType.audio ? Get.width * 0.8 : null,
+        decoration: BoxDecoration(
+          color: _getCardColor(isReceiver, isHighlighted, opacity),
+          border: _getBorder(isReceiver, isHighlighted),
+          gradient: _getCardGradient(isReceiver, isHighlighted),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: _getBoxShadow(isReceiver, isHighlighted),
+        ),
+        child: IntrinsicWidth(child: child),
+      );
+    });
+  }
+
+  List<BoxShadow>? _getBoxShadow(bool isReceiver, bool isHighlighted) {
+    if (!isReceiver && isHighlighted) {
+      return [
+        const BoxShadow(
+          color: AppColors.senderHighlightShadow,
+          blurRadius: 25,
+          offset: Offset(0, 8),
+        ),
+      ];
+    }
+    if (isReceiver && isHighlighted) {
+      return [
+        const BoxShadow(
+          color: AppColors.receiverHighlightShadow,
+          blurRadius: 25,
+          offset: Offset(0, 8),
+        )
+      ];
+    }
+    return null;
+  }
+
+  BoxBorder? _getBorder(bool isReceiver, bool isHighlighted) {
+    if (isReceiver && isHighlighted) {
+      return Border.all(
+        color: AppColors.receiverHighlightBorder,
+        width: 2,
+      );
+    }
+    if (isReceiver && !isHighlighted) {
+      return Border.all(
+        color: AppColors.receiverBorder,
+        width: 1,
+      );
+    }
+    return null;
+  }
+
+  Color? _getCardColor(bool isReceiver, bool isHighlighted, double opacity) {
+    if (isReceiver && isHighlighted) {
+      return AppColors.receiverHighlightBackground.withOpacity(opacity);
+    }
+    if (isReceiver && !isHighlighted) {
+      return AppColors.receiverBackground;
+    }
+    return null;
+  }
+
+  BoxConstraints? _getConstraits(MessageType messageType) {
+    if (messageType == MessageType.image || messageType == MessageType.video) {
+      return BoxConstraints(maxWidth: Get.width * 0.558);
+    }
+    if (messageType == MessageType.audio) {
+      return null;
+    }
+    return BoxConstraints(maxWidth: Get.width * 0.68);
+  }
+
+  LinearGradient? _getCardGradient(bool isReceiver, bool isHighlighted) {
+    if (!isReceiver && isHighlighted) {
+      return const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [AppColors.senderHighlightStart, AppColors.senderHighlightEnd],
+      );
+    }
+    if (!isReceiver && isHighlighted == false) {
+      return const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          AppColors.senderStart,
+          AppColors.senderEnd,
+        ],
+      );
+    }
+    return null;
   }
 
   EdgeInsets _getPadding(MessageType messageType) {
@@ -39,7 +135,7 @@ class MessageContainerWidget extends StatelessWidget {
         return _videoPadding();
       default:
         return const EdgeInsets.symmetric(
-          horizontal: 5,
+          horizontal: 7,
           vertical: 6,
         );
     }

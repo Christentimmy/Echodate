@@ -11,10 +11,10 @@ import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatListModel chatHead;
-
   const ChatScreen({
     super.key,
     required this.chatHead,
@@ -25,11 +25,12 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final ChatController _chatController = Get.put(ChatController());
+  late final ChatController _chatController;
 
   @override
   void initState() {
     super.initState();
+    _chatController = Get.put(ChatController(), tag: widget.chatHead.userId);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _chatController.initialize(widget.chatHead);
     });
@@ -37,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    Get.delete<ChatController>(tag: widget.chatHead.userId);
     _chatController.closeScreen();
     super.dispose();
   }
@@ -52,15 +54,6 @@ class _ChatScreenState extends State<ChatScreen> {
           _buildSecurityMessage(),
           const SizedBox(height: 10),
           Expanded(child: _buildMessageList()),
-          // Media preview widgets
-          Obx(() {
-            if (_chatController.audioController.showAudioPreview.value) {
-              return AudioPreviewWidget(
-                controller: _chatController.audioController,
-              );
-            }
-            return const SizedBox();
-          }),
           Obx(() {
             if (_chatController.mediaController.showMediaPreview.value) {
               return MediaPreviewWidget(
@@ -69,11 +62,9 @@ class _ChatScreenState extends State<ChatScreen> {
             }
             return const SizedBox();
           }),
-
-          // Message input field
-          ChatInputField(
+          NewChatInputFields(
             controller: _chatController,
-            receiverId: widget.chatHead.userId ?? "",
+            chatHead: widget.chatHead,
           ),
         ],
       ),
@@ -189,13 +180,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessageListView(List<MessageModel> messages) {
-    return ListView.builder(
+    return ScrollablePositionedList.builder(
       key: PageStorageKey<String>('chat_list_${widget.chatHead.userId}'),
-      controller: _chatController.messageController.scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+      itemScrollController: _chatController.messageController.scrollController,
       itemCount: messages.length,
       reverse: true,
-      cacheExtent: 1000,
+      // cacheExtent: 1000,
       physics: const AlwaysScrollableScrollPhysics(),
       addRepaintBoundaries: true,
       addAutomaticKeepAlives: true,
@@ -205,8 +195,19 @@ class _ChatScreenState extends State<ChatScreen> {
         final isSender = message.senderId ==
             _chatController.userController.userModel.value!.id;
         final bubble = isSender
-            ? RepaintBoundary(child: SenderCard(messageModel: message))
-            : RepaintBoundary(child: ReceiverCard(messageModel: message));
+            ? RepaintBoundary(
+                child: SenderCard(
+                  messageModel: message,
+                  chatHead: widget.chatHead,
+                ),
+              )
+            : RepaintBoundary(
+                child: ReceiverCard(
+                  messageModel: message,
+                  chatController: _chatController,
+                  chatHead: widget.chatHead,
+                ),
+              );
         if (index == 0) {
           return TweenAnimationBuilder<Offset>(
             key: ValueKey(
@@ -232,5 +233,4 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
-
 }

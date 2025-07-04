@@ -1,20 +1,29 @@
+import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/message_model.dart';
+import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/controller/receiver_card_controller.dart';
 import 'package:echodate/app/modules/chat/enums/message_enum_type.dart';
+import 'package:echodate/app/modules/chat/widgets/shared/reply_to_content_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/message_container_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/message_timestamp_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/media/receiver_audio_content_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/media/receiver_media_content_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/typing_indicator_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/shared/swipeable_widget.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ReceiverCard extends StatefulWidget {
   final MessageModel messageModel;
+  final ChatController chatController;
+  final ChatListModel chatHead;
 
   const ReceiverCard({
     super.key,
     required this.messageModel,
+    required this.chatController,
+    required this.chatHead,
   });
 
   @override
@@ -60,7 +69,6 @@ class _ReceiverCardState extends State<ReceiverCard>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     final isTyping = widget.messageModel.status == "typing";
     return isTyping ? const TypingIndicatorWidget() : _buildMessageCard();
   }
@@ -76,21 +84,36 @@ class _ReceiverCardState extends State<ReceiverCard>
             scale: controller.scale.value,
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
-            child: MessageContainerWidget(
-              isReceiver: true,
-              messageType: messageType,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildContent(messageType),
-                  if (widget.messageModel.message?.isNotEmpty == true)
-                    _buildMessageText(),
-                  // const SizedBox(height: 3),
-                  MessageTimestampWidget(
-                    createdAt: widget.messageModel.createdAt,
-                    isReceiver: true,
-                  ),
-                ],
+            child: SwipeableMessage(
+              isSender: false,
+              onSwipe: () {
+                widget.chatController.replyToMessage.value =
+                    widget.messageModel;
+                widget.chatController.replyToMessage.refresh();
+              },
+              child: MessageContainerWidget(
+                isReceiver: true,
+                messageType: messageType,
+                messageModel: widget.messageModel,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.messageModel.replyToMessage != null)
+                      ReplyToContent(
+                        controller: widget.chatController,
+                        chatHead: widget.chatHead,
+                        messageModel: widget.messageModel.replyToMessage,
+                        isSender: false,
+                      ),
+                    _buildContent(messageType),
+                    if (widget.messageModel.message?.isNotEmpty == true)
+                      _buildMessageText(),
+                    MessageTimestampWidget(
+                      createdAt: widget.messageModel.createdAt,
+                      isReceiver: true,
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -118,12 +141,18 @@ class _ReceiverCardState extends State<ReceiverCard>
   }
 
   Widget _buildMessageText() {
-    return Text(
-      widget.messageModel.message ?? "",
-      style: const TextStyle(
-        color: Colors.black,
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
+    final mType = getMessageType(widget.messageModel.messageType);
+    return Padding(
+      padding: mType == MessageType.image || mType == MessageType.video
+          ? const EdgeInsets.only(left: 3.0)
+          : EdgeInsets.zero,
+      child: Text(
+        widget.messageModel.message ?? "",
+        style: const TextStyle(
+          color: AppColors.receiverText,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

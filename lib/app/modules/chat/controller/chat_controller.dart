@@ -24,6 +24,7 @@ class ChatController extends GetxController {
   final RxString wordsTyped = "".obs;
   final RxBool isUploading = false.obs;
   late ChatListModel chatHead;
+  Rxn<MessageModel> replyToMessage = Rxn<MessageModel>(null);
 
   @override
   void onInit() {
@@ -95,7 +96,11 @@ class ChatController extends GetxController {
     audioController.showAudioPreview.value = false;
 
     if (audioController.isPlaying.value) {
-      await audioController.togglePlayback();
+      await audioController.pauseRecording();
+    }
+    if (audioController.isRecording.value) {
+      audioController.isRecording.value = false;
+      await audioController.pauseRecording();
     }
 
     final String messageText = textMessageController.text.trim();
@@ -116,6 +121,7 @@ class ChatController extends GetxController {
       message: messageText,
       messageType: "text",
       clientGeneratedId: tempId,
+      replyToMessage: replyToMessage.value,
     );
 
     final selectedFile = mediaController.selectedFile.value ??
@@ -165,6 +171,7 @@ class ChatController extends GetxController {
 
     // Send the message
     socketController.sendMessage(message: messageModel);
+    replyToMessage.value = null;
     messageController.scrollToBottom();
     socketController.stopTyping(receiverId: messageModel.receiverId ?? "");
 
