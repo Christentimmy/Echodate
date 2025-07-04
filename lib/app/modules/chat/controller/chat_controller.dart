@@ -40,6 +40,7 @@ class ChatController extends GetxController {
   void set(String url, Uint8List data) => _cache[url] = data;
 
   final isVisible = true.obs;
+  Timer? _visibilityTimer;
 
   @override
   void onInit() {
@@ -62,8 +63,6 @@ class ChatController extends GetxController {
       _updateScrollPosition();
     });
   }
-
-  Timer? _visibilityTimer;
 
   void _updateScrollPosition() {
     final positions = itemPositionsListener.itemPositions.value;

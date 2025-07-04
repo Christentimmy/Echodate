@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/widgets/textfield/chat_input_field_widget.dart';
@@ -5,6 +7,7 @@ import 'package:echodate/app/modules/chat/widgets/media/media_preview_widget.dar
 import 'package:echodate/app/modules/chat/widgets/receiver_card.dart';
 import 'package:echodate/app/modules/chat/widgets/sender_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
@@ -57,43 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Stack(
               children: [
                 _buildMessageList(),
-                Obx(() {
-                  if (_chatController.showScrollToBottomButton.value &&
-                      _chatController.isVisible.value) {
-                    return Positioned(
-                      bottom: 0,
-                      left: Get.width / 2.3,
-                      child: GestureDetector(
-                        onTap: () {
-                          _chatController.scrollToBottom();
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryColor,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const CircleAvatar(
-                            radius: 25,
-                            backgroundColor: Colors.transparent,
-                            child: Icon(
-                              Icons.keyboard_arrow_down_sharp,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
+                _buildScrollDownButton(),
               ],
             ),
           ),
@@ -112,6 +79,69 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  Obx _buildScrollDownButton() {
+    return Obx(() {
+      if (_chatController.showScrollToBottomButton.value &&
+          _chatController.isVisible.value) {
+        return Positioned(
+          bottom: 20,
+          right: 20,
+          child: TweenAnimationBuilder<double>(
+            duration: const Duration(milliseconds: 300),
+            tween: Tween<double>(
+              begin: 0.0,
+              end: 1.0,
+            ),
+            curve: Curves.elasticOut,
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: value,
+                child: Opacity(
+                  opacity: value,
+                  child: child,
+                ),
+              );
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(24),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        _chatController.scrollToBottom();
+                      },
+                      child: const Icon(
+                        Icons.expand_more_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    });
   }
 
   AppBar _buildAppBar() {
