@@ -23,13 +23,13 @@ class AudioController extends GetxController {
   void onInit() {
     super.onInit();
     playerController.onCompletion.listen((_) async {
-      isPlaying.value = false;
-      // if (selectedFile.value != null && isAudioFile(selectedFile.value!.path)) {
-      //   await playerController.stopPlayer();
-      //   await playerController.preparePlayer(
-      //     path: selectedFile.value!.path,
-      //   );
-      // }
+      if (selectedFile.value != null && isAudioFile(selectedFile.value!.path)) {
+        await playerController.stopPlayer();
+        await playerController.preparePlayer(
+          path: selectedFile.value!.path,
+        );
+        isPlaying.value = false;
+      }
     });
   }
 
@@ -164,10 +164,10 @@ class AudioController extends GetxController {
     isRecordingPaused.value = false;
     recorderController = RecorderController();
     playerController = PlayerController();
-    // if (isPlaying.value) {
-    //   playerController.pausePlayer();
-    //   isPlaying.value = false;
-    // }
+    if (isPlaying.value) {
+      playerController.pausePlayer();
+      isPlaying.value = false;
+    }
   }
 
   @override

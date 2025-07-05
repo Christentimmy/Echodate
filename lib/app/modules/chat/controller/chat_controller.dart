@@ -50,7 +50,7 @@ class ChatController extends GetxController {
     mediaController = Get.put(ChatMediaPickerHelper());
   }
 
-  RxBool firsTimeChatLoad = true.obs;
+  RxBool canScroll = false.obs;
 
   void scrollToBottom() async {
     if (scrollController.isAttached &&
@@ -142,13 +142,13 @@ class ChatController extends GetxController {
     });
     messageController.chatHistoryAndLiveMessage.listen((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (isAtBottom.value && !firsTimeChatLoad.value) {
+        if (isAtBottom.value && canScroll.value) {
           scrollToBottom();
         }
         socketController.markMessageRead(chatHead.userId ?? "");
       });
     });
-    firsTimeChatLoad.value = false;
+    canScroll.value = false;
   }
 
   void _setupSocketListeners() {
@@ -192,6 +192,7 @@ class ChatController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
     mediaController.showMediaPreview.value = false;
     audioController.showAudioPreview.value = false;
+    // highlightedMessageId = null;
 
     if (audioController.isPlaying.value) {
       await audioController.pauseRecording();

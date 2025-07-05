@@ -45,9 +45,13 @@ class MediaPlayerController extends GetxController {
       debugPrint("Video initialization error: $error");
     }
   }
+
   //Audio Controller Management
   Future<void> initializeAudioController(String mediaUrl) async {
     if (isLoading.value && mediaUrl == _oldMediaUrl) return;
+
+    // Reset _isCancelled at the start of initialization
+    _isCancelled = false;
 
     isLoading.value = true;
     await _disposeAudioController();
@@ -98,7 +102,6 @@ class MediaPlayerController extends GetxController {
   Future<String> _downloadAudio(String url) async {
     try {
       if (_isCancelled) return "";
-
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200 || _isCancelled) return "";
 
@@ -118,6 +121,11 @@ class MediaPlayerController extends GetxController {
 
   Future<void> playPauseAudio() async {
     try {
+      // Ensure _isCancelled is false before attempting to play
+      if (_isCancelled) {
+        _isCancelled = false;
+      }
+
       final state = _audioController.value?.playerState;
 
       switch (state) {
@@ -142,6 +150,9 @@ class MediaPlayerController extends GetxController {
   }
 
   Future<void> _reinitializeAudioController() async {
+    // Reset _isCancelled when reinitializing
+    _isCancelled = false;
+
     _audioController.value = null;
     if (localPath.value.isNotEmpty) {
       _audioController.value = PlayerController();
@@ -186,9 +197,14 @@ class MediaPlayerController extends GetxController {
   Rxn<PlayerController> get audioController => _audioController;
 
   @override
+  void onInit() {
+    super.onInit();
+    _isCancelled = false;
+  }
+
+  @override
   void onClose() {
     _isCancelled = true;
-
     if (_audioController.value != null) {
       try {
         _audioController.value!.pausePlayer();

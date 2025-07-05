@@ -1,4 +1,3 @@
-
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/widgets/textfield/input_decoration.dart';
@@ -6,7 +5,6 @@ import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 
 class AudioInputPreview extends StatelessWidget {
   final ChatController controller;
@@ -152,7 +150,7 @@ class AudioInputPreview extends StatelessWidget {
                     onPressed: () async {
                       controller.audioController.isPlaying.value = false;
                       await controller.audioController.playerController
-                          .stopPlayer();
+                          .pausePlayer();
                     },
                     icon: const Icon(Icons.pause),
                   )
