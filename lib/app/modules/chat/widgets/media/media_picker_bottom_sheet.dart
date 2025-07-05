@@ -27,7 +27,7 @@ class MediaPickerBottomSheet extends StatelessWidget {
             iconColor: Colors.white,
             icon: Icons.image,
           ),
-          const SizedBox(height: 15),
+          // const SizedBox(height: 10),
           _buildOptionTile(
             title: "Send Video",
             onTap: () async {
@@ -38,7 +38,18 @@ class MediaPickerBottomSheet extends StatelessWidget {
             iconColor: Colors.white,
             icon: Icons.video_camera_back_sharp,
           ),
-          const SizedBox(height: 15),
+          // const SizedBox(height: 10),
+          _buildOptionTile(
+            title: "Send Multiple Images",
+            onTap: () async {
+              await controller.mediaController.selectMultipleImages();
+              Navigator.pop(context);
+            },
+            bgColor: Colors.deepPurpleAccent,
+            iconColor: Colors.white,
+            icon: Icons.photo_size_select_actual_outlined,
+          ),
+          // const SizedBox(height: 15),
           // _buildOptionTile(
           //   title: "Send Audio",
           //   onTap: () async {
@@ -49,7 +60,6 @@ class MediaPickerBottomSheet extends StatelessWidget {
           //   iconColor: Colors.white,
           //   icon: Icons.audiotrack_sharp,
           // ),
-          const SizedBox(height: 15),
         ],
       ),
     );

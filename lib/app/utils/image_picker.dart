@@ -4,11 +4,28 @@ import 'package:image_picker/image_picker.dart';
 Future<File?> pickImage({ImageSource? imageSource}) async {
   final pickedFile = await ImagePicker().pickImage(
     source: imageSource ?? ImageSource.gallery,
+    imageQuality: 100,
   );
   if (pickedFile != null) {
     return File(pickedFile.path);
   }
   return null;
+}
+
+Future<List<File>?> pickMultipleImages() async {
+  try {
+    List<XFile> pickedFiles = await ImagePicker().pickMultiImage(
+      limit: 10,
+      imageQuality: 100,
+    );
+    if (pickedFiles.isNotEmpty) {
+      return pickedFiles.map((file) => File(file.path)).toList();
+    }
+    return null;
+  } catch (e) {
+    print('Error picking multiple images: $e');
+    return null;
+  }
 }
 
 Future<File?> pickVideo() async {

@@ -7,6 +7,7 @@ class ChatMediaPickerHelper extends GetxController {
   final Rxn<File> selectedFile = Rxn<File>(null);
   final Rxn<File> thumbnailData = Rxn<File>();
   final RxBool showMediaPreview = false.obs;
+  final RxList<File> multipleMediaSelected = <File>[].obs;
 
   bool isVideoFile(String path) {
     return path.toLowerCase().endsWith('.mp4') ||
@@ -31,6 +32,18 @@ class ChatMediaPickerHelper extends GetxController {
     final file = await pickImage();
     if (file != null) {
       selectedFile.value = file;
+      showMediaPreview.value = true;
+    }
+  }
+
+  Future<void> selectMultipleImages() async {
+    final files = await pickMultipleImages();
+    if (files == null) return;
+    if (multipleMediaSelected.isEmpty) {
+      multipleMediaSelected.value = files;
+      showMediaPreview.value = true;
+    } else {
+      multipleMediaSelected.addAll(files);
       showMediaPreview.value = true;
     }
   }
