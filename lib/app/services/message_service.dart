@@ -137,4 +137,49 @@ class MessageService {
       return null;
     }
   }
+
+  Future<dynamic> uploadMultiplePictures(List<File> files) async {
+    final token = await Get.find<StorageController>().getToken();
+
+    var request = http.MultipartRequest(
+      "POST",
+      Uri.parse("$baseUrl/message/upload-multiple-images"),
+    );
+
+    request.headers.addAll({
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'multipart/form-data',
+    });
+
+    for (var file in files) {
+      String fileExtension = file.path.split('.').last.toLowerCase();
+      MediaType mediaType;
+
+      if (fileExtension == 'mp4') {
+        mediaType = MediaType("video", "mp4");
+      } else if (['mp3', 'aac', 'wav', 'm4a', 'ogg'].contains(fileExtension)) {
+        mediaType = MediaType("audio", fileExtension);
+      } else {
+        mediaType = MediaType("image", "jpeg");
+      }
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'mul-images',
+          file.path,
+          contentType: mediaType,
+        ),
+      );
+    }
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      var responseData = await response.stream.bytesToString();
+      var jsonResponse = jsonDecode(responseData);
+      return jsonResponse;
+    } else {
+      return null;
+    }
+  }
 }
