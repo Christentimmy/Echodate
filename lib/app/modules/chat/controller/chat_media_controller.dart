@@ -68,6 +68,7 @@ class ChatMediaPickerHelper extends GetxController {
     selectedFile.value = null;
     thumbnailData.value = null;
     showMediaPreview.value = false;
+    multipleMediaSelected.clear();
   }
 
   @override

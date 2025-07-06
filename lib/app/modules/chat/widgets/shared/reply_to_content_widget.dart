@@ -6,7 +6,7 @@ import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/enums/message_enum_type.dart';
 import 'package:echodate/app/modules/chat/widgets/animated/animated_widgets.dart';
-import 'package:echodate/app/modules/chat/widgets/shimmer/shimmer_widgets.dart';
+import 'package:echodate/app/modules/chat/widgets/shimmer/video_shimmer_loader.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/get_thumbnail_network.dart';
 import 'package:flutter/material.dart';
@@ -206,7 +206,8 @@ class ReplyToContent extends StatelessWidget {
         ],
       );
     }
-    if (messageType == MessageType.image) {
+    if (messageType == MessageType.image &&
+        messageModel.multipleImages == null) {
       return Row(
         children: [
           Expanded(
@@ -281,7 +282,6 @@ class ReplyToContent extends StatelessWidget {
     }
     if (messageType == MessageType.video) {
       final cached = controller.get(messageModel.mediaUrl ?? "");
-
       return Row(
         children: [
           Expanded(
@@ -344,6 +344,80 @@ class ReplyToContent extends StatelessWidget {
               if (showDeteIcon == true)
                 Positioned(
                   right: -1,
+                  top: -2,
+                  child: InkWell(
+                    onTap: () {
+                      controller.replyToMessage.value = null;
+                    },
+                    child: const Icon(
+                      Icons.cancel,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      );
+    }
+    if (messageType == MessageType.image &&
+        messageModel.multipleImages != null) {
+      return Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isSender
+                      ? "You"
+                      : ((chatHead?.fullName?.split(" ")[0]) ?? "Unknown"),
+                  style: GoogleFonts.montserrat(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+                Text(
+                  messageModel.message != null &&
+                          messageModel.message!.isNotEmpty
+                      ? messageModel.message!
+                      : "Photo",
+                  style: GoogleFonts.montserrat(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: CachedNetworkImage(
+                    imageUrl: messageModel.multipleImages![0].mediaUrl ?? "",
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) {
+                      return SizedBox(
+                        width: 45,
+                        height: 40,
+                        child: buildShimmerVideoLoading(),
+                      );
+                    },
+                    width: 45,
+                    height: 40,
+                  ),
+                ),
+              ),
+              if (showDeteIcon == true)
+                Positioned(
+                  right: 0,
                   top: -2,
                   child: InkWell(
                     onTap: () {

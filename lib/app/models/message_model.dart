@@ -16,6 +16,7 @@ class MessageModel {
   String? mediaIv;
   String? clientGeneratedId;
   MessageModel? replyToMessage;
+  List<MultipleImages>? multipleImages;
 
   MessageModel({
     this.id,
@@ -33,6 +34,7 @@ class MessageModel {
     this.tempFile,
     this.mediaIv,
     this.clientGeneratedId,
+    this.multipleImages,
   });
 
   MessageModel copyWith({
@@ -93,6 +95,11 @@ class MessageModel {
       replyToMessage: json["replyToMessage"] != null
           ? MessageModel.fromJson(json["replyToMessage"])
           : null,
+      multipleImages: json["multipleImages"] != null
+          ? List.from(json["multipleImages"])
+              .map((e) => MultipleImages.fromJson(e))
+              .toList()
+          : null,
     );
   }
 
@@ -116,6 +123,11 @@ class MessageModel {
     if (replyToMessage?.id != null) {
       data["replyToMessageId"] = replyToMessage?.id;
     }
+    if (multipleImages != null) {
+      data["multpleMedia"] =
+          multipleImages!.map((image) => image.toJson()).toList();
+      print(data["multpleMedia"]);
+    }
     return data;
   }
 
@@ -136,6 +148,48 @@ class MessageModel {
         'mediaIv: $mediaIv, '
         'clientGeneratedId: $clientGeneratedId, '
         'replyToMessage: ${replyToMessage?.id}'
+        ')';
+  }
+}
+
+class MultipleImages {
+  final String filename;
+  final String mimetype;
+  final dynamic mediaUrl;
+  final String mediaIv;
+
+  MultipleImages({
+    required this.filename,
+    required this.mimetype,
+    required this.mediaUrl,
+    required this.mediaIv,
+  });
+
+  factory MultipleImages.fromJson(Map<String, dynamic> json) {
+    return MultipleImages(
+      filename: json["filename"] ?? "",
+      mimetype: json["mimetype"] ?? "",
+      mediaUrl: json["mediaUrl"] ?? "",
+      mediaIv: json["mediaIv"] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data["filename"] = filename;
+    data["mimetype"] = mimetype;
+    data["mediaUrl"] = mediaUrl;
+    data["mediaIv"] = mediaIv;
+    return data;
+  }
+
+  @override
+  String toString() {
+    return 'MultipleImages('
+        'filename: $filename, '
+        'mimetype: $mimetype, '
+        'mediaUrl: $mediaUrl, '
+        'mediaIv: $mediaIv'
         ')';
   }
 }

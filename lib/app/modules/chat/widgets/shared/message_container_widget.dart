@@ -107,9 +107,6 @@ class MessageContainerWidget extends StatelessWidget {
   }
 
   LinearGradient? _getCardGradient(bool isReceiver, bool isHighlighted) {
-    // print(isHighlighted);
-    // print(isReceiver);
-    // print(!isReceiver && isHighlighted);
     if (!isReceiver && isHighlighted) {
       return const LinearGradient(
         begin: Alignment.topLeft,

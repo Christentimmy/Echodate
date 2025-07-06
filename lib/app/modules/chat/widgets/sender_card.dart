@@ -5,6 +5,7 @@ import 'package:echodate/app/modules/chat/controller/sender_card_controller.dart
 import 'package:echodate/app/modules/chat/enums/message_enum_type.dart';
 import 'package:echodate/app/modules/chat/widgets/media/sender_audio_content_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/media/sender_media_content_widget.dart';
+import 'package:echodate/app/modules/chat/widgets/shared/chat_image_gallery.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/reply_to_content_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/message_container_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/message_timestamp_widget.dart';
@@ -101,6 +102,13 @@ class _SenderCardState extends State<SenderCard>
                         chatHead: widget.chatHead,
                         messageModel: widget.messageModel.replyToMessage,
                         isSender: true,
+                      ),
+                    if (widget.messageModel.multipleImages != null &&
+                        widget.messageModel.multipleImages!.isNotEmpty)
+                      ChatImageGallery(
+                        imageUrls: widget.messageModel.multipleImages!,
+                        onImageTap: () {},
+                        messageModel: widget.messageModel,
                       ),
                     _buildContent(messageType),
                     if (widget.messageModel.message?.isNotEmpty == true)
@@ -214,3 +222,4 @@ class _SenderCardState extends State<SenderCard>
     }
   }
 }
+

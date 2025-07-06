@@ -99,7 +99,8 @@ class NewChatInputFields extends StatelessWidget {
         Obx(() {
           if (controller.wordsTyped.value.isNotEmpty ||
               controller.mediaController.selectedFile.value != null ||
-              controller.audioController.selectedFile.value != null) {
+              controller.audioController.selectedFile.value != null ||
+              controller.mediaController.multipleMediaSelected.isNotEmpty) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 2.0),
               child: CircleAvatar(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:echodate/app/modules/chat/controller/audio_controller.dart';
 import 'package:echodate/app/modules/chat/controller/chat_media_controller.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
@@ -192,7 +193,6 @@ class ChatController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
     mediaController.showMediaPreview.value = false;
     audioController.showAudioPreview.value = false;
-    // highlightedMessageId = null;
 
     if (audioController.isPlaying.value) {
       await audioController.pauseRecording();
@@ -205,7 +205,8 @@ class ChatController extends GetxController {
     final String messageText = textMessageController.text.trim();
     if (messageText.isEmpty &&
         mediaController.selectedFile.value == null &&
-        audioController.selectedFile.value == null) {
+        audioController.selectedFile.value == null &&
+        mediaController.multipleMediaSelected.isEmpty) {
       return;
     }
 
@@ -223,8 +224,14 @@ class ChatController extends GetxController {
       replyToMessage: replyToMessage.value,
     );
 
-    final selectedFile = mediaController.selectedFile.value ??
+    final multipleIMages = mediaController.multipleMediaSelected;
+    dynamic selectedFile = mediaController.selectedFile.value ??
         audioController.selectedFile.value;
+    if (multipleIMages.isNotEmpty && multipleIMages.length == 1) {
+      selectedFile = multipleIMages[0];
+      multipleIMages.clear();
+    }
+
     if (selectedFile != null) {
       isUploading.value = true;
       final messageType = mediaController.getFileType(selectedFile.path) ??
@@ -268,10 +275,55 @@ class ChatController extends GetxController {
       }
     }
 
+    if (multipleIMages.isNotEmpty) {
+      // isUploading.value = true;
+      final tempMessage = MessageModel(
+        receiverId: chatHead.userId ?? "",
+        message: messageText,
+        messageType: "image",
+        senderId: userController.userModel.value!.id,
+        status: "sending",
+        tempFile: selectedFile,
+        clientGeneratedId: tempId,
+        multipleImages: multipleIMages.map((e) {
+          return MultipleImages(
+            mediaIv: "",
+            mediaUrl: File(e.path),
+            filename: e.path,
+            mimetype: "image",
+          );
+        }).toList(),
+      );
+
+      messageController.chatHistoryAndLiveMessage.add(tempMessage);
+
+      dynamic res =
+          await MessageService().uploadMultiplePictures(multipleIMages);
+      if (res == null) {
+        isUploading.value = false;
+        CustomSnackbar.showErrorSnackBar("Error Uploading Pictures");
+        return;
+      }
+      List mediaUrls = res["mediaObjects"] ?? [];
+      if (mediaUrls.isEmpty) return;
+      // isUploading.value = false;
+      final multipleImages =
+          mediaUrls.map((e) => MultipleImages.fromJson(e)).toList();
+
+      // messageModel.mediaUrl = mediaUrl;
+      // messageModel.messageType = uploadedMessageType;
+      // messageModel.mediaIv = mediaIv;
+      messageModel.multipleImages = multipleImages;
+      messageModel.messageType = "image";
+
+      // tempMessage.mediaUrl = mediaUrl;
+      // tempMessage.messageType = uploadedMessageType;
+      // tempMessage.mediaIv = mediaIv;
+      tempMessage.status = "sent";
+    }
     // Send the message
     socketController.sendMessage(message: messageModel);
     replyToMessage.value = null;
-    // Always scroll to bottom when user sends a message (they're at bottom)
     scrollToBottom();
     socketController.stopTyping(receiverId: messageModel.receiverId ?? "");
 

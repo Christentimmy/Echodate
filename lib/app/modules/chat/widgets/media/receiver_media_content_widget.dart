@@ -3,7 +3,7 @@ import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/controller/receiver_card_controller.dart';
 import 'package:echodate/app/modules/chat/widgets/animated/animated_widgets.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/base_media_content_widget.dart';
-import 'package:echodate/app/modules/chat/widgets/shimmer/shimmer_widgets.dart';
+import 'package:echodate/app/modules/chat/widgets/shimmer/video_shimmer_loader.dart';
 import 'package:echodate/app/utils/get_thumbnail_network.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

@@ -169,8 +169,9 @@ class SocketController extends GetxController {
       if (index != -1) {
         messageController.chatHistoryAndLiveMessage[index].mediaUrl =
             messageModel.mediaUrl;
-        messageController.chatHistoryAndLiveMessage[index].id =
-            messageModel.id;
+        messageController.chatHistoryAndLiveMessage[index].multipleImages =
+            messageModel.multipleImages;
+        messageController.chatHistoryAndLiveMessage[index].id = messageModel.id;
         messageController.chatHistoryAndLiveMessage[index].avater =
             messageModel.avater;
         messageController.chatHistoryAndLiveMessage[index].createdAt =

@@ -81,29 +81,24 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Obx _buildScrollDownButton() {
+  Widget _buildScrollDownButton() {
     return Obx(() {
-      if (_chatController.showScrollToBottomButton.value &&
-          _chatController.isVisible.value) {
-        return Positioned(
-          bottom: 20,
-          right: 20,
-          child: TweenAnimationBuilder<double>(
+      final shouldShow = _chatController.showScrollToBottomButton.value &&
+          _chatController.isVisible.value;
+
+      return AnimatedPositioned(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        bottom: shouldShow ? 20 : -100,
+        right: 20,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          opacity: shouldShow ? 1.0 : 0.0,
+          child: AnimatedScale(
             duration: const Duration(milliseconds: 300),
-            tween: Tween<double>(
-              begin: 0.0,
-              end: 1.0,
-            ),
-            curve: Curves.elasticOut,
-            builder: (context, value, child) {
-              return Transform.scale(
-                scale: value,
-                child: Opacity(
-                  opacity: value,
-                  child: child,
-                ),
-              );
-            },
+            curve: Curves.easeInOut,
+            scale: shouldShow ? 1.0 : 0.8,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24),
               child: BackdropFilter(
@@ -138,9 +133,8 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-        );
-      }
-      return const SizedBox.shrink();
+        ),
+      );
     });
   }
 
@@ -307,5 +301,4 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
-
 }
