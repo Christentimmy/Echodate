@@ -132,12 +132,13 @@ class ChatImageGallery extends StatelessWidget {
   Widget _buildFourImages() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          AspectRatio(
-            aspectRatio: 1,
-            child: Column(
+      child: SizedBox(
+        width: Get.width * 0.558,
+        height: Get.height * 0.25,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Column(
               children: [
                 Expanded(
                   child: Row(
@@ -160,25 +161,25 @@ class ChatImageGallery extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          messageModel.status == "sending"
-              ? Container(
-                  width: Get.width * 0.558,
-                  height: Get.height * 0.25,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.black.withOpacity(0.5),
-                        Colors.black.withOpacity(0.5),
-                      ],
+            messageModel.status == "sending"
+                ? Container(
+                    width: Get.width * 0.558,
+                    height: Get.height * 0.25,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black.withOpacity(0.5),
+                          Colors.black.withOpacity(0.5),
+                        ],
+                      ),
                     ),
-                  ),
-                )
-              : const SizedBox.shrink(),
-          messageModel.status == "sending"
-              ? const Center(child: Loader())
-              : const SizedBox.shrink()
-        ],
+                  )
+                : const SizedBox.shrink(),
+            messageModel.status == "sending"
+                ? const Center(child: Loader())
+                : const SizedBox.shrink()
+          ],
+        ),
       ),
     );
   }
