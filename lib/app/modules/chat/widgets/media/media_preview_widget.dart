@@ -1,103 +1,8 @@
 import 'dart:io';
 
-import 'package:echodate/app/modules/chat/controller/audio_controller.dart';
 import 'package:echodate/app/modules/chat/controller/chat_media_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
-
-class AudioPreviewWidget extends StatelessWidget {
-  final AudioController controller;
-
-  const AudioPreviewWidget({
-    super.key,
-    required this.controller,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        border: Border(
-          top: BorderSide(color: Colors.grey.shade300),
-        ),
-      ),
-      child: Column(
-        children: [
-          // Audio waveform display
-          Obx(() {
-            if (controller.isRecording.value) {
-              return AudioWaveforms(
-                enableGesture: true,
-                size: Size(
-                  MediaQuery.of(context).size.width * 0.8,
-                  50,
-                ),
-                recorderController: controller.recorderController,
-                waveStyle: const WaveStyle(
-                  waveColor: Colors.orange,
-                  extendWaveform: true,
-                  showMiddleLine: false,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.0),
-                  color: Colors.white,
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-              );
-            } else if (controller.selectedFile.value != null) {
-              return Row(
-                children: [
-                  Expanded(
-                    child: AudioFileWaveforms(
-                      size: Size(
-                        MediaQuery.of(context).size.width * 0.8,
-                        50,
-                      ),
-                      playerController: controller.playerController,
-                      enableSeekGesture: true,
-                      continuousWaveform: true,
-                      waveformType: WaveformType.fitWidth,
-                      playerWaveStyle: const PlayerWaveStyle(
-                        fixedWaveColor: Colors.blue,
-                        liveWaveColor: Colors.orange,
-                        spacing: 6.0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Obx(() {
-                    if (controller.selectedFile.value != null) {
-                      return IconButton(
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
-                          size: 30,
-                        ),
-                        onPressed: () {
-                          controller.selectedFile.value = null;
-                          controller.showAudioPreview.value = false;
-                        },
-                      );
-                    } else {
-                      return const SizedBox();
-                    }
-                  }),
-                ],
-              );
-            } else {
-              return const SizedBox();
-            }
-          }),
-
-          // Audio controls
-        ],
-      ),
-    );
-  }
-}
 
 class MediaPreviewWidget extends StatelessWidget {
   final ChatMediaPickerHelper controller;
@@ -175,7 +80,7 @@ class MediaPreviewWidget extends StatelessWidget {
                     multipleMediaList[index],
                     width: 80,
                     height: 98,
-                    fit: BoxFit.fitWidth,
+                    fit: BoxFit.cover,
                   ),
                 ),
                 Positioned(
