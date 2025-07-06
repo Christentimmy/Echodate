@@ -207,7 +207,8 @@ class ReplyToContent extends StatelessWidget {
       );
     }
     if (messageType == MessageType.image &&
-        messageModel.multipleImages == null) {
+        (messageModel.multipleImages == null ||
+            messageModel.multipleImages!.isEmpty)) {
       return Row(
         children: [
           Expanded(
@@ -362,7 +363,8 @@ class ReplyToContent extends StatelessWidget {
       );
     }
     if (messageType == MessageType.image &&
-        messageModel.multipleImages != null) {
+        messageModel.multipleImages != null &&
+        messageModel.multipleImages!.isNotEmpty) {
       return Row(
         children: [
           Expanded(
