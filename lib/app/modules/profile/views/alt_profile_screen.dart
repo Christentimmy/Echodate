@@ -15,18 +15,107 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen>
+    with TickerProviderStateMixin {
   final _userController = Get.find<UserController>();
   final _pickHobController = Get.put(PickHobbiesController());
+
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late AnimationController _scaleController;
+  late AnimationController _staggerController;
+
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _staggerAnimation;
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize animation controllers
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+
+    _scaleController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _staggerController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    // Initialize animations
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _scaleController,
+      curve: Curves.elasticOut,
+    ));
+
+    _staggerAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _staggerController,
+      curve: Curves.easeOutQuart,
+    ));
+
+    // Start animations
+    _startAnimations();
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!_userController.isStatFetched.value) {
         await _userController.getProfileStats();
       }
     });
+  }
+
+  void _startAnimations() {
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        _fadeController.forward();
+        _slideController.forward();
+        _scaleController.forward();
+        _staggerController.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
+    _scaleController.dispose();
+    _staggerController.dispose();
+    super.dispose();
   }
 
   @override
@@ -38,10 +127,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         onRefresh: () async {
           await _userController.getUserDetails();
           await _userController.getProfileStats();
+          // Restart animations on refresh
+          _fadeController.reset();
+          _slideController.reset();
+          _scaleController.reset();
+          _staggerController.reset();
+          _startAnimations();
         },
         child: CustomScrollView(
           slivers: [
-            // Profile Header with Image
+            // Animated Profile Header with Image
             SliverAppBar(
               expandedHeight: MediaQuery.of(context).size.height * 0.37,
               pinned: true,
@@ -52,10 +147,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () => Navigator.pop(context),
               ),
               actions: [
-                IconButton(
-                  icon: Icon(Icons.edit, color: Colors.grey.shade50),
-                  onPressed: () {
-                    Get.to(() => EditProfileScreen());
+                AnimatedBuilder(
+                  animation: _fadeAnimation,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _fadeAnimation.value,
+                      child: Opacity(
+                        opacity: _fadeAnimation.value,
+                        child: IconButton(
+                          icon: Icon(Icons.edit, color: Colors.grey.shade50),
+                          onPressed: () {
+                            Get.to(() => EditProfileScreen());
+                          },
+                        ),
+                      ),
+                    );
                   },
                 ),
               ],
@@ -88,48 +194,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Obx(() {
-                            final model = _userController.userModel.value;
-                            return Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border:
-                                    Border.all(color: Colors.white, width: 4),
-                                image: DecorationImage(
-                                  image: CachedNetworkImageProvider(
-                                    model?.avatar ?? "",
+                      child: AnimatedBuilder(
+                        animation: _fadeAnimation,
+                        builder: (context, child) {
+                          return FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: SlideTransition(
+                              position: _slideAnimation,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Obx(() {
+                                    final model =
+                                        _userController.userModel.value;
+                                    return AnimatedBuilder(
+                                      animation: _scaleAnimation,
+                                      builder: (context, child) {
+                                        return Transform.scale(
+                                          scale: _scaleAnimation.value,
+                                          child: Container(
+                                            width: 120,
+                                            height: 120,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 4,
+                                              ),
+                                              image: DecorationImage(
+                                                image:
+                                                    CachedNetworkImageProvider(
+                                                  model?.avatar ?? "",
+                                                ),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }),
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    'Alex Johnson',
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                  fit: BoxFit.cover,
-                                ),
+                                  const SizedBox(height: 4),
+                                  Obx(() {
+                                    final model =
+                                        _userController.userModel.value;
+                                    return Text(
+                                      '${calculateAge(model?.dob)} years old',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white.withOpacity(0.9),
+                                      ),
+                                    );
+                                  })
+                                ],
                               ),
-                            );
-                          }),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Alex Johnson',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Obx(() {
-                            final model = _userController.userModel.value;
-                            return Text(
-                              '${calculateAge(model?.dob)} years old',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white.withOpacity(0.9),
-                              ),
-                            );
-                          })
-                        ],
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -137,78 +267,141 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            // Profile Content
+            // Animated Profile Content
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Quick Stats
-                    Obx(() {
-                      final model = _userController.userProfileStat.value;
-                      if (_userController.isloading.value || model == null) {
-                        return buildStatShimmerPlaceholder();
-                      }
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatCard(
-                              'Photos',
-                              (model.totalPhotos + 1).toString(),
-                              Icons.photo_library,
-                            ),
+                    // Animated Quick Stats
+                    AnimatedBuilder(
+                      animation: _staggerAnimation,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(0, 50 * (1 - _staggerAnimation.value)),
+                          child: Opacity(
+                            opacity: _staggerAnimation.value,
+                            child: _buildAnimatedStats(),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildStatCard(
-                              'Matches',
-                              (model.totalMatches).toString(),
-                              Icons.favorite,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildStatCard(
-                              'Likes',
-                              (model.totalSwipes).toString(),
-                              Icons.thumb_up,
-                            ),
-                          ),
-                        ],
-                      );
-                    }),
+                        );
+                      },
+                    ),
 
                     const SizedBox(height: 32),
 
-                    // About Section
-                    _buildSectionHeader('About Me'),
-                    const SizedBox(height: 14),
-                    Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Obx(
-                          () => Text(
-                            _userController.userModel.value?.bio ?? "",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[700],
-                              height: 1.6,
+                    // Animated About Section
+                    AnimatedBuilder(
+                      animation: _staggerAnimation,
+                      builder: (context, child) {
+                        final delayedAnimation = Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).animate(CurvedAnimation(
+                          parent: _staggerController,
+                          curve:
+                              const Interval(0.2, 1.0, curve: Curves.easeOut),
+                        ));
+
+                        return Transform.translate(
+                          offset: Offset(0, 50 * (1 - delayedAnimation.value)),
+                          child: Opacity(
+                            opacity: delayedAnimation.value,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionHeader('About Me'),
+                                const SizedBox(height: 14),
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[50],
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Obx(
+                                    () => Text(
+                                      _userController.userModel.value?.bio ??
+                                          "",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey[700],
+                                        height: 1.6,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        )),
+                        );
+                      },
+                    ),
+
                     const SizedBox(height: 32),
-                    _buildSectionHeader('My Interests'),
-                    const SizedBox(height: 16),
-                    _buildAllInterestWidget(),
+
+                    // Animated Interests Section
+                    AnimatedBuilder(
+                      animation: _staggerAnimation,
+                      builder: (context, child) {
+                        final delayedAnimation = Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).animate(CurvedAnimation(
+                          parent: _staggerController,
+                          curve:
+                              const Interval(0.4, 1.0, curve: Curves.easeOut),
+                        ));
+
+                        return Transform.translate(
+                          offset: Offset(0, 50 * (1 - delayedAnimation.value)),
+                          child: Opacity(
+                            opacity: delayedAnimation.value,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionHeader('My Interests'),
+                                const SizedBox(height: 16),
+                                _buildAnimatedInterests(),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
                     const SizedBox(height: 32),
-                    _buildSectionHeader('Looking For'),
-                    const SizedBox(height: 16),
-                    _buildRelationshipPreference(),
+
+                    // Animated Looking For Section
+                    AnimatedBuilder(
+                      animation: _staggerAnimation,
+                      builder: (context, child) {
+                        final delayedAnimation = Tween<double>(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).animate(CurvedAnimation(
+                          parent: _staggerController,
+                          curve:
+                              const Interval(0.6, 1.0, curve: Curves.easeOut),
+                        ));
+
+                        return Transform.translate(
+                          offset: Offset(0, 50 * (1 - delayedAnimation.value)),
+                          child: Opacity(
+                            opacity: delayedAnimation.value,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionHeader('Looking For'),
+                                const SizedBox(height: 16),
+                                _buildRelationshipPreference(),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
                     const SizedBox(height: 48),
                   ],
                 ),
@@ -220,76 +413,172 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildAnimatedStats() {
+    return Obx(() {
+      final model = _userController.userProfileStat.value;
+      if (_userController.isloading.value || model == null) {
+        return buildStatShimmerPlaceholder();
+      }
+
+      return Row(
+        children: [
+          Expanded(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value.clamp(0.0, 1.0),
+                  child: _buildStatCard(
+                    'Photos',
+                    (model.totalPhotos + 1).toString(),
+                    Icons.photo_library,
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value.clamp(0.0, 1.0),
+                  child: _buildStatCard(
+                    'Matches',
+                    (model.totalMatches).toString(),
+                    Icons.favorite,
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value.clamp(0.0, 1.0),
+                  child: _buildStatCard(
+                    'Likes',
+                    (model.totalSwipes).toString(),
+                    Icons.thumb_up,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildAnimatedInterests() {
+    return Obx(() {
+      List? hobbies = _userController.userModel.value?.hobbies;
+      if (hobbies == null || hobbies.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: hobbies.asMap().entries.map((entry) {
+          final index = entry.key;
+          final interest = entry.value;
+          final hobbyIndex = _pickHobController.interests.indexWhere(
+            (e) => e["label"]?.toLowerCase() == interest.toLowerCase(),
+          );
+          String emoji = hobbyIndex != -1
+              ? _pickHobController.interests[hobbyIndex]["emoji"] ?? ""
+              : "";
+
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: Duration(milliseconds: 400 + (index * 100)),
+            curve: Curves.easeOutBack,
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: value.clamp(0.0, 1.0),
+                child: Opacity(
+                  opacity: value.clamp(0.0, 1.0),
+                  child: _buildInterestChip(interest, emoji),
+                ),
+              );
+            },
+          );
+        }).toList(),
+      );
+    });
+  }
+
   Obx _buildRelationshipPreference() {
     return Obx(() {
       final model = _userController.userModel.value;
       final minAge = model?.preferences?.ageRange?[0] ?? 0;
       final maxAge = model?.preferences?.ageRange?[1] ?? 0;
       final distance = model?.preferences?.maxDistance ?? 0;
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.orange.withOpacity(0.2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.favorite,
-                  color: Colors.orange,
-                  size: 20,
+
+      return TweenAnimationBuilder<double>(
+        tween: Tween<double>(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeOutCubic,
+        builder: (context, value, child) {
+          return Transform.scale(
+            scale: 0.9 + (0.1 * value.clamp(0.0, 1.0)),
+            child: Opacity(
+              opacity: value.clamp(0.0, 1.0),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.orange.withOpacity(0.2)),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  model?.relationshipPreference ?? "",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.orange[700],
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.favorite,
+                          color: Colors.orange,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          model?.relationshipPreference ?? "",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.orange[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Ages $minAge-$maxAge • Within $distance km',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Ages $minAge-$maxAge • Within $distance km',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
               ),
             ),
-          ],
-        ),
+          );
+        },
       );
-    });
-  }
-
-  Obx _buildAllInterestWidget() {
-    return Obx(() {
-      List? hobbies = _userController.userModel.value?.hobbies;
-      if (hobbies == null || hobbies.isEmpty) {
-        return const SizedBox.shrink();
-      }
-      return Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: hobbies.map(
-            (interest) {
-              final index = _pickHobController.interests.indexWhere(
-                (e) => e["label"]?.toLowerCase() == interest.toLowerCase(),
-              );
-              String emoji = _pickHobController.interests[index]["emoji"] ?? "";
-              return _buildInterestChip(
-                interest,
-                emoji,
-              );
-            },
-          ).toList());
     });
   }
 
@@ -305,7 +594,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildStatCard(String label, String value, IconData icon) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -320,15 +611,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: Colors.orange, size: 24),
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.bounceOut,
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: value.clamp(0.0, 1.0),
+                child: Icon(icon, color: Colors.orange, size: 24),
+              );
+            },
+          ),
           const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: double.parse(value)),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOut,
+            builder: (context, animatedValue, child) {
+              return Text(
+                animatedValue.toInt().toString(),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              );
+            },
           ),
           const SizedBox(height: 4),
           Text(
@@ -345,38 +653,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildInterestChip(String interest, String icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Icon(icon, color: Colors.orange, size: 16),
-          Text(
-            "$icon ",
-            style: const TextStyle(fontSize: 12),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            interest,
-            style: const TextStyle(
-              color: Colors.black87,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: () {
+        // Add a subtle bounce animation on tap
+        // You can implement haptic feedback here too
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(color: Colors.grey[200]!),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "$icon ",
+              style: const TextStyle(fontSize: 12),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              interest,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

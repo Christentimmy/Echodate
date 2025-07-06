@@ -75,16 +75,23 @@ class EchodateSplashScreen extends StatelessWidget {
                         builder: (context, child) {
                           // Find the position of the last letter
                           const letterWidth = 39.0;
-                          final totalWidth = letterWidth * _splashController.appName.length;
+                          final totalWidth =
+                              letterWidth * _splashController.appName.length;
                           return Positioned(
                             left: (totalWidth / 2) +
-                                (letterWidth * (_splashController.appName.length / 2 - 0.5)),
+                                (letterWidth *
+                                    (_splashController.appName.length / 2 -
+                                        0.5)),
                             bottom: 27,
                             child: Transform.translate(
                               offset: Offset(
-                                  0, _splashController.loveIconBounceAnimation.value - 24),
+                                  0,
+                                  _splashController
+                                          .loveIconBounceAnimation.value -
+                                      24),
                               child: Transform.scale(
-                                scale: _splashController.loveIconScaleAnimation.value,
+                                scale: _splashController
+                                    .loveIconScaleAnimation.value,
                                 child: const Icon(
                                   Icons.favorite,
                                   color: Colors.white,
@@ -112,7 +119,8 @@ class EchodateSplashScreen extends StatelessWidget {
     return AnimatedBuilder(
       animation: _splashController.particleController,
       builder: (context, child) {
-        final progress = (_splashController.particleController.value + index * 0.1) % 1.0;
+        final progress =
+            (_splashController.particleController.value + index * 0.1) % 1.0;
         final size = MediaQuery.of(context).size;
 
         return Positioned(
@@ -138,7 +146,8 @@ class EchodateSplashScreen extends StatelessWidget {
     return AnimatedBuilder(
       animation: _splashController.heartController,
       builder: (context, child) {
-        final progress = (_splashController.heartController.value + index * 0.15) % 1.0;
+        final progress =
+            (_splashController.heartController.value + index * 0.15) % 1.0;
         final size = MediaQuery.of(context).size;
         final heartSize = 15.0 + (index % 3) * 5;
 
