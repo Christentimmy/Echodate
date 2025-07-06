@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
+import 'package:echodate/app/modules/chat/widgets/shimmer/chat_loader_shimmer.dart';
 import 'package:echodate/app/modules/chat/widgets/textfield/chat_input_field_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/media/media_preview_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/receiver_card.dart';
@@ -13,7 +14,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/user_model.dart';
-import 'package:echodate/app/resources/colors.dart';
+// import 'package:echodate/app/resources/colors.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -225,10 +226,17 @@ class _ChatScreenState extends State<ChatScreen> {
       final chatHistoryAndLiveMessage =
           messageController.chatHistoryAndLiveMessage;
       if (oldChats.isEmpty && messageController.isloading.value) {
-        return Center(
-          child: CircularProgressIndicator(
-            color: AppColors.primaryColor,
-          ),
+        // return Center(
+        //   child: CircularProgressIndicator(
+        //     color: AppColors.primaryColor,
+        //   ),
+        // );
+        return const ChatShimmerEffect(
+          itemCount: 20,
+          showSenderCards: true,
+          showReceiverCards: true,
+          // showImageCards: true,
+          // showAudioCards: true,
         );
       }
 
@@ -301,4 +309,5 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
+
 }
