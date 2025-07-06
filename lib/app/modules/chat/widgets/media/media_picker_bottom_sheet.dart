@@ -1,6 +1,5 @@
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class MediaPickerBottomSheet extends StatelessWidget {
   final ChatController controller;
@@ -20,8 +19,8 @@ class MediaPickerBottomSheet extends StatelessWidget {
           _buildOptionTile(
             title: "Send Image",
             onTap: () async {
+              Navigator.pop(context);
               await controller.mediaController.pickImageFromGallery();
-              Navigator.pop(Get.context!);
             },
             bgColor: Colors.orange,
             iconColor: Colors.white,
@@ -31,8 +30,8 @@ class MediaPickerBottomSheet extends StatelessWidget {
           _buildOptionTile(
             title: "Send Video",
             onTap: () async {
-              await controller.mediaController.pickVideoFromGallery();
               Navigator.pop(context);
+              await controller.mediaController.pickVideoFromGallery();
             },
             bgColor: Colors.green,
             iconColor: Colors.white,
@@ -42,8 +41,8 @@ class MediaPickerBottomSheet extends StatelessWidget {
           _buildOptionTile(
             title: "Send Multiple Images",
             onTap: () async {
-              await controller.mediaController.selectMultipleImages();
               Navigator.pop(context);
+              await controller.mediaController.selectMultipleImages();
             },
             bgColor: Colors.deepPurpleAccent,
             iconColor: Colors.white,
