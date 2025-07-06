@@ -10,14 +10,12 @@ import 'package:shimmer/shimmer.dart';
 class ChatImageGallery extends StatelessWidget {
   final List<MultipleImages> imageUrls;
   final double borderRadius;
-  final VoidCallback? onImageTap;
   final MessageModel messageModel;
 
   const ChatImageGallery({
     super.key,
     required this.imageUrls,
     this.borderRadius = 10,
-    this.onImageTap,
     required this.messageModel,
   });
 
@@ -281,14 +279,16 @@ class ChatImageGallery extends StatelessWidget {
             fit: BoxFit.cover,
           );
 
-    if (onImageTap != null) {
-      return GestureDetector(
-        onTap: onImageTap,
-        child: imageWidget,
-      );
-    }
-
-    return imageWidget;
+    return GestureDetector(
+      onTap: () {
+        Get.to(
+          () => ViewChatImageGalleryFullScreen(
+            imageUrls: imageUrls,
+          ),
+        );
+      },
+      child: imageWidget,
+    );
 
     // return GestureDetector(
     //   onTap: () => onImageTap?.call(),
@@ -339,6 +339,37 @@ class ChatImageGallery extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ViewChatImageGalleryFullScreen extends StatelessWidget {
+  final List<MultipleImages> imageUrls;
+  const ViewChatImageGalleryFullScreen({
+    super.key,
+    required this.imageUrls,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: PageView.builder(
+        itemCount: imageUrls.length,
+        itemBuilder: (context, index) {
+          final image = imageUrls[index].mediaUrl;
+          return Container(
+            width: Get.width,
+            height: Get.height * 0.8,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(image),
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

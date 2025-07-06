@@ -93,7 +93,7 @@ class _ViewMedialFullScreenState extends State<ViewMedialFullScreen> {
                     onTap: () => Navigator.pop(context),
                     child: CachedNetworkImage(
                       imageUrl: widget.message.mediaUrl ?? "",
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fitWidth,
                       width: Get.width,
                       height: Get.height,
                       placeholder: (context, url) {

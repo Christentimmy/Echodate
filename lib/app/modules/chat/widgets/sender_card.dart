@@ -107,7 +107,6 @@ class _SenderCardState extends State<SenderCard>
                         widget.messageModel.multipleImages!.isNotEmpty)
                       ChatImageGallery(
                         imageUrls: widget.messageModel.multipleImages!,
-                        onImageTap: () {},
                         messageModel: widget.messageModel,
                       ),
                     _buildContent(messageType),
