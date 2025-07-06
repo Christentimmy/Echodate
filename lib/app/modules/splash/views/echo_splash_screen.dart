@@ -179,128 +179,50 @@ class EchodateSplashScreen extends StatelessWidget {
         return Stack(
           alignment: Alignment.center,
           children: [
-            // Brick pieces effect - multiple fragments coming together
-            if (progress < 1.0) ...[
-              // Top left piece
+          
+            if (progress < 0.7)
               Transform.translate(
                 offset: Offset(
-                  -20 * (1 - progress) - 5,
-                  -15 * (1 - progress) - 5,
+                  math.sin(progress * 20 * index) * 5 * (1 - progress),
+                  math.cos(progress * 15 * index) * 5 * (1 - progress),
                 ),
-                child: Transform.rotate(
-                  angle: -0.5 * (1 - progress),
-                  child: Opacity(
-                    opacity: progress,
-                    child: ClipRect(
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        widthFactor: 0.5,
-                        heightFactor: 0.5,
-                        child: Text(
-                          letter,
-                          style: const TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 2,
-                          ),
-                        ),
+                child: Opacity(
+                  opacity: 0.3 + (0.7 * progress),
+                  child: ColorFiltered(
+                    colorFilter: ColorFilter.matrix([
+                      1,
+                      0,
+                      0,
+                      0,
+                      10 * (1 - progress),
+                      0,
+                      1,
+                      0,
+                      0,
+                      -10 * (1 - progress),
+                      0,
+                      0,
+                      1,
+                      0,
+                      5 * (1 - progress),
+                      0,
+                      0,
+                      0,
+                      1,
+                      0,
+                    ]),
+                    child: Text(
+                      letter,
+                      style: const TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 2,
                       ),
                     ),
                   ),
                 ),
               ),
-
-              // Top right piece
-              Transform.translate(
-                offset: Offset(
-                  25 * (1 - progress) + 5,
-                  -20 * (1 - progress) - 5,
-                ),
-                child: Transform.rotate(
-                  angle: 0.3 * (1 - progress),
-                  child: Opacity(
-                    opacity: progress,
-                    child: ClipRect(
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        widthFactor: 0.5,
-                        heightFactor: 0.5,
-                        child: Text(
-                          letter,
-                          style: const TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Bottom left piece
-              Transform.translate(
-                offset: Offset(
-                  -25 * (1 - progress) - 3,
-                  20 * (1 - progress) + 3,
-                ),
-                child: Transform.rotate(
-                  angle: 0.4 * (1 - progress),
-                  child: Opacity(
-                    opacity: progress,
-                    child: ClipRect(
-                      child: Align(
-                        alignment: Alignment.bottomLeft,
-                        widthFactor: 0.5,
-                        heightFactor: 0.5,
-                        child: Text(
-                          letter,
-                          style: const TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Bottom right piece
-              Transform.translate(
-                offset: Offset(
-                  20 * (1 - progress) + 3,
-                  25 * (1 - progress) + 5,
-                ),
-                child: Transform.rotate(
-                  angle: -0.3 * (1 - progress),
-                  child: Opacity(
-                    opacity: progress,
-                    child: ClipRect(
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        widthFactor: 0.5,
-                        heightFactor: 0.5,
-                        child: Text(
-                          letter,
-                          style: const TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
 
             // Complete letter when animation is done
             if (progress >= 0.7)

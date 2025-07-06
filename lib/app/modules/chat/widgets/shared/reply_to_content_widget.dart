@@ -66,7 +66,7 @@ class ReplyToContent extends StatelessWidget {
         final messageModel = controller.replyToMessage.value;
         return Container(
           constraints: BoxConstraints(
-            maxHeight: Get.height * 0.09,
+            maxHeight: Get.height * 0.99,
             maxWidth: Get.width,
           ),
           margin: const EdgeInsets.symmetric(
