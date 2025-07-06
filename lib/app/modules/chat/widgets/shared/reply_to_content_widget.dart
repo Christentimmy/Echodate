@@ -135,7 +135,7 @@ class ReplyToContent extends StatelessWidget {
                 ),
                 Text(
                   messageModel.message!.length > 100
-                      ? "${messageModel.message!.substring(0, 99)}.."
+                      ? "${messageModel.message!.substring(0, 90)}.."
                       : messageModel.message!,
                   style: GoogleFonts.montserrat(
                     fontSize: 11,

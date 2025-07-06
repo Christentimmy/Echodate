@@ -196,7 +196,7 @@ class _SenderCardState extends State<SenderCard>
                 child: Text(
                   isExpanded ? "Show less" : "Show more",
                   style: TextStyle(
-                    color: AppColors.primaryColor,
+                    color: AppColors.lightGrey,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     decoration: TextDecoration.underline,
@@ -221,4 +221,3 @@ class _SenderCardState extends State<SenderCard>
     }
   }
 }
-

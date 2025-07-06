@@ -3,6 +3,7 @@ import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/controller/receiver_card_controller.dart';
 import 'package:echodate/app/modules/chat/enums/message_enum_type.dart';
+import 'package:echodate/app/modules/chat/widgets/shared/chat_image_gallery.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/reply_to_content_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/message_container_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/shared/message_timestamp_widget.dart';
@@ -105,6 +106,12 @@ class _ReceiverCardState extends State<ReceiverCard>
                         chatHead: widget.chatHead,
                         messageModel: widget.messageModel.replyToMessage,
                         isSender: false,
+                      ),
+                    if (widget.messageModel.multipleImages != null &&
+                        widget.messageModel.multipleImages!.isNotEmpty)
+                      ChatImageGallery(
+                        imageUrls: widget.messageModel.multipleImages!,
+                        messageModel: widget.messageModel,
                       ),
                     _buildContent(messageType),
                     if (widget.messageModel.message?.isNotEmpty == true)
