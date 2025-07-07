@@ -8,6 +8,7 @@ import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 class UserService {
   http.Client client = http.Client();
@@ -1114,4 +1115,81 @@ class UserService {
     }
     return null;
   }
+
+  Future<http.Response?> createTicket({
+    required String token,
+    required String description,
+    required String subject,
+    required String category,
+    List<File>? attachments,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/support/create-ticket");
+      final request = http.MultipartRequest('POST', url);
+      final body = {
+        "subject": subject,
+        "category": category,
+        "description": description,
+      };
+      request.fields.addAll(body);
+      request.headers.addAll(({
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      }));
+
+      if (attachments != null || attachments!.isNotEmpty) {
+        final filesToSend = attachments.take(5);
+
+        for (final file in filesToSend) {
+          final mimeType =
+              lookupMimeType(file.path) ?? 'application/octet-stream';
+          final mimeSplit = mimeType.split('/');
+
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'attachments',
+              file.path,
+              contentType: MediaType(mimeSplit[0], mimeSplit[1]),
+            ),
+          );
+        }
+      }
+
+      final streamedResponse = await request.send();
+      return await http.Response.fromStream(
+        streamedResponse,
+      ).timeout(const Duration(seconds: 180));
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+      CustomSnackbar.showErrorSnackBar("No internet connection");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+      CustomSnackbar.showErrorSnackBar("No internet connection");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
+  Future<http.Response?> getMySupportTickert({required String token}) async {
+    try {
+      final url = Uri.parse("$baseUrl/support/my-tickets");
+      final response = await client.get(
+        url,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+      ).timeout(const Duration(seconds: 60));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
+
 }

@@ -5,12 +5,14 @@ import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/bank_model.dart';
 import 'package:echodate/app/models/coin_model.dart';
 import 'package:echodate/app/models/sub_model.dart';
+import 'package:echodate/app/models/support_ticket_model.dart';
 import 'package:echodate/app/models/transaction_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/models/withdraw_model.dart';
 import 'package:echodate/app/modules/Interest/views/interested_in_screen.dart';
 import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
+import 'package:echodate/app/modules/auth/views/login_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/modules/profile/views/complete_profile_screen.dart';
@@ -50,6 +52,9 @@ class UserController extends GetxController {
   RxBool isStatFetched = false.obs;
   final RxList<Map<String, dynamic>> _swipeQueue = <Map<String, dynamic>>[].obs;
   bool _isProcessingQueue = false;
+  RxList<SupportTicketModel> allMySupportTicketList =
+      <SupportTicketModel>[].obs;
+  RxBool isAllMySupportTicketLoaded = false.obs;
 
   //pagination
   int currentPage = 1;
@@ -1471,4 +1476,72 @@ class UserController extends GetxController {
     userProfileStat.value = null;
     isStatFetched.value = false;
   }
+
+  Future<void> createTicket({
+    required String description,
+    required String subject,
+    required String category,
+    List<File>? attachments,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null) {
+        Get.offAll(() => const LoginScreen());
+        return;
+      }
+
+      final response = await _userService.createTicket(
+        token: token,
+        description: description,
+        subject: subject,
+        category: category,
+      );
+
+      if (response == null) return;
+      var responseBody = json.decode(response.body);
+      String message = responseBody["message"] ?? "";
+      if (response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(message);
+        return;
+      }
+      CustomSnackbar.showSuccessSnackBar("Ticket created successfully");
+      Get.offAll(() => BottomNavigationScreen());
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> getMySupportTickert({bool isShowLoader = true}) async {
+    isloading.value = isShowLoader;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null) return;
+      final response = await _userService.getMySupportTickert(token: token);
+      if (response == null) return;
+      var responseBody = json.decode(response.body);
+      String message = responseBody["message"] ?? "";
+      if (response.statusCode != 200) {
+        CustomSnackbar.showErrorSnackBar(message);
+        return;
+      }
+      List allTickets = responseBody["data"] ?? [];
+      if (allTickets.isEmpty) return;
+      List<SupportTicketModel> tickets =
+          allTickets.map((e) => SupportTicketModel.fromJson(e)).toList();
+      allMySupportTicketList.clear();
+      allMySupportTicketList.value = tickets;
+      allMySupportTicketList.refresh();
+      isAllMySupportTicketLoaded.value = true;
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
 }

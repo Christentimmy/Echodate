@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 Future<File?> pickImage({ImageSource? imageSource}) async {
@@ -32,6 +33,23 @@ Future<File?> pickVideo() async {
   final pickedFile = await ImagePicker().pickVideo(source: ImageSource.gallery);
   if (pickedFile != null) {
     return File(pickedFile.path);
+  }
+  return null;
+}
+
+Future<List<File>?> pickFile() async {
+  try {
+    final ImagePicker imagePicker = ImagePicker();
+    List<XFile?>? file = await imagePicker.pickMultipleMedia(
+      limit: 5,
+      imageQuality: 100,
+    );
+    if (file.isNotEmpty) {
+      return file.map((e) => File(e!.path)).toList();
+    }
+    return null;
+  } catch (e) {
+    debugPrint(e.toString());
   }
   return null;
 }

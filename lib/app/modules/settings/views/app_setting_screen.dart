@@ -5,6 +5,7 @@ import 'package:echodate/app/modules/echocoin/views/all_echo_coins_screen.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
 import 'package:echodate/app/modules/settings/views/settings_screen.dart';
 import 'package:echodate/app/modules/subscription/views/subscription_screen.dart';
+import 'package:echodate/app/modules/support/views/contact_us_screen.dart';
 import 'package:echodate/app/modules/withdraw/views/withdraw_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/shimmer_effect.dart';
@@ -287,7 +288,9 @@ class _AppSettingsState extends State<AppSettings>
                   icon: Icons.help_outline,
                   title: 'Help & Support',
                   subtitle: 'Get help when you need it',
-                  onTap: () {},
+                  onTap: () {
+                    Get.to(() => const ContactUsPage());
+                  },
                 ),
                 Divider(height: 1, color: Colors.grey[100]),
                 Obx(() {
