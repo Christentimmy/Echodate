@@ -1137,8 +1137,8 @@ class UserService {
         "Content-Type": "application/json",
       }));
 
-      if (attachments != null || attachments!.isNotEmpty) {
-        final filesToSend = attachments.take(5);
+      if (attachments != null || attachments?.isNotEmpty == true) {
+        final filesToSend = attachments!.take(5);
 
         for (final file in filesToSend) {
           final mimeType =
@@ -1191,5 +1191,4 @@ class UserService {
     }
     return null;
   }
-
 }

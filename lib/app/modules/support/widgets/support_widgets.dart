@@ -1,6 +1,8 @@
 import 'package:echodate/app/modules/support/controller/support_controller.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/resources/text_style.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/loader.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
@@ -16,12 +18,12 @@ class BuildSupportHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blue[600]!, Colors.blue[800]!],
+          colors: [Colors.orange[600]!, Colors.orange[800]!],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.3),
+            color: Colors.orange.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -55,7 +57,7 @@ class BuildSupportHeader extends StatelessWidget {
             "We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               color: Colors.white.withOpacity(0.9),
               height: 1.5,
             ),
@@ -69,7 +71,8 @@ class BuildSupportHeader extends StatelessWidget {
 class SupportFormFields extends StatelessWidget {
   SupportFormFields({super.key});
 
-  final _supportController = Get.put(SupportController());
+  // final _supportController = Get.put(SupportController());
+  final supportController = Get.find<SupportController>();
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +90,7 @@ class SupportFormFields extends StatelessWidget {
         ],
       ),
       child: Form(
-        key: _supportController.formKey,
+        key: supportController.formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -99,7 +102,7 @@ class SupportFormFields extends StatelessWidget {
             _buildDropdownField(context),
             const SizedBox(height: 20),
             _buildTextField(
-              controller: _supportController.subjectController,
+              controller: supportController.subjectController,
               label: "Subject",
               icon: Icons.subject_outlined,
               validator: (value) {
@@ -114,7 +117,7 @@ class SupportFormFields extends StatelessWidget {
 
             // Message Field
             _buildTextField(
-              controller: _supportController.messageController,
+              controller: supportController.messageController,
               label: "Message",
               icon: Icons.message_outlined,
               maxLines: 3,
@@ -138,18 +141,18 @@ class SupportFormFields extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue[600]!, width: 2),
+                      border: Border.all(color: Colors.orange[600]!, width: 2),
                     ),
                     child: IconButton(
-                      icon: Icon(Icons.attach_file, color: Colors.blue[600]),
+                      icon: Icon(Icons.attach_file, color: Colors.orange[600]),
                       onPressed: () async {
-                        await _supportController.addAttachment();
+                        await supportController.addAttachment();
                       },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Obx(() {
-                    if (_supportController.attachments.isEmpty) {
+                    if (supportController.attachments.isEmpty) {
                       return Text(
                         "No Attachments",
                         style: TextStyle(color: Colors.grey[600]),
@@ -159,15 +162,15 @@ class SupportFormFields extends StatelessWidget {
                     }
                   }),
                   Obx(() {
-                    if (_supportController.attachments.isEmpty) {
+                    if (supportController.attachments.isEmpty) {
                       return const SizedBox.shrink();
                     }
                     return Expanded(
                       child: ListView.builder(
-                        itemCount: _supportController.attachments.length,
+                        itemCount: supportController.attachments.length,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (context, index) {
-                          final file = _supportController.attachments[index];
+                          final file = supportController.attachments[index];
                           final label =
                               "${file.path.split('/').last.substring(0, 5)}..";
                           return Padding(
@@ -180,10 +183,10 @@ class SupportFormFields extends StatelessWidget {
                                 color: Colors.red,
                               ),
                               onDeleted: () {
-                                _supportController.attachments.removeAt(index);
+                                supportController.attachments.removeAt(index);
                               },
-                              backgroundColor: Colors.blue[50],
-                              labelStyle: TextStyle(color: Colors.blue[600]),
+                              backgroundColor: Colors.orange[50],
+                              labelStyle: TextStyle(color: Colors.orange[600]),
                             ),
                           );
                         },
@@ -196,21 +199,27 @@ class SupportFormFields extends StatelessWidget {
             const SizedBox(height: 32),
 
             // Send Button
-            CustomButton(
-              // isLoading: _supportController.userController.isLoading,
-              ontap: () async {
-                await _supportController.sendMessage();
-              },
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.send, size: 20, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text(
-                    "Send Message",
-                    style: AppTextStyles.buttonTextStyle,
-                  ),
-                ],
+            Obx(
+              () => CustomButton(
+                ontap: () async {
+                  await supportController.sendMessage(
+                    formKey: supportController.formKey,
+                  );
+                },
+                bgColor: Colors.orange[600],
+                child: supportController.userController.isloading.value
+                    ? const Loader()
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.send, size: 20, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            "Send Message",
+                            style: AppTextStyles.buttonTextStyle,
+                          ),
+                        ],
+                      ),
               ),
             ),
           ],
@@ -226,12 +235,12 @@ class SupportFormFields extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButtonFormField<String>(
-        value: _supportController.selectedCategory.value.isEmpty
+        value: supportController.selectedCategory.value.isEmpty
             ? null
-            : _supportController.selectedCategory.value,
+            : supportController.selectedCategory.value,
         decoration: InputDecoration(
           labelText: "Category",
-          prefixIcon: Icon(Icons.category_outlined, color: Colors.blue[600]),
+          prefixIcon: Icon(Icons.category_outlined, color: Colors.orange[600]),
           labelStyle: TextStyle(color: Colors.grey[600]),
           filled: true,
           fillColor: Colors.grey[50],
@@ -241,7 +250,7 @@ class SupportFormFields extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
+            borderSide: BorderSide(color: Colors.orange[600]!, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -261,7 +270,7 @@ class SupportFormFields extends StatelessWidget {
           style: TextStyle(color: Colors.grey[600]),
         ),
         dropdownColor: Colors.white,
-        items: _supportController.categories.map((String category) {
+        items: supportController.categories.map((String category) {
           return DropdownMenuItem<String>(
             value: category,
             child: Text(
@@ -271,7 +280,7 @@ class SupportFormFields extends StatelessWidget {
           );
         }).toList(),
         onChanged: (String? newValue) {
-          _supportController.selectedCategory.value = newValue!;
+          supportController.selectedCategory.value = newValue!;
         },
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -279,7 +288,7 @@ class SupportFormFields extends StatelessWidget {
           }
           return null;
         },
-        icon: Icon(Icons.keyboard_arrow_down, color: Colors.blue[600]),
+        icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange[600]),
       ),
     );
   }
@@ -297,9 +306,10 @@ class SupportFormFields extends StatelessWidget {
       maxLines: maxLines,
       keyboardType: keyboardType,
       validator: validator,
+      cursorColor: AppColors.primaryColor,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: Colors.blue[600]),
+        prefixIcon: Icon(icon, color: Colors.orange[600]),
         labelStyle: TextStyle(color: Colors.grey[600]),
         filled: true,
         fillColor: Colors.grey[50],
@@ -309,7 +319,7 @@ class SupportFormFields extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
+          borderSide: BorderSide(color: Colors.orange[600]!, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

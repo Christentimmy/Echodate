@@ -12,11 +12,10 @@ class SupportController extends GetxController {
   final userController = Get.find<UserController>();
 
   RxString selectedCategory = "".obs;
-  final RxList<String> categories =
-      ['booking', 'payment', 'technical', 'other'].obs;
+  final RxList<String> categories = ['payment', 'technical', 'other'].obs;
   RxList<File> attachments = <File>[].obs;
 
-  Future<void> sendMessage() async {
+  Future<void> sendMessage({required GlobalKey<FormState> formKey}) async {
     if (!formKey.currentState!.validate()) {
       return;
     }
@@ -26,16 +25,16 @@ class SupportController extends GetxController {
       );
       return;
     }
-    // await userController.createTicket(
-    //   description: messageController.text,
-    //   subject: subjectController.text,
-    //   category: selectedCategory.value,
-    //   attachments: attachments,
-    // );
-    subjectController.clear();
-    messageController.clear();
-    selectedCategory.value = "";
-    attachments.clear();
+    await userController.createTicket(
+      description: messageController.text,
+      subject: subjectController.text,
+      category: selectedCategory.value,
+      attachments: attachments,
+    );
+    // subjectController.clear();
+    // messageController.clear();
+    // selectedCategory.value = "";
+    // attachments.clear();
   }
 
   Future<void> addAttachment() async {

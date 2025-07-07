@@ -1,5 +1,6 @@
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/support_ticket_model.dart';
+import 'package:echodate/app/modules/support/controller/support_controller.dart';
 import 'package:echodate/app/modules/support/widgets/support_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/resources/text_style.dart';
@@ -30,6 +31,8 @@ class _ContactUsPageState extends State<ContactUsPage>
       }
     });
   }
+
+  final supportController = Get.put(SupportController());
 
   @override
   void dispose() {
@@ -74,7 +77,7 @@ class _ContactUsPageState extends State<ContactUsPage>
               labelColor: Colors.white,
               unselectedLabelColor: Colors.grey[600],
               indicator: BoxDecoration(
-                color: Colors.blue[600],
+                color: Colors.orange[600],
                 borderRadius: BorderRadius.circular(8),
               ),
               indicatorSize: TabBarIndicatorSize.tab,
@@ -132,40 +135,13 @@ class _ContactUsPageState extends State<ContactUsPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
-          Row(
-            children: [
-              const Text(
-                "Get in Touch",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.swipe_right, size: 14, color: Colors.blue[600]),
-                    const SizedBox(width: 4),
-                    Text(
-                      "swipe",
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.blue[600],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          const Text(
+            "Get in Touch",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 16),
           // Header Section
@@ -179,7 +155,7 @@ class _ContactUsPageState extends State<ContactUsPage>
                 child: _buildContactCard(
                   icon: Icons.phone_outlined,
                   title: "Phone",
-                  subtitle: "+381 62 1803794",
+                  subtitle: "Soon...",
                 ),
               ),
               const SizedBox(width: 16),
@@ -187,7 +163,7 @@ class _ContactUsPageState extends State<ContactUsPage>
                 child: _buildContactCard(
                   icon: Icons.location_on_outlined,
                   title: "Address",
-                  subtitle: "Bujanovac Serbia",
+                  subtitle: "Soon...",
                 ),
               ),
             ],
@@ -202,7 +178,7 @@ class _ContactUsPageState extends State<ContactUsPage>
     return RefreshIndicator(
       color: AppColors.primaryColor,
       onRefresh: () async {
-        // await _userController.getMySupportTickert(isShowLoader: false);
+        await _userController.getMySupportTickert(isShowLoader: false);
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -211,43 +187,13 @@ class _ContactUsPageState extends State<ContactUsPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
-            Row(
-              children: [
-                const Text(
-                  "All Tickets",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.swipe_left, size: 14, color: Colors.blue[600]),
-                      const SizedBox(width: 4),
-                      Text(
-                        "swipe",
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.blue[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            const Text(
+              "All Tickets",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
             ),
             const SizedBox(height: 16),
             Obx(() {
@@ -375,10 +321,10 @@ class _ContactUsPageState extends State<ContactUsPage>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue[50],
+              color: Colors.orange[50],
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: Colors.blue[600], size: 24),
+            child: Icon(icon, color: Colors.orange[600], size: 24),
           ),
           const SizedBox(height: 12),
           Text(
