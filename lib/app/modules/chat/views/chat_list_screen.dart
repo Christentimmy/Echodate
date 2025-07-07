@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/message_controller.dart';
-import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/modules/chat/views/chat_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
@@ -15,12 +14,11 @@ class ChatListScreen extends StatefulWidget {
 
 class _ChatListScreenState extends State<ChatListScreen> {
   final _messageController = Get.find<MessageController>();
-  final _socketController = Get.find<SocketController>();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _socketController.getOnlineUser();
       _messageController.getChatList(showLoading: false);
       if (!_messageController.isChattedListFetched.value) {
         _messageController.getChatList(showLoading: true);
@@ -28,243 +26,372 @@ class _ChatListScreenState extends State<ChatListScreen> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0,
         title: const Text(
           'Messages',
           style: TextStyle(
-            fontSize: 18,
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: Colors.black87,
+            fontWeight: FontWeight.w700,
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
+          // Container(
+          //   margin: const EdgeInsets.only(right: 8),
+          //   decoration: BoxDecoration(
+          //     color: AppColors.primaryColor.withOpacity(0.1),
+          //     borderRadius: BorderRadius.circular(12),
+          //   ),
+          //   child: IconButton(
+          //     icon: Icon(
+          //       Icons.search_rounded,
+          //       color: AppColors.primaryColor,
+          //       size: 24,
+          //     ),
+          //     onPressed: () {},
+          //   ),
+          // ),
         ],
       ),
       body: RefreshIndicator(
         color: AppColors.primaryColor,
         onRefresh: () async {
           await _messageController.refreshChatList();
-          _socketController.getOnlineUser();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Obx(
-                  () => _messageController.activeFriends.isEmpty
-                      ? const Text(
-                          "My Matches",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      : const Text(
-                          "Online",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: 80,
-                  child: Obx(() {
-                    if (_messageController.isloading.value) {
-                      return const SizedBox.shrink();
-                    }
-                    if (_messageController.activeFriends.isEmpty &&
-                        _messageController.allChattedUserList.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    if (_messageController.activeFriends.isEmpty &&
-                        _messageController.allChattedUserList.isNotEmpty) {
-                      return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _messageController.allChattedUserList.length,
-                        itemBuilder: (context, index) {
-                          final activeFriend =
-                              _messageController.allChattedUserList[index];
-                          return InkWell(
-                            onTap: () {
-                              Get.to(
-                                () => ChatScreen(chatHead: activeFriend),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 5),
-                              child: CircleAvatar(
-                                radius: 30,
-                                backgroundImage: CachedNetworkImageProvider(
-                                  activeFriend.avatar ?? "",
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    }
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _messageController.activeFriends.length,
-                      itemBuilder: (context, index) {
-                        final activeFriend =
-                            _messageController.activeFriends[index];
-                        return InkWell(
-                          onTap: () {
-                            Get.to(() => ChatScreen(chatHead: activeFriend));
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 5),
-                            child: Stack(
-                              children: [
-                                CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: CachedNetworkImageProvider(
-                                    activeFriend.avatar ?? "",
-                                  ),
-                                ),
-                                const Positioned(
-                                  top: 2,
-                                  right: 2,
-                                  child: CircleAvatar(
-                                    radius: 8,
-                                    backgroundColor: Colors.white,
-                                    child: CircleAvatar(
-                                      radius: 5,
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }),
-                ),
-                const Divider(height: 1),
-                const SizedBox(height: 10),
-                const Text(
-                  "My Chats",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
+                // // Header Section
+                // Container(
+                //   padding: const EdgeInsets.all(20),
+                //   decoration: BoxDecoration(
+                //     gradient: LinearGradient(
+                //       colors: [
+                //         AppColors.primaryColor.withOpacity(0.1),
+                //         AppColors.primaryColor.withOpacity(0.05),
+                //       ],
+                //       begin: Alignment.topLeft,
+                //       end: Alignment.bottomRight,
+                //     ),
+                //     borderRadius: BorderRadius.circular(16),
+                //   ),
+                //   child: Row(
+                //     children: [
+                //       Container(
+                //         padding: const EdgeInsets.all(12),
+                //         decoration: BoxDecoration(
+                //           color: AppColors.primaryColor,
+                //           borderRadius: BorderRadius.circular(12),
+                //         ),
+                //         child: const Icon(
+                //           Icons.chat_bubble_rounded,
+                //           color: Colors.white,
+                //           size: 24,
+                //         ),
+                //       ),
+                //       const SizedBox(width: 16),
+                //       Expanded(
+                //         child: Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           children: [
+                //             const Text(
+                //               "My Conversations",
+                //               style: TextStyle(
+                //                 fontSize: 18,
+                //                 fontWeight: FontWeight.w700,
+                //                 color: Colors.black87,
+                //               ),
+                //             ),
+                //             const SizedBox(height: 4),
+                //             Obx(() => Text(
+                //                   "${_messageController.allChattedUserList.length} active chats",
+                //                   style: TextStyle(
+                //                     fontSize: 14,
+                //                     color: Colors.grey[600],
+                //                     fontWeight: FontWeight.w500,
+                //                   ),
+                //                 )),
+                //           ],
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+
+                const SizedBox(height: 24),
+
                 // Chat List Section
                 Obx(() {
                   if (_messageController.isChatListLoading.value) {
-                    return SizedBox(
-                      height: Get.height * 0.45,
+                    return Container(
+                      height: Get.height * 0.5,
                       width: Get.width,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primaryColor,
-                        ),
-                      ),
-                    );
-                  }
-                  if (_messageController.allChattedUserList.isEmpty) {
-                    return SizedBox(
-                      height: Get.height * 0.45,
-                      width: Get.width,
-                      child: const Center(
-                        child: Text(
-                          'No chats available yet.',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
                           ),
-                        ),
+                        ],
                       ),
-                    );
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _messageController.allChattedUserList.length,
-                    itemBuilder: (context, index) {
-                      final messageModel =
-                          _messageController.allChattedUserList[index];
-                      return ListTile(
-                        onTap: () {
-                          Get.to(() => ChatScreen(
-                                chatHead: messageModel,
-                              ));
-                        },
-                        contentPadding: EdgeInsets.zero,
-                        leading: Stack(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundImage: CachedNetworkImageProvider(
-                                messageModel.avatar ?? "",
+                            CircularProgressIndicator(
+                              color: AppColors.primaryColor,
+                              strokeWidth: 3,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Loading conversations...',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                            messageModel.online == true
-                                ? const Positioned(
-                                    top: 1,
-                                    right: 1,
-                                    child: CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.white,
-                                      child: CircleAvatar(
-                                        radius: 5,
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    ),
-                                  )
-                                : const SizedBox.shrink()
                           ],
                         ),
-                        title: Text(
-                          messageModel.fullName ?? "",
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }
+
+                  if (_messageController.allChattedUserList.isEmpty) {
+                    return Container(
+                      height: Get.height * 0.5,
+                      width: Get.width,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
                           ),
-                        ),
-                        subtitle: Text(
-                          messageModel.lastMessage ?? "",
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                        trailing: messageModel.unreadCount == 0
-                            ? const SizedBox.shrink()
-                            : CircleAvatar(
-                                radius: 13,
-                                backgroundColor: AppColors.primaryColor,
-                                child: Text(
-                                  messageModel.unreadCount.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(50),
                               ),
-                      );
-                    },
+                              child: Icon(
+                                Icons.chat_bubble_outline_rounded,
+                                size: 48,
+                                color: Colors.grey[400],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No conversations yet',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Start chatting with your matches!',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _messageController.allChattedUserList.length,
+                      separatorBuilder: (context, index) => Divider(
+                        height: 1,
+                        color: Colors.grey[200],
+                        indent: 80,
+                      ),
+                      itemBuilder: (context, index) {
+                        final messageModel =
+                            _messageController.allChattedUserList[index];
+                        return _buildChatItem(messageModel);
+                      },
+                    ),
                   );
                 }),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChatItem(dynamic messageModel) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.transparent,
+      ),
+      child: ListTile(
+        onTap: () {
+          Get.to(() => ChatScreen(chatHead: messageModel));
+        },
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: CachedNetworkImage(
+                  imageUrl: messageModel.avatar ?? "",
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.grey[400],
+                      size: 24,
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.grey[400],
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (messageModel.online == true)
+              Positioned(
+                bottom: 2,
+                right: 2,
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        title: Text(
+          messageModel.fullName ?? "",
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              messageModel.lastMessage ?? "",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w400,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (messageModel.unreadCount != null &&
+                messageModel.unreadCount > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  messageModel.unreadCount.toString(),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
