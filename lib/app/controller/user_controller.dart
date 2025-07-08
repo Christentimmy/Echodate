@@ -21,7 +21,6 @@ import 'package:echodate/app/services/user_service.dart';
 import 'package:echodate/app/utils/url_launcher.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:get/get.dart';
 
 class UserController extends GetxController {
@@ -50,17 +49,14 @@ class UserController extends GetxController {
   RxBool isEchoCoinsListFetched = false.obs;
   RxBool isAllLinkedBankFetched = false.obs;
   RxBool isStatFetched = false.obs;
-  final RxList<Map<String, dynamic>> _swipeQueue = <Map<String, dynamic>>[].obs;
-  bool _isProcessingQueue = false;
   RxList<SupportTicketModel> allMySupportTicketList =
       <SupportTicketModel>[].obs;
   RxBool isAllMySupportTicketLoaded = false.obs;
 
   //pagination
   int currentPage = 1;
-  int totalPages = 1; // Keep track of total pages
-  int pageLimit = 10;
-  bool hasNextPage = true; // Track if there's a next page
+  int pageLimit = 20;
+  bool hasNextPage = false;
 
   @override
   void onInit() async {
@@ -70,44 +66,7 @@ class UserController extends GetxController {
     getMatches();
     getUserCoinHistory();
   }
-
-  void addSwipeToQueue(String userId, CardSwiperDirection direction) async {
-    _swipeQueue.add({"userId": userId, "direction": direction});
-    await _processSwipeQueue();
-  }
-
-  Future<void> _processSwipeQueue() async {
-    if (_isProcessingQueue || _swipeQueue.isEmpty) return;
-
-    _isProcessingQueue = true;
-
-    while (_swipeQueue.isNotEmpty) {
-      final swipe = _swipeQueue.removeAt(0);
-      bool success = false;
-
-      try {
-        if (swipe["direction"] == CardSwiperDirection.left) {
-          success = await swipeDislike(swipedUserId: swipe["userId"]);
-        } else if (swipe["direction"] == CardSwiperDirection.right) {
-          success = await swipeLike(swipedUserId: swipe["userId"]);
-        }
-
-        if (!success) {
-          _swipeQueue
-              .removeWhere((element) => element["userId"] == swipe["userId"]);
-          _swipeQueue.refresh();
-        }
-      } catch (e) {
-        debugPrint("Error processing swipe: $e");
-        _swipeQueue
-            .removeWhere((element) => element["userId"] == swipe["userId"]);
-        _swipeQueue.refresh();
-      }
-    }
-
-    _isProcessingQueue = false; // Reset the processing flag
-  }
-
+  
   Future<void> getUserDetails() async {
     isloading.value = true;
     try {
@@ -703,9 +662,11 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> getPotentialMatches({bool loadMore = false}) async {
+  Future<void> getPotentialMatches({bool? loadMore = false}) async {
+    isloading.value = true;
+
     try {
-      if (loadMore) {
+      if (loadMore == true && hasNextPage) {
         currentPage++;
       } else {
         currentPage = 1;
@@ -717,7 +678,10 @@ class UserController extends GetxController {
       if (token == null || token.isEmpty) return;
 
       final response = await _userService.getPotentialMatches(
-          token: token, page: currentPage, limit: pageLimit);
+        token: token,
+        page: currentPage,
+        limit: pageLimit,
+      );
 
       if (response == null) return;
 
@@ -728,10 +692,9 @@ class UserController extends GetxController {
       }
 
       List matches = decoded["data"];
-      totalPages = decoded[
-          "totalPages"]; // Store the total pages returned by the backend
-      hasNextPage =
-          currentPage < totalPages; // Check if more pages are available
+      hasNextPage = decoded["hasNextPage"];
+
+      potentialMatchesList.clear();
 
       if (matches.isEmpty) return;
 
@@ -741,6 +704,8 @@ class UserController extends GetxController {
       isPotentialMatchFetched.value = true;
     } catch (e) {
       debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
     }
   }
 
@@ -1543,5 +1508,4 @@ class UserController extends GetxController {
       isloading.value = false;
     }
   }
-
 }

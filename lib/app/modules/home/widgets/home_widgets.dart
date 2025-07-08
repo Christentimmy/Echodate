@@ -14,49 +14,12 @@ import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_compress/video_compress.dart';
-
-Widget actionButton(
-  IconData icon,
-  Color color,
-  bool isCenter,
-  VoidCallback onTap,
-) {
-  return InkWell(
-    onTap: onTap,
-    child: Container(
-      height: isCenter ? 70 : 55,
-      width: isCenter ? 70 : 55,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isCenter ? Colors.white : Colors.white.withOpacity(0.8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 6,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Icon(
-        icon,
-        color: color,
-        size: 25,
-      ),
-    ),
-  ).animate().scale(
-        duration: 1000.ms,
-        curve: Curves.elasticOut,
-        begin: const Offset(0.2, 0.2), // Offset for both x and y
-        end: const Offset(1.0, 1.0),
-      );
-}
+import 'package:appinio_swiper/appinio_swiper.dart';
 
 class TinderCard extends StatelessWidget {
   final UserModel profile;
@@ -581,7 +544,7 @@ class UserPostedStoryWidget extends StatelessWidget {
 }
 
 class SwiperActionButtonsWidget extends StatelessWidget {
-  final CardSwiperController controller;
+  final AppinioSwiperController controller;
 
   SwiperActionButtonsWidget({super.key, required this.controller});
 
@@ -592,20 +555,20 @@ class SwiperActionButtonsWidget extends StatelessWidget {
   final RxBool isDisliking = false.obs;
   final RxBool isSuperLiking = false.obs;
 
-  void _triggerAnimation(
-    CardSwiperDirection direction, {
-    bool isSuperLike = false,
+  void _triggerAnimation({
+    bool? isSuperLike = false,
+    bool? isDislike = false,
+    bool? isLike = false,
   }) {
-    if (direction == CardSwiperDirection.right) {
-      if (isSuperLike) {
-        isSuperLiking.value = true;
-      } else {
-        isLiking.value = true;
-      }
-    } else if (direction == CardSwiperDirection.left) {
+    if (isSuperLike == true) {
+      isSuperLiking.value = true;
+    }
+    if (isLike == true) {
+      isLiking.value = true;
+    }
+    if (isDislike == true) {
       isDisliking.value = true;
     }
-
     // Reset animation after a short delay
     Future.delayed(const Duration(milliseconds: 300), () {
       isLiking.value = false;
@@ -624,63 +587,53 @@ class SwiperActionButtonsWidget extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  // DISLIKE BUTTON (❌) - Swipes Left
-                  Obx(
-                    () => AnimatedOpacity(
-                      duration: const Duration(milliseconds: 200),
-                      opacity: isDisliking.value ? 1.0 : 0.7,
-                      child: actionButton(
-                        FontAwesomeIcons.xmark,
-                        Colors.white,
-                        false,
-                        () {
-                          _triggerAnimation(CardSwiperDirection.left);
-                          controller.swipe(CardSwiperDirection.left);
-                        },
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 20),
-
-                  // LIKE BUTTON (❤️) - Swipes Right
                   Obx(
                     () => AnimatedScale(
-                      scale: isLiking.value ? 1.2 : 1.0,
                       duration: const Duration(milliseconds: 200),
+                      scale: isDisliking.value ? 1.2 : 1.0,
                       child: actionButton(
-                        FontAwesomeIcons.solidHeart,
-                        Colors.orange,
-                        true,
-                        () {
-                          _triggerAnimation(CardSwiperDirection.right);
-                          controller.swipe(CardSwiperDirection.right);
+                        icon: FontAwesomeIcons.xmark,
+                        onTap: () {
+                          _triggerAnimation(isDislike: true);
+                          controller.swipeLeft();
                         },
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 20),
-
-                  // SUPER LIKE BUTTON (⭐) - Swipes Right
                   Obx(
                     () => AnimatedScale(
                       scale: isSuperLiking.value ? 1.2 : 1.0,
                       duration: const Duration(milliseconds: 200),
                       child: actionButton(
-                        Icons.star_border,
-                        Colors.white,
-                        false,
-                        () {
-                          _triggerAnimation(CardSwiperDirection.right,
-                              isSuperLike: true);
-                          controller.swipe(CardSwiperDirection.right);
+                        containerSize: 73,
+                        iconSize: 30,
+                        bgColor: Colors.white,
+                        iconColor: AppColors.primaryColor,
+                        icon: FontAwesomeIcons.solidHeart,
+                        onTap: () async {
+                          _triggerAnimation(isSuperLike: true);
+                          controller.swipeUp();
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Obx(
+                    () => AnimatedScale(
+                      scale: isLiking.value ? 1.2 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: actionButton(
+                        icon: Icons.star,
+                        iconSize: 25,
+                        onTap: () {
+                          _triggerAnimation(isLike: true);
+                          controller.swipeRight();
                         },
                       ).animate().scale(
                             duration: 1000.ms,
                             curve: Curves.elasticOut,
-                            begin: const Offset(
-                                0.2, 0.2), // Offset for both x and y
+                            begin: const Offset(0.2, 0.2),
                             end: const Offset(1.0, 1.0),
                           ),
                     ),
@@ -690,12 +643,39 @@ class SwiperActionButtonsWidget extends StatelessWidget {
             ),
     );
   }
+
+  Widget actionButton({
+    required IconData icon,
+    Color? bgColor,
+    Color? iconColor,
+    required VoidCallback onTap,
+    double? containerSize,
+    double? iconSize,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        height: containerSize ?? 55,
+        width: containerSize ?? 55,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: bgColor ?? Colors.grey,
+        ),
+        child: Icon(
+          icon,
+          color: iconColor ?? Colors.white,
+          size: iconSize ?? 25,
+        ),
+      ),
+    );
+  }
 }
 
 class GetPotentialMatchesBuilder extends StatelessWidget {
   GetPotentialMatchesBuilder({super.key});
   final _userController = Get.find<UserController>();
-  final _cardSwipeController = CardSwiperController();
+  final _cardSwipeController = AppinioSwiperController();
 
   @override
   Widget build(BuildContext context) {
@@ -717,75 +697,63 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
               return _buildEmptySwipeCardWidget();
             }
 
-            return CardSwiper(
-              controller: _cardSwipeController,
-              isLoop: false,
-              backCardOffset: const Offset(0, 30),
-              cardsCount: _userController.potentialMatchesList.length,
-              onSwipe: (previousIndex, currentIndex, direction) {
-                if (_userController.potentialMatchesList.isEmpty ||
-                    previousIndex >=
-                        _userController.potentialMatchesList.length) {
-                  return false;
-                }
-                final userId =
-                    _userController.potentialMatchesList[previousIndex].id ??
-                        "";
-                _userController.addSwipeToQueue(userId, direction);
-                return true;
-              },
-              numberOfCardsDisplayed:
-                  _userController.potentialMatchesList.length > 1
-                      ? 2
-                      : _userController.potentialMatchesList.length,
-              allowedSwipeDirection: const AllowedSwipeDirection.symmetric(
-                horizontal: true,
+            // return SizedBox();
+            return Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 20,
               ),
-              onEnd: () {
-                _userController.potentialMatchesList.clear();
-              },
-              cardBuilder: (
-                context,
-                index,
-                horizontalOffsetPercentage,
-                verticalOffsetPercentage,
-              ) {
-                if (index == _userController.potentialMatchesList.length - 2 &&
-                    _userController.hasNextPage) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _userController.getPotentialMatches(loadMore: true);
-                  });
-                }
-
-                final profile = _userController.potentialMatchesList[index];
-
-                // Implementing staggered animations here
-                return AnimationConfiguration.staggeredList(
-                  position: index,
-                  duration: const Duration(milliseconds: 200),
-                  child: SlideAnimation(
-                    verticalOffset: 50.0,
-                    child: FadeInAnimation(
-                      child: ScaleAnimation(
-                        scale: 0.9,
-                        child: InkWell(
-                          onTap: () {
-                            Get.to(
-                              () => TinderCardDetails(
-                                userModel: profile,
-                              ),
-                            );
-                          },
-                          child: TinderCard(profile: profile),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+              child: AppinioSwiper(
+                cardCount: _userController.potentialMatchesList.length,
+                loop: false,
+                controller: _cardSwipeController,
+                onEnd: () async {
+                  if (_userController.hasNextPage) {
+                    await _userController.getPotentialMatches(loadMore: true);
+                  } else {
+                    _userController.potentialMatchesList.clear();
+                  }
+                },
+                onSwipeEnd: (previousIndex, targetIndex, activity) {
+                  if (_userController.potentialMatchesList.isEmpty ||
+                      previousIndex >=
+                          _userController.potentialMatchesList.length) {
+                    return;
+                  }
+                  final userId =
+                      _userController.potentialMatchesList[previousIndex].id ??
+                          "";
+                  if (activity.direction == AxisDirection.right) {
+                    _userController.swipeLike(swipedUserId: userId);
+                  } else if (activity.direction == AxisDirection.left) {
+                    _userController.swipeDislike(swipedUserId: userId);
+                  } else if (activity.direction == AxisDirection.up) {
+                    _userController.swipeSuperLike(swipedUserId: userId);
+                  }
+                },
+                cardBuilder: (context, index) {
+                  final profile = _userController.potentialMatchesList[index];
+                  return InkWell(
+                    onTap: () {
+                      Get.to(
+                        () => TinderCardDetails(userModel: profile),
+                      );
+                    },
+                    child: TinderCard(profile: profile),
+                  );
+                },
+              ),
             );
           }),
-          SwiperActionButtonsWidget(controller: _cardSwipeController),
+          Obx(() {
+            if (_userController.isloading.value) {
+              return const SizedBox.shrink();
+            }
+            if (_userController.potentialMatchesList.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return SwiperActionButtonsWidget(controller: _cardSwipeController);
+          }),
         ],
       ),
     );
@@ -822,7 +790,7 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
   final List<String> _reportReasons = [
     "No reason",
     "I'm not interested in this person",
-    "Profile is fake, spam, or scammer",
+    "Profile isDisliking fake, spam, or scammer",
     "Inappropriate content",
     "Underage or minor",
     "Off-Hinge behavior",

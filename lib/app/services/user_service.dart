@@ -470,8 +470,8 @@ class UserService {
 
   Future<http.Response?> getPotentialMatches({
     required String token,
-    required int page,
-    required int limit,
+    int? page,
+    int? limit,
   }) async {
     try {
       final response = await client.get(
