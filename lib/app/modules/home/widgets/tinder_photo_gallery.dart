@@ -63,8 +63,13 @@ class TinderPhotoGallery extends StatelessWidget {
                 fit: BoxFit.cover,
                 height: Get.height * 0.6,
                 width: Get.width,
-                placeholder: (context, url) =>
-                    const Center(child: CircularProgressIndicator()),
+                placeholder: (context, url) {
+                  return Center(
+                    child: Loader(
+                      color: AppColors.primaryColor,
+                    ),
+                  );
+                },
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               );
             }
@@ -145,7 +150,11 @@ class TinderPhotoGallery extends StatelessWidget {
             child: CircleAvatar(
               radius: 18,
               backgroundColor: Colors.grey.withOpacity(0.8),
-              child: const Icon(Icons.close, size: 15),
+              child: Icon(
+                Icons.close,
+                size: 17,
+                color: AppColors.primaryColor,
+              ),
             ),
           ),
           const Spacer(),

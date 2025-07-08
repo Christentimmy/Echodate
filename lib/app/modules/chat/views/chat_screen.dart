@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:echodate/app/modules/home/widgets/tinder_card_widget.dart';
+import 'package:echodate/app/modules/home/widgets/tinder_card_details.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 // import 'package:echodate/app/resources/colors.dart';
