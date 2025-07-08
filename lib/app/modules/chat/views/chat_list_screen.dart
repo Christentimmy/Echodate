@@ -21,7 +21,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _messageController.getChatList(showLoading: false);
-      if (_messageController.isChattedListFetched.value) {
+      if (!_messageController.isChattedListFetched.value) {
         _messageController.getChatList(showLoading: true);
       }
     });
