@@ -14,7 +14,7 @@ class CoinTransferScreen extends StatefulWidget {
   });
 
   @override
-  _CoinTransferScreenState createState() => _CoinTransferScreenState();
+  State<CoinTransferScreen> createState() => _CoinTransferScreenState();
 }
 
 class _CoinTransferScreenState extends State<CoinTransferScreen> {

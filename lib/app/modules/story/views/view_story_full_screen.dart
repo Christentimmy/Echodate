@@ -224,7 +224,6 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
                   _buildAnimatedProgressIndicator(storyModel),
                   _buildStoryContent(story),
                   _buildStoryViewers(storyModel, story),
-                  if (_isPaused) _buildPauseOverlay(),
                 ],
               ),
             ),
@@ -295,6 +294,8 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
       onLongPressEnd: (_) => _resumeStory(),
       onLongPress: () async {
         final userId = _userController.userModel.value?.id ?? "";
+        final bool isSender = userId == storyModel.userId;
+        if (!isSender) return;
         await displayDeleteStoryDialog(
           context: context,
           userId: userId,
@@ -304,12 +305,15 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
         );
       },
       onTapDown: (details) {
-        if (_isDragging) return; // Ignore taps while dragging
+        if (_isDragging) return;
 
-        final width = Get.width;
-        if (details.globalPosition.dx < width / 2) {
+        final dx = details.globalPosition.dx;
+        final screenWidth = Get.width;
+        const edgeZoneWidth = 80.0;
+
+        if (dx <= edgeZoneWidth) {
           _goToPreviousStory();
-        } else {
+        } else if (dx >= screenWidth - edgeZoneWidth) {
           _goToNextStory();
         }
       },
@@ -406,16 +410,16 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
         : const SizedBox.shrink());
   }
 
-  Widget _buildPauseOverlay() {
-    return Container(
-      color: Colors.black.withOpacity(0.3),
-      child: const Center(
-        child: Icon(
-          Icons.pause_circle_filled,
-          color: Colors.white,
-          size: 80,
-        ),
-      ),
-    );
-  }
+  // Widget _buildPauseOverlay() {
+  //   return Container(
+  //     color: Colors.black.withOpacity(0.3),
+  //     child: const Center(
+  //       child: Icon(
+  //         Icons.pause_circle_filled,
+  //         color: Colors.white,
+  //         size: 80,
+  //       ),
+  //     ),
+  //   );
+  // }
 }
