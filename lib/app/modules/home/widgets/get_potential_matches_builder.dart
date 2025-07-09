@@ -1,8 +1,8 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/modules/home/views/alt_tinder_card_details.dart';
 import 'package:echodate/app/modules/home/widgets/home_widgets.dart';
 import 'package:echodate/app/modules/home/widgets/tinder_card.dart';
-import 'package:echodate/app/modules/home/widgets/tinder_card_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
@@ -53,7 +53,7 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
                   return InkWell(
                     child: TinderCard(profile: profile),
                     onTap: () {
-                      Get.to(() => TinderCardDetails(userModel: profile));
+                      Get.to(() => AltTinderCardDetails(userModel: profile));
                     },
                   );
                 },

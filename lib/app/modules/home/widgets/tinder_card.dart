@@ -7,10 +7,14 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 class TinderCard extends StatelessWidget {
   final UserModel profile;
-  const TinderCard({super.key, required this.profile});
+  const TinderCard({
+    super.key,
+    required this.profile,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +35,12 @@ class TinderCard extends StatelessWidget {
               imageUrl: profile.avatar ?? "",
               fit: BoxFit.cover,
               placeholder: (context, url) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
+                return Shimmer.fromColors(
+                  baseColor: Colors.grey,
+                  highlightColor: AppColors.primaryColor,
+                  child: const SizedBox(
+                    width: double.infinity,
+                    height: double.infinity,
                   ),
                 );
               },

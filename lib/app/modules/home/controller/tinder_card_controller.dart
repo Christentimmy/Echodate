@@ -27,4 +27,10 @@ class TinderCardController extends GetxController {
   void toggleShowFullBio() {
     isExpanded.value = !isExpanded.value;
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    userModel.value = null;
+  }
 }

@@ -66,7 +66,7 @@ class UserController extends GetxController {
     getMatches();
     getUserCoinHistory();
   }
-  
+
   Future<void> getUserDetails() async {
     isloading.value = true;
     try {
