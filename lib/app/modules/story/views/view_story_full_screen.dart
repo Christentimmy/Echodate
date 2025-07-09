@@ -224,11 +224,55 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
                   _buildAnimatedProgressIndicator(storyModel),
                   _buildStoryContent(story),
                   _buildStoryViewers(storyModel, story),
+                  _buildDeleteIcon(storyModel, context),
                 ],
               ),
             ),
           ),
         ),
+      );
+    });
+  }
+
+  Obx _buildDeleteIcon(StoryModel storyModel, BuildContext context) {
+    return Obx(() {
+      final userId = _userController.userModel.value?.id ?? "";
+      final bool isSender = userId == storyModel.userId;
+      if (!isSender) return const SizedBox.shrink();
+      return Positioned(
+        right: 20,
+        top: Get.height * 0.07,
+        child: IconButton(
+          onPressed: () async {
+            _pauseStory();
+            await displayDeleteStoryDialog(
+              context: context,
+              userId: userId,
+              storyUserId: storyModel.userId ?? "",
+              storyId: storyModel.id ?? "",
+              controller: _storyController,
+            );
+          },
+          icon: const Icon(
+            Icons.delete,
+            color: Colors.red,
+          ),
+        ),
+        // child: InkWell(
+        //   onTap: () async {
+        //     await displayDeleteStoryDialog(
+        //       context: context,
+        //       userId: userId,
+        //       storyUserId: storyModel.userId ?? "",
+        //       storyId: storyModel.id ?? "",
+        //       controller: _storyController,
+        //     );
+        //   },
+        //   child: const Icon(
+        //     Icons.delete,
+        //     color: Colors.red,
+        //   ),
+        // ),
       );
     });
   }
@@ -292,18 +336,6 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
       behavior: HitTestBehavior.translucent,
       onLongPressStart: (_) => _pauseStory(),
       onLongPressEnd: (_) => _resumeStory(),
-      onLongPress: () async {
-        final userId = _userController.userModel.value?.id ?? "";
-        final bool isSender = userId == storyModel.userId;
-        if (!isSender) return;
-        await displayDeleteStoryDialog(
-          context: context,
-          userId: userId,
-          storyUserId: storyModel.userId ?? "",
-          storyId: storyModel.id ?? "",
-          controller: _storyController,
-        );
-      },
       onTapDown: (details) {
         if (_isDragging) return;
 

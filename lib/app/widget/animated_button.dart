@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-// Move BouncingIconAnimation and BouncingIconAnimationState above AnimatedCustomButton
-
 class BouncingIconAnimation extends StatefulWidget {
   final Widget child;
   const BouncingIconAnimation({
