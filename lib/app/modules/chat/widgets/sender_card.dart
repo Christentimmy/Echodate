@@ -97,7 +97,9 @@ class _SenderCardState extends State<SenderCard>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.messageModel.replyToMessage != null ||
-                        widget.messageModel.storyMediaUrl != null)
+                        (widget.messageModel.storyMediaUrl != null &&
+                            widget.messageModel.storyMediaUrl?.isNotEmpty ==
+                                true))
                       ReplyToContent(
                         controller: _chatController,
                         chatHead: widget.chatHead,

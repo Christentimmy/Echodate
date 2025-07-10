@@ -116,7 +116,7 @@ class ReplyToContent extends StatelessWidget {
     final messageType = getMessageType(messageModel.messageType);
     if (messageType == MessageType.text &&
         messageModel.message != null &&
-        messageModel.storyMediaUrl == null) {
+        messageModel.storyMediaUrl?.isEmpty == true) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -439,7 +439,8 @@ class ReplyToContent extends StatelessWidget {
       );
     }
 
-    if (messageModel.storyMediaUrl != null) {
+    if (messageModel.storyMediaUrl != null &&
+        messageModel.storyMediaUrl?.isNotEmpty == true) {
       final isMediaImage = messageModel.storyMediaUrl?.contains("image");
       return Row(
         children: [
@@ -490,7 +491,7 @@ class ReplyToContent extends StatelessWidget {
                   ),
                 )
               : FutureBuilder(
-                  future: generateThumbnail(messageModel.mediaUrl ?? ""),
+                  future: generateThumbnail(messageModel.storyMediaUrl ?? ""),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return SizedBox(
