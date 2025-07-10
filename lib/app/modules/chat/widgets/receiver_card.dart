@@ -100,11 +100,15 @@ class _ReceiverCardState extends State<ReceiverCard>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (widget.messageModel.replyToMessage != null)
+                    if (widget.messageModel.replyToMessage != null ||
+                        (widget.messageModel.storyMediaUrl != null &&
+                            widget.messageModel.storyMediaUrl?.isNotEmpty ==
+                                true))
                       ReplyToContent(
                         controller: widget.chatController,
                         chatHead: widget.chatHead,
-                        messageModel: widget.messageModel.replyToMessage,
+                        messageModel: widget.messageModel.replyToMessage ??
+                            widget.messageModel,
                         isSender: false,
                       ),
                     if (widget.messageModel.multipleImages != null &&
