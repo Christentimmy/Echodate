@@ -17,6 +17,7 @@ class MessageModel {
   String? clientGeneratedId;
   MessageModel? replyToMessage;
   List<MultipleImages>? multipleImages;
+  String? storyMediaUrl;
 
   MessageModel({
     this.id,
@@ -35,6 +36,7 @@ class MessageModel {
     this.mediaIv,
     this.clientGeneratedId,
     this.multipleImages,
+    this.storyMediaUrl,
   });
 
   MessageModel copyWith({
@@ -100,6 +102,7 @@ class MessageModel {
               .map((e) => MultipleImages.fromJson(e))
               .toList()
           : null,
+      storyMediaUrl: json["storyMediaUrl"] ?? "",
     );
   }
 
@@ -126,7 +129,9 @@ class MessageModel {
     if (multipleImages != null) {
       data["multpleMedia"] =
           multipleImages!.map((image) => image.toJson()).toList();
-      print(data["multpleMedia"]);
+    }
+    if (storyMediaUrl != null) {
+      data["storyMediaUrl"] = storyMediaUrl;
     }
     return data;
   }
@@ -148,6 +153,7 @@ class MessageModel {
         'mediaIv: $mediaIv, '
         'clientGeneratedId: $clientGeneratedId, '
         'replyToMessage: ${replyToMessage?.id}'
+        'storyMediaUrl: $storyMediaUrl'
         ')';
   }
 }

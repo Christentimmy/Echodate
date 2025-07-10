@@ -2,8 +2,7 @@ import 'package:echodate/app/controller/story_controller.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-
-class ViewStoryFullScreenController extends GetxController{
+class ViewStoryFullScreenController extends GetxController {
   RxInt currentUserIndex = 0.obs;
   RxInt currentStoryIndex = 0.obs;
   RxInt tapIndexHomePage = 0.obs;
@@ -30,7 +29,6 @@ class ViewStoryFullScreenController extends GetxController{
         userStory.userId,
       );
     }
-   
   }
 
   void goToNextStory() {
@@ -65,7 +63,7 @@ class ViewStoryFullScreenController extends GetxController{
     } else {
       Navigator.pop(Get.context!);
     }
-    
+
     // Notify view that story changed
     onStoryChanged?.call();
   }
@@ -100,10 +98,11 @@ class ViewStoryFullScreenController extends GetxController{
         );
       }
     }
-    
+
     // Notify view that story changed
     onStoryChanged?.call();
   }
+
 
 
 }

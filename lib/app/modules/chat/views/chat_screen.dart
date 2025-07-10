@@ -226,11 +226,6 @@ class _ChatScreenState extends State<ChatScreen> {
       final chatHistoryAndLiveMessage =
           messageController.chatHistoryAndLiveMessage;
       if (oldChats.isEmpty && messageController.isloading.value) {
-        // return Center(
-        //   child: CircularProgressIndicator(
-        //     color: AppColors.primaryColor,
-        //   ),
-        // );
         return const ChatShimmerEffect(
           itemCount: 20,
           showSenderCards: true,

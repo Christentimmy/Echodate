@@ -96,11 +96,13 @@ class _SenderCardState extends State<SenderCard>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (widget.messageModel.replyToMessage != null)
+                    if (widget.messageModel.replyToMessage != null ||
+                        widget.messageModel.storyMediaUrl != null)
                       ReplyToContent(
                         controller: _chatController,
                         chatHead: widget.chatHead,
-                        messageModel: widget.messageModel.replyToMessage,
+                        messageModel: widget.messageModel.replyToMessage ??
+                            widget.messageModel,
                         isSender: true,
                       ),
                     if (widget.messageModel.multipleImages != null &&

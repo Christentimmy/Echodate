@@ -1,14 +1,19 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/modules/story/controller/view_story_full_screen_controller.dart';
 import 'package:echodate/app/modules/story/widgets/create_story_widgets.dart';
 import 'package:echodate/app/modules/story/widgets/story_video_player.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
 
 class ViewStoryFullScreen extends StatefulWidget {
   const ViewStoryFullScreen({super.key});
@@ -18,10 +23,14 @@ class ViewStoryFullScreen extends StatefulWidget {
 }
 
 class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
-    with TickerProviderStateMixin, RouteAware {
+    with TickerProviderStateMixin, RouteAware, WidgetsBindingObserver {
   final _userController = Get.find<UserController>();
   final _storyController = Get.find<StoryController>();
   final _viewStoryScreenController = Get.find<ViewStoryFullScreenController>();
+  final _socketController = Get.find<SocketController>();
+  final _textController = TextEditingController();
+
+  bool _isKeyboardVisible = false;
 
   // Animation and Timer controllers
   late AnimationController _progressAnimationController;
@@ -61,6 +70,25 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
     _viewStoryScreenController.init();
     _initializeProgressAnimation();
     _startStoryTimer();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeMetrics() {
+    final bottomInset = WidgetsBinding.instance.window.viewInsets.bottom;
+    final newValue = bottomInset > 0.0;
+
+    if (newValue != _isKeyboardVisible) {
+      setState(() {
+        _isKeyboardVisible = newValue;
+      });
+
+      if (_isKeyboardVisible) {
+        _pauseStory();
+      } else {
+        _resumeStory();
+      }
+    }
   }
 
   @override
@@ -68,6 +96,8 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
     _progressAnimationController.dispose();
     _storyTimer?.cancel();
     routeObserver.unsubscribe(this);
+    _textController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -188,6 +218,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
       final story = stories[_viewStoryScreenController.currentStoryIndex.value];
 
       return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.black,
         body: GestureDetector(
           onPanUpdate: (details) {
@@ -401,6 +432,9 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
   }
 
   Widget _buildStoryContent(Stories story) {
+    if (story.content?.isEmpty == true) {
+      return const SizedBox.shrink();
+    }
     return Positioned(
       bottom: Get.height * 0.15,
       left: 0,
@@ -428,30 +462,95 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
     StoryModel storyModel,
     Stories story,
   ) {
-    return Obx(() => _userController.userModel.value?.id == storyModel.userId
-        ? Align(
-            alignment: Alignment.bottomCenter,
-            child: GestureDetector(
-              onTap: () {},
-              child: ViewSoryViewersWidget(
-                stories: story,
-                story: storyModel,
+    return Obx(
+      () => _userController.userModel.value?.id == storyModel.userId
+          ? Align(
+              alignment: Alignment.bottomCenter,
+              child: GestureDetector(
+                onTap: () {},
+                child: ViewSoryViewersWidget(
+                  stories: story,
+                  story: storyModel,
+                ),
               ),
+            )
+          : Align(
+              alignment: Alignment.bottomCenter,
+              child: _buildTextField(storyModel),
             ),
-          )
-        : const SizedBox.shrink());
+    );
   }
 
-  // Widget _buildPauseOverlay() {
-  //   return Container(
-  //     color: Colors.black.withOpacity(0.3),
-  //     child: const Center(
-  //       child: Icon(
-  //         Icons.pause_circle_filled,
-  //         color: Colors.white,
-  //         size: 80,
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _buildTextField(StoryModel storyModel) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + 5,
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 2),
+          Expanded(
+            child: TextFormField(
+              controller: _textController,
+              cursorColor: AppColors.primaryColor,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.black.withOpacity(0.5),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(
+                    color: Colors.grey,
+                    width: 1,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(
+                    color: AppColors.primaryColor,
+                    width: 1,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Transform.rotate(
+            angle: -44.5,
+            child: IconButton(
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                FocusManager.instance.primaryFocus?.unfocus();
+                if (_textController.text.isEmpty) {
+                  return;
+                }
+                final userModel = _userController.userModel.value;
+                final senderId = userModel?.id ?? "";
+                final tempId = const Uuid().v4();
+                final story = storyModel.stories![
+                    _viewStoryScreenController.currentStoryIndex.value];
+                MessageModel message = MessageModel(
+                  senderId: senderId,
+                  receiverId: storyModel.userId,
+                  messageType: "text",
+                  clientGeneratedId: tempId,
+                  storyMediaUrl: story.mediaUrl,
+                  message: _textController.text,
+                );
+                _socketController.sendMessage(message: message);
+                _textController.clear();
+              },
+              icon: Icon(
+                Icons.send,
+                color: AppColors.primaryColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

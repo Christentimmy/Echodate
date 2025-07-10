@@ -27,7 +27,6 @@ class ReplyToContent extends StatelessWidget {
   });
 
   final _userController = Get.find<UserController>();
-  // final _messageController = Get.find<MessageController>();
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +114,9 @@ class ReplyToContent extends StatelessWidget {
       return const SizedBox.shrink();
     }
     final messageType = getMessageType(messageModel.messageType);
-    if (messageType == MessageType.text && messageModel.message != null) {
+    if (messageType == MessageType.text &&
+        messageModel.message != null &&
+        messageModel.storyMediaUrl == null) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -434,6 +435,82 @@ class ReplyToContent extends StatelessWidget {
                 ),
             ],
           ),
+        ],
+      );
+    }
+
+    if (messageModel.storyMediaUrl != null) {
+      final isMediaImage = messageModel.storyMediaUrl?.contains("image");
+      return Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isSender
+                      ? "You"
+                      : ((chatHead?.fullName?.split(" ")[0]) ?? "Unknown"),
+                  style: GoogleFonts.montserrat(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+                Text(
+                  "Story",
+                  style: GoogleFonts.montserrat(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          isMediaImage == true
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 5.0, left: 5.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: CachedNetworkImage(
+                      imageUrl: messageModel.storyMediaUrl ?? "",
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) {
+                        return SizedBox(
+                          width: 45,
+                          height: 40,
+                          child: buildShimmerVideoLoading(),
+                        );
+                      },
+                      width: 45,
+                      height: 40,
+                    ),
+                  ),
+                )
+              : FutureBuilder(
+                  future: generateThumbnail(messageModel.mediaUrl ?? ""),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return SizedBox(
+                        width: 45,
+                        height: 40,
+                        child: buildShimmerVideoLoading(),
+                      );
+                    }
+                    if (!snapshot.hasData) {
+                      return const AnimatedVideoPreview(
+                        child: Icon(
+                          Icons.play_circle_fill,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                      );
+                    }
+                    return _buildThumbnailWidget(snapshot.data!);
+                  },
+                ),
         ],
       );
     }
