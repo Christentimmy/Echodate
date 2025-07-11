@@ -80,10 +80,6 @@ class SignUpController extends GetxController
     );
   }
 
-  void recreateFormKey() {
-    // _signUpFormKey = GlobalKey<FormState>();
-  }
-
   Future<void> signUp(var signUpFormKey) async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (!signUpFormKey.currentState!.validate()) {
@@ -109,9 +105,7 @@ class SignUpController extends GetxController
       password: passwordController.text,
     );
 
-    await _authController.signUpUSer(
-      userModel: userModel,
-    );
+    await _authController.signUpUSer(userModel: userModel);
     clean();
   }
 

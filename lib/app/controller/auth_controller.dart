@@ -224,7 +224,7 @@ class AuthController extends GetxController {
         await nextScreen();
         return;
       }
-      Get.offAll(() => const GenderSelectionScreen());
+      Get.to(() => const GenderSelectionScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {

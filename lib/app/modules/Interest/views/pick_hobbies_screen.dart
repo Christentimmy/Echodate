@@ -52,21 +52,6 @@ class _PickHobbiesScreenState extends State<PickHobbiesScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-
-              // Search Box
-              // TextField(
-              //   onChanged: (value) {
-              //     searchedText.value = value;
-              //   },
-              //   decoration: InputDecoration(
-              //     hintText: "Search",
-              //     prefixIcon: const Icon(Icons.search),
-              //     enabledBorder: OutlineInputBorder(
-              //       borderRadius: BorderRadius.circular(10),
-              //       borderSide: BorderSide(color: Colors.grey.shade600),
-              //     ),
-              //   ),
-              // ),
               CustomTextField(
                 hintText: "Search",
                 onChanged: (value) {
