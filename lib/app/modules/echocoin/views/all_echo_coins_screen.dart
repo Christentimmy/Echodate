@@ -454,9 +454,9 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
                       ],
                     ),
                     child: Text(
-                      "\$$amount",
+                      "GH₵$amount",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryColor,
                       ),
