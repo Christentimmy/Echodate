@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/controller/timer_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/modules/bottom_navigation/views/bottom_navigation_screen.dart';
 import 'package:echodate/app/modules/profile/widgets/edit_profile_widgets.dart';
 import 'package:echodate/app/utils/image_picker.dart';
+import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -119,6 +121,8 @@ class EditProfileController extends GetxController {
           images[i] = null;
         }
       }
+      CustomSnackbar.showSuccessSnackBar("Profile updated");
+      Get.offAll(() => BottomNavigationScreen());
     } catch (e) {
       debugPrint(e.toString());
     } finally {
