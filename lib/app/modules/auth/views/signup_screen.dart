@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/modules/auth/controller/signup_controller.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
@@ -56,8 +58,8 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    buildBackDrop(),
-                    buildGradientOverlay(),
+                    _getBackDrop(),
+                    _getGradientOverlay(),
                     _buildSignUpFormWidget(context),
                   ],
                 ),
@@ -187,7 +189,7 @@ class RegisterScreen extends StatelessWidget {
               const Text("Already have an account? "),
               InkWell(
                 onTap: () {
-                  Get.to(() => const LoginScreen());
+                  Get.to(() => LoginScreen());
                 },
                 child: const Text(
                   "Sign In",
@@ -246,5 +248,47 @@ class RegisterScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _getBackDrop() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(color: Colors.transparent),
+      ),
+    );
+  }
+
+  Widget _getGradientOverlay() {
+    if (!Get.isDarkMode) {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.transparent,
+              Colors.pink.withOpacity(0.05),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.transparent,
+              AppColors.accentOrange400.withOpacity(0.05),
+            ],
+          ),
+        ),
+      );
+    }
   }
 }

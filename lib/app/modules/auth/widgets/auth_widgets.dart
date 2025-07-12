@@ -1,10 +1,10 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/modules/auth/controller/login_controller.dart';
 import 'package:echodate/app/modules/auth/controller/signup_controller.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/auth/views/reset_password_screen.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:echodate/app/widget/loader.dart';
@@ -28,57 +28,52 @@ class LoginFormField extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             "Sign In",
-            style: TextStyle(
-              fontSize: 23,
-              fontWeight: FontWeight.w700,
-            ),
+            style: Get.textTheme.headlineMedium,
           ),
           const SizedBox(height: 2),
-          const Text(
+          Text(
             "Enter your credentials to continue",
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Get.textTheme.bodySmall,
           ),
           const SizedBox(height: 15),
           Form(
             key: _loginController.formKey,
             child: Column(
               children: [
-                NewCustomTextField(
-                  bgColor: Colors.grey.shade50,
-                  prefixIconColor: Colors.orange,
-                  controller: _loginController.emailController,
-                  hintText: "Email/Number",
-                  prefixIcon: Icons.email,
-                ),
+                _getEmailFormField(),
                 const SizedBox(height: 15),
                 Obx(() {
                   RxBool isVsibile = _loginController.isPasswordVisible;
-                  return NewCustomTextField(
-                    controller: _loginController.passwordController,
-                    hintText: "Password",
-                    isObscure: isVsibile.value,
-                    prefixIcon: Icons.lock,
-                    bgColor: Colors.grey.shade50,
-                    prefixIconColor: Colors.orange,
-                    suffixIcon: !isVsibile.value
-                        ? Icons.visibility
-                        : Icons.visibility_off,
-                    onSuffixTap: () {
-                      isVsibile.value = !isVsibile.value;
-                    },
-                  );
+                  return _getPasswordFormField(isVsibile);
                 }),
                 const SizedBox(height: 30),
               ],
             ),
           ),
           CustomButton(
+            bgRadient: Get.isDarkMode
+                ? LinearGradient(
+                    colors: [
+                      AppColors.accentOrange400,
+                      AppColors.accentOrange600,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
+            boxShadow: Get.isDarkMode
+                ? [
+                    BoxShadow(
+                      color: AppColors.accentOrange400.withOpacity(0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
             ontap: () async {
+              HapticFeedback.lightImpact();
               FocusManager.instance.primaryFocus?.unfocus();
               if (_loginController.formKey.currentState!.validate()) {
                 await _loginController.authController.loginUser(
@@ -91,24 +86,7 @@ class LoginFormField extends StatelessWidget {
             child: Obx(
               () => _loginController.authController.isLoading.value
                   ? const Loader()
-                  : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Sign in",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Icon(
-                          Icons.arrow_forward,
-                          size: 20,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
+                  : _getButtonContent(),
             ),
           ),
           const SizedBox(height: 6),
@@ -118,13 +96,9 @@ class LoginFormField extends StatelessWidget {
               onTap: () {
                 Get.to(() => const ResetPasswordScreen());
               },
-              child: const Text(
+              child: Text(
                 "Forgot your password?",
-                style: TextStyle(
-                  color: Colors.orange,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Get.textTheme.labelSmall,
               ),
             ),
           ),
@@ -133,15 +107,17 @@ class LoginFormField extends StatelessWidget {
             alignment: WrapAlignment.center,
             spacing: 4,
             children: [
-              const Text("New to EchoDate? "),
+              Text("New to EchoDate? ",style: TextStyle(
+                color: Get.theme.primaryColor,
+              ),),
               InkWell(
                 onTap: () {
                   Get.to(() => RegisterScreen());
                 },
-                child: const Text(
+                child: Text(
                   "Create account",
                   style: TextStyle(
-                    color: Colors.orange,
+                    color: AppColors.accentOrange400,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -151,6 +127,128 @@ class LoginFormField extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _getEmailFormField() {
+    if (Get.isDarkMode) {
+      return NewCustomTextField(
+        hintStyle: Get.textTheme.bodySmall,
+        bgColor: AppColors.fieldBackground,
+        prefixIconColor: AppColors.accentOrange400,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            width: 1,
+            color: AppColors.fieldBorder,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            width: 2,
+            color: AppColors.fieldFocus,
+          ),
+        ),
+        controller: _loginController.emailController,
+        hintText: "Email/Number",
+        prefixIcon: Icons.email,
+      );
+    } else {
+      return NewCustomTextField(
+        bgColor: Colors.grey.shade50,
+        prefixIconColor: Colors.orange,
+        controller: _loginController.emailController,
+        hintText: "Email/Number",
+        prefixIcon: Icons.email,
+      );
+    }
+  }
+
+  Widget _getPasswordFormField(RxBool isVsibile) {
+    if (Get.isDarkMode) {
+      return NewCustomTextField(
+        hintStyle: Get.textTheme.bodySmall,
+        controller: _loginController.passwordController,
+        hintText: "Password",
+        isObscure: isVsibile.value,
+        prefixIcon: Icons.lock,
+        bgColor: AppColors.fieldBackground,
+        prefixIconColor: AppColors.accentOrange400,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            width: 1,
+            color: AppColors.fieldBorder,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            width: 2,
+            color: AppColors.fieldFocus,
+          ),
+        ),
+        suffixIcon: !isVsibile.value ? Icons.visibility : Icons.visibility_off,
+        onSuffixTap: () {
+          isVsibile.value = !isVsibile.value;
+        },
+      );
+    } else {
+      return NewCustomTextField(
+        controller: _loginController.passwordController,
+        hintText: "Password",
+        isObscure: isVsibile.value,
+        prefixIcon: Icons.lock,
+        bgColor: Colors.grey.shade50,
+        prefixIconColor: Colors.orange,
+        suffixIcon: !isVsibile.value ? Icons.visibility : Icons.visibility_off,
+        onSuffixTap: () {
+          isVsibile.value = !isVsibile.value;
+        },
+      );
+    }
+  }
+
+  Widget _getButtonContent() {
+    if (Get.isDarkMode) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Sign in",
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Icon(
+            Icons.arrow_forward,
+            size: 20,
+            color: AppColors.textPrimary,
+          ),
+        ],
+      );
+    } else {
+      return const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Sign in",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(width: 10),
+          Icon(
+            Icons.arrow_forward,
+            size: 20,
+            color: Colors.white,
+          ),
+        ],
+      );
+    }
   }
 }
 
@@ -218,32 +316,6 @@ class SignUpFormFields extends StatelessWidget {
       ],
     );
   }
-}
-
-Container buildGradientOverlay() {
-  return Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(20),
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.transparent,
-          Colors.pink.withOpacity(0.05),
-        ],
-      ),
-    ),
-  );
-}
-
-ClipRRect buildBackDrop() {
-  return ClipRRect(
-    borderRadius: BorderRadius.circular(20),
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-      child: Container(color: Colors.transparent),
-    ),
-  );
 }
 
 class CustomPhoneNumberField extends StatelessWidget {

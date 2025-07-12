@@ -1451,7 +1451,7 @@ class UserController extends GetxController {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
       if (token == null) {
-        Get.offAll(() => const LoginScreen());
+        Get.offAll(() => LoginScreen());
         return;
       }
 

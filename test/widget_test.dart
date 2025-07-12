@@ -18,7 +18,7 @@ void main() {
       tester.view.physicalSize = const Size(250, 300);
 
       await tester.pumpWidget(
-        const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       expect(find.text("Welcome Back"), findsOneWidget);
@@ -42,7 +42,7 @@ void main() {
       tester.view.physicalSize = const Size(375, 667); // iPhone 6/7/8 size
 
       await tester.pumpWidget(
-        const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       expect(find.text("Welcome Back"), findsOneWidget);
@@ -61,7 +61,7 @@ void main() {
       tester.view.physicalSize = const Size(414, 896); // iPhone 11 Pro Max size
 
       await tester.pumpWidget(
-        const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       expect(find.text("Welcome Back"), findsOneWidget);
@@ -77,7 +77,7 @@ void main() {
     testWidgets('Sign in form elements are present and functional',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Check if sign in form title exists
@@ -102,7 +102,7 @@ void main() {
 
     testWidgets('Text field hints are correct', (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Find text fields by their icons and verify hints
@@ -121,7 +121,7 @@ void main() {
 
     testWidgets('Animated widgets are present', (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Check if all animated widgets are present
@@ -133,7 +133,7 @@ void main() {
     testWidgets('Backdrop filter and gradient effects are applied',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Check if backdrop filter is present
@@ -146,7 +146,7 @@ void main() {
     testWidgets('Screen scrolls properly when keyboard appears',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Verify SingleChildScrollView exists for keyboard handling
@@ -160,7 +160,7 @@ void main() {
     testWidgets('Colors and styling are applied correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Check if scaffold has the correct background color
@@ -175,7 +175,7 @@ void main() {
 
     testWidgets('Button tap functionality works', (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Find and tap the sign in button
@@ -191,7 +191,7 @@ void main() {
 
     testWidgets('Widget positioning is correct', (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Check if Stack is used for positioning animated elements
@@ -204,7 +204,7 @@ void main() {
     testWidgets('Form container has correct decoration',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Verify that the form container has the expected decoration properties
@@ -218,7 +218,7 @@ void main() {
     testWidgets('All text content is displayed correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Verify all static text content
@@ -238,16 +238,16 @@ void main() {
         (WidgetTester tester) async {
       // Test portrait orientation
       tester.view.devicePixelRatio = 1.0;
-      tester.view.physicalSize = const Size(375, 667);
+      tester.view.physicalSize = Size(375, 667);
 
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       expect(find.text("Welcome Back"), findsOneWidget);
 
       // Test landscape orientation
-      tester.view.physicalSize = const Size(667, 375);
+      tester.view.physicalSize = Size(667, 375);
       await tester.pump();
 
       expect(find.text("Welcome Back"), findsOneWidget);
@@ -263,7 +263,7 @@ void main() {
     testWidgets('Performance test - Animation frame rate consistency',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Measure frame times during animation
@@ -298,7 +298,7 @@ void main() {
     testWidgets('Performance test - Memory usage during animations',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Pump multiple animation cycles to test for memory leaks
@@ -452,7 +452,7 @@ void main() {
     testWidgets('Performance test - Multiple animations running simultaneously',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Test performance when all animations are running together
@@ -490,7 +490,7 @@ void main() {
     testWidgets('Performance test - Scroll performance with animations',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Test scrolling performance while animations are running
@@ -524,7 +524,7 @@ void main() {
     testWidgets('Performance test - Animation cleanup on dispose',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Let animations run for a bit
@@ -675,7 +675,7 @@ void main() {
     testWidgets('Integration test - All animations work together smoothly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Verify all animations are present
@@ -712,7 +712,7 @@ void main() {
     testWidgets('Integration test - Animations with user interactions',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-         const GetMaterialApp(home: LoginScreen()),
+        GetMaterialApp(home: LoginScreen()),
       );
 
       // Perform various user interactions while animations are running
@@ -742,5 +742,4 @@ void main() {
       expect(find.byType(RotatingStarWidget), findsOneWidget);
     });
   });
-
 }
