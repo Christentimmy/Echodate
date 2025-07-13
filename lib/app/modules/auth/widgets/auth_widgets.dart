@@ -42,11 +42,11 @@ class LoginFormField extends StatelessWidget {
             key: _loginController.formKey,
             child: Column(
               children: [
-                _getEmailFormField(),
+                _getEmailFormField(_loginController),
                 const SizedBox(height: 15),
                 Obx(() {
                   RxBool isVsibile = _loginController.isPasswordVisible;
-                  return _getPasswordFormField(isVsibile);
+                  return _getPasswordFormField(isVsibile, _loginController);
                 }),
                 const SizedBox(height: 30),
               ],
@@ -107,9 +107,12 @@ class LoginFormField extends StatelessWidget {
             alignment: WrapAlignment.center,
             spacing: 4,
             children: [
-              Text("New to EchoDate? ",style: TextStyle(
-                color: Get.theme.primaryColor,
-              ),),
+              Text(
+                "New to EchoDate? ",
+                style: TextStyle(
+                  color: Get.theme.primaryColor,
+                ),
+              ),
               InkWell(
                 onTap: () {
                   Get.to(() => RegisterScreen());
@@ -127,86 +130,6 @@ class LoginFormField extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Widget _getEmailFormField() {
-    if (Get.isDarkMode) {
-      return NewCustomTextField(
-        hintStyle: Get.textTheme.bodySmall,
-        bgColor: AppColors.fieldBackground,
-        prefixIconColor: AppColors.accentOrange400,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            width: 1,
-            color: AppColors.fieldBorder,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            width: 2,
-            color: AppColors.fieldFocus,
-          ),
-        ),
-        controller: _loginController.emailController,
-        hintText: "Email/Number",
-        prefixIcon: Icons.email,
-      );
-    } else {
-      return NewCustomTextField(
-        bgColor: Colors.grey.shade50,
-        prefixIconColor: Colors.orange,
-        controller: _loginController.emailController,
-        hintText: "Email/Number",
-        prefixIcon: Icons.email,
-      );
-    }
-  }
-
-  Widget _getPasswordFormField(RxBool isVsibile) {
-    if (Get.isDarkMode) {
-      return NewCustomTextField(
-        hintStyle: Get.textTheme.bodySmall,
-        controller: _loginController.passwordController,
-        hintText: "Password",
-        isObscure: isVsibile.value,
-        prefixIcon: Icons.lock,
-        bgColor: AppColors.fieldBackground,
-        prefixIconColor: AppColors.accentOrange400,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            width: 1,
-            color: AppColors.fieldBorder,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            width: 2,
-            color: AppColors.fieldFocus,
-          ),
-        ),
-        suffixIcon: !isVsibile.value ? Icons.visibility : Icons.visibility_off,
-        onSuffixTap: () {
-          isVsibile.value = !isVsibile.value;
-        },
-      );
-    } else {
-      return NewCustomTextField(
-        controller: _loginController.passwordController,
-        hintText: "Password",
-        isObscure: isVsibile.value,
-        prefixIcon: Icons.lock,
-        bgColor: Colors.grey.shade50,
-        prefixIconColor: Colors.orange,
-        suffixIcon: !isVsibile.value ? Icons.visibility : Icons.visibility_off,
-        onSuffixTap: () {
-          isVsibile.value = !isVsibile.value;
-        },
-      );
-    }
   }
 
   Widget _getButtonContent() {
@@ -263,57 +186,176 @@ class SignUpFormFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        NewCustomTextField(
-          hintText: "Email",
-          prefixIcon: Icons.email,
-          bgColor: Colors.grey.shade50,
-          prefixIconColor: Colors.orange,
-          controller: _signController.emailController,
-        ),
+        _getEmailFormField(_signController),
         const SizedBox(height: 15),
         Obx(() {
           RxBool isVisible = _signController.isPasswordVisible;
-          return NewCustomTextField(
-            hintText: "Password",
-            controller: _signController.passwordController,
-            prefixIcon: Icons.lock,
-            bgColor: Colors.grey.shade50,
-            prefixIconColor: Colors.orange,
-            isObscure: isVisible.value,
-            suffixIcon:
-                !isVisible.value ? Icons.visibility : Icons.visibility_off,
-            onSuffixTap: () {
-              isVisible.value = !isVisible.value;
-            },
-          );
+          return _getPasswordFormField(isVisible, _signController);
         }),
         const SizedBox(height: 15),
         Row(
           children: [
-            Expanded(
-              child: NewCustomTextField(
-                hintText: "Code",
-                prefixIcon: Icons.code,
-                controller: _signController.otpCodeController,
-                keyboardType: TextInputType.number,
-                bgColor: Colors.grey.shade50,
-                prefixIconColor: Colors.orange,
-              ),
-            ),
+            _getCodeField(),
             const SizedBox(width: 10),
-            AnimatedSendButton(
-              onTap: () async {
-                String email = _signController.emailController.text.trim();
-                if (email.isEmpty) {
-                  CustomSnackbar.showErrorSnackBar("Email is required");
-                  return;
-                }
-                await _authController.sendSignUpOtp(email: email);
-              },
+            Expanded(
+              flex: 1,
+              child: _getCustomButton(),
             ),
           ],
         )
       ],
+    );
+  }
+
+  Widget _getCustomButton() {
+    final isDark = Get.isDarkMode;
+
+    return CustomButton(
+      bgColor: isDark ? AppColors.fieldBackground : Colors.grey.shade50,
+      bgRadient: null,
+      border: Border.all(
+        width: 1,
+        color: isDark ? AppColors.fieldBorder : Colors.grey.shade300,
+      ),
+      ontap: () async {
+        String email = _signController.emailController.text.trim();
+        if (email.isEmpty) {
+          CustomSnackbar.showErrorSnackBar("Email is required");
+          return;
+        }
+        await _authController.sendSignUpOtp(email: email);
+      },
+      child: Obx(
+        () => _authController.isLoading.value
+            ? CircularProgressIndicator(color: AppColors.primaryColor)
+            : Text(
+                "Send-Code",
+                style: Get.textTheme.titleSmall,
+              ),
+      ),
+    );
+  }
+
+  Widget _getCodeField() {
+    if (Get.isDarkMode) {
+      return Expanded(
+        flex: 2,
+        child: NewCustomTextField(
+          hintText: "Code",
+          prefixIcon: Icons.code,
+          hintStyle: Get.textTheme.bodySmall,
+          bgColor: AppColors.fieldBackground,
+          controller: _signController.otpCodeController,
+          keyboardType: TextInputType.number,
+          prefixIconColor: Colors.orange,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              width: 1,
+              color: AppColors.fieldBorder,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              width: 2,
+              color: AppColors.fieldFocus,
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Expanded(
+        flex: 2,
+        child: NewCustomTextField(
+          hintText: "Code",
+          prefixIcon: Icons.code,
+          controller: _signController.otpCodeController,
+          keyboardType: TextInputType.number,
+          bgColor: Colors.grey.shade50,
+          prefixIconColor: Colors.orange,
+        ),
+      );
+    }
+  }
+}
+
+Widget _getEmailFormField(controller) {
+  if (Get.isDarkMode) {
+    return NewCustomTextField(
+      hintStyle: Get.textTheme.bodySmall,
+      bgColor: AppColors.fieldBackground,
+      prefixIconColor: AppColors.accentOrange400,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          width: 1,
+          color: AppColors.fieldBorder,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          width: 2,
+          color: AppColors.fieldFocus,
+        ),
+      ),
+      controller: controller.emailController,
+      hintText: "Email/Number",
+      prefixIcon: Icons.email,
+    );
+  } else {
+    return NewCustomTextField(
+      bgColor: Colors.grey.shade50,
+      prefixIconColor: Colors.orange,
+      controller: controller.emailController,
+      hintText: "Email/Number",
+      prefixIcon: Icons.email,
+    );
+  }
+}
+
+Widget _getPasswordFormField(RxBool isVsibile, controller) {
+  if (Get.isDarkMode) {
+    return NewCustomTextField(
+      hintStyle: Get.textTheme.bodySmall,
+      controller: controller.passwordController,
+      hintText: "Password",
+      isObscure: isVsibile.value,
+      prefixIcon: Icons.lock,
+      bgColor: AppColors.fieldBackground,
+      prefixIconColor: AppColors.accentOrange400,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          width: 1,
+          color: AppColors.fieldBorder,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          width: 2,
+          color: AppColors.fieldFocus,
+        ),
+      ),
+      suffixIcon: !isVsibile.value ? Icons.visibility : Icons.visibility_off,
+      onSuffixTap: () {
+        isVsibile.value = !isVsibile.value;
+      },
+    );
+  } else {
+    return NewCustomTextField(
+      controller: controller.passwordController,
+      hintText: "Password",
+      isObscure: isVsibile.value,
+      prefixIcon: Icons.lock,
+      bgColor: Colors.grey.shade50,
+      prefixIconColor: Colors.orange,
+      suffixIcon: !isVsibile.value ? Icons.visibility : Icons.visibility_off,
+      onSuffixTap: () {
+        isVsibile.value = !isVsibile.value;
+      },
     );
   }
 }

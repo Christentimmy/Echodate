@@ -24,12 +24,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Get.changeThemeMode(ThemeMode.dark);
     final ThemeController themeController = Get.put(ThemeController());
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorObservers: [routeObserver],
-      themeMode:
-          themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+      themeMode: ThemeMode.dark,
       darkTheme: darkTheme,
       theme: lightTheme,
       home: EchodateSplashScreen(),

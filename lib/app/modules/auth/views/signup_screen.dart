@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/modules/auth/controller/signup_controller.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
@@ -24,18 +23,14 @@ class RegisterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // _signUpController.recreateFormKey();
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: AppColors.bgOrange400,
+      backgroundColor:
+          Get.isDarkMode ? AppColors.bgDark900 : AppColors.bgOrange400,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              AppColors.bgOrange100,
-              AppColors.bgOrange200,
-              AppColors.bgOrange400,
-            ],
+            colors: _getBgGradient(),
             begin: Alignment.topCenter,
             end: Alignment.bottomRight,
           ),
@@ -52,10 +47,7 @@ class RegisterScreen extends StatelessWidget {
                   vertical: 15,
                   horizontal: 20,
                 ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white.withOpacity(0.8),
-                ),
+                decoration: _getDecoration(),
                 child: Stack(
                   children: [
                     _getBackDrop(),
@@ -73,6 +65,24 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 
+  BoxDecoration _getDecoration() {
+    if (!Get.isDarkMode) {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white.withOpacity(0.8),
+      );
+    } else {
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: AppColors.glassDark,
+        border: Border.all(
+          color: AppColors.fieldBorder,
+          width: 1,
+        ),
+      );
+    }
+  }
+
   Padding _buildSignUpFormWidget(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -82,20 +92,14 @@ class RegisterScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             "Create Account",
-            style: TextStyle(
-              fontSize: 23,
-              fontWeight: FontWeight.w700,
-            ),
+            style: Get.textTheme.headlineMedium,
           ),
           const SizedBox(height: 2),
-          const Text(
+          Text(
             "Fill the details to get started",
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Get.textTheme.bodySmall,
           ),
           const SizedBox(height: 15),
           Form(
@@ -119,7 +123,7 @@ class RegisterScreen extends StatelessWidget {
               Expanded(
                 child: RichText(
                   text: TextSpan(
-                    style: const TextStyle(color: Colors.black),
+                    style: TextStyle(color: Get.theme.primaryColor),
                     children: [
                       const TextSpan(text: 'I agree to the '),
                       TextSpan(
@@ -153,6 +157,25 @@ class RegisterScreen extends StatelessWidget {
           const SizedBox(height: 25),
           Obx(() {
             return CustomButton(
+              bgRadient: Get.isDarkMode
+                  ? LinearGradient(
+                      colors: [
+                        AppColors.accentOrange400,
+                        AppColors.accentOrange600,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              boxShadow: Get.isDarkMode
+                  ? [
+                      BoxShadow(
+                        color: AppColors.accentOrange400.withOpacity(0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
               ontap: () async {
                 await _signUpController.signUp(_signUpFormKey);
               },
@@ -217,21 +240,13 @@ class RegisterScreen extends StatelessWidget {
             Center(
               child: Text(
                 "Join EchoDate",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.bgOrange800,
-                ),
+                style: Get.textTheme.headlineLarge,
               ),
             ),
             Center(
               child: Text(
                 "Start your love story today",
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.bgOrange600,
-                ),
+                style: Get.textTheme.headlineSmall,
               ),
             ),
           ],
@@ -289,6 +304,22 @@ class RegisterScreen extends StatelessWidget {
           ),
         ),
       );
+    }
+  }
+
+  List<Color> _getBgGradient() {
+    if (Get.isDarkMode) {
+      return [
+        AppColors.bgDark800,
+        AppColors.bgDark700,
+        AppColors.bgDark900,
+      ];
+    } else {
+      return [
+        AppColors.bgOrange100,
+        AppColors.bgOrange200,
+        AppColors.bgOrange400,
+      ];
     }
   }
 }
