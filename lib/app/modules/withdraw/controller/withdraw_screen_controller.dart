@@ -84,11 +84,9 @@ class WithdrawScreenController extends GetxController
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         elevation: 0,
-        backgroundColor: Colors.transparent,
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
@@ -101,7 +99,6 @@ class WithdrawScreenController extends GetxController
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon with gradient background
               Container(
                 width: 50,
                 height: 50,
@@ -126,24 +123,22 @@ class WithdrawScreenController extends GetxController
               const SizedBox(height: 20),
 
               // Title
-              Text(
+              const Text(
                 'Confirm Withdrawal',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.darkColor,
                   letterSpacing: -0.5,
                 ),
               ),
 
               const SizedBox(height: 8),
 
-              Text(
+              const Text(
                 'Please review your withdrawal details',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.darkColor.withOpacity(0.6),
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -165,12 +160,11 @@ class WithdrawScreenController extends GetxController
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Withdrawal Amount',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.darkColor.withOpacity(0.7),
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -227,10 +221,9 @@ class WithdrawScreenController extends GetxController
                               Obx(
                                 () => Text(
                                   selectedBankModel.value?.bankName ?? "",
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.darkColor,
                                     letterSpacing: -0.2,
                                   ),
                                 ),
@@ -238,9 +231,8 @@ class WithdrawScreenController extends GetxController
                               const SizedBox(height: 2),
                               Text(
                                 '****${selectedBankModel.value?.accountNumber!.substring(selectedBankModel.value!.accountNumber!.length - 4)}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.darkColor.withOpacity(0.6),
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),
@@ -254,8 +246,6 @@ class WithdrawScreenController extends GetxController
               ),
 
               const SizedBox(height: 15),
-
-              // Action Buttons
               Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
@@ -272,10 +262,9 @@ class WithdrawScreenController extends GetxController
                           ),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Cancel',
                         style: TextStyle(
-                          color: AppColors.darkColor.withOpacity(0.7),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -292,8 +281,9 @@ class WithdrawScreenController extends GetxController
                           recipientCode: model.recipientCode!,
                         );
                         if (isSuccess != null && isSuccess == true) {
-                          Navigator.pop(context);
+                          Navigator.pop(Get.context!);
                           showSuccessDialog();
+                          return;
                         }
                       },
                       child: Obx(
@@ -338,21 +328,19 @@ class WithdrawScreenController extends GetxController
               child: Icon(Icons.check, color: Colors.green[600], size: 24),
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'Withdrawal Requested',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkColor,
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Your withdrawal request has been submitted. You will receive the money in 1-3 business days.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                color: AppColors.secondaryColor,
               ),
             ),
           ],
