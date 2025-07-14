@@ -1,6 +1,7 @@
 import 'package:echodate/app/controller/socket_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/modules/Interest/views/pick_hobbies_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
 import 'package:echodate/app/modules/onboarding/views/onboarding_screen.dart';
 import 'package:flutter/material.dart';
@@ -187,6 +188,7 @@ class SplashController extends GetxController with GetTickerProviderStateMixin {
     String? token = await storageController.getToken();
     if (token == null || token.isEmpty) {
       Get.off(() => const RegisterScreen());
+      // Get.off(() => const PickHobbiesScreen());
       return;
     }
     await userController.getUserStatus();

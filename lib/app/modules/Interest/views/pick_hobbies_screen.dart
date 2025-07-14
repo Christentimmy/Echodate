@@ -34,13 +34,14 @@ class _PickHobbiesScreenState extends State<PickHobbiesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Logo
-              Center(
-                child: Image.asset(
-                  "assets/images/ECHODATE.png",
-                  width: Get.width * 0.2,
-                  fit: BoxFit.cover,
-                ),
-              ),
+              // Center(
+              //   child: Image.asset(
+              //     "assets/images/ECHODATE.png",
+              //     width: Get.width * 0.3,
+              //     height: 50,
+              //     fit: BoxFit.fitWidth,
+              //   ),
+              // ),
               const SizedBox(height: 10),
 
               // Title
@@ -131,7 +132,7 @@ class _PickHobbiesScreenState extends State<PickHobbiesScreen> {
                   ),
                 );
               }),
-              const Spacer(),
+              const SizedBox(height: 20),
               CustomButton(
                 ontap: () async {
                   if (widget.callback != null ||

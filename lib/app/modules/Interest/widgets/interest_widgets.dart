@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 Widget buildSelectiveCards({
   required Map<String, String> interest,
   required bool isSelected,
   required VoidCallback onTap,
 }) {
+  final isDark = Get.isDarkMode;
+
   return GestureDetector(
     onTap: onTap,
     child: Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 10,
+        horizontal: 12,
+        vertical: 7,
       ),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.orange : Colors.white,
+        color: isSelected
+            ? Colors.orange
+            : (isDark ? Colors.grey[900] : Colors.white),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.orange,
+          color: isSelected
+              ? Colors.orange
+              : (isDark ? Colors.grey[700]! : Colors.orange),
           width: 1.5,
         ),
         boxShadow: isSelected
@@ -41,7 +48,9 @@ Widget buildSelectiveCards({
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.white : Colors.orange,
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? Colors.white : Colors.orange),
             ),
           ),
         ],
