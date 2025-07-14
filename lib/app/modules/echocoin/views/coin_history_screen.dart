@@ -1,14 +1,13 @@
+
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/transaction_model.dart';
+import 'package:echodate/app/modules/echocoin/widget/filter_coin_history.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/date_converter.dart';
-import 'package:echodate/app/widget/custom_button.dart';
-import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 class CoinHistoryScreen extends StatefulWidget {
   const CoinHistoryScreen({super.key});
@@ -45,7 +44,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
 
     try {
       await _userController.getUserCoinHistory(
-        limit: 15,
+        limit: 20,
         page: _page,
         status: _selectedFilter == 'all' ? null : _selectedFilter,
       );
@@ -71,7 +70,6 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
       appBar: _buildAppBar(),
       body: SafeArea(
         child: Column(
@@ -192,7 +190,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
       color: AppColors.primaryColor,
       onRefresh: () async {
         await _userController.getUserCoinHistory(
-          limit: 15,
+          limit: 20,
           page: _page,
           showLoader: false,
         );
@@ -247,10 +245,9 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.receipt_long_outlined,
             size: 80,
-            color: Colors.grey.shade400,
           ),
           const SizedBox(height: 16),
           Text(
@@ -258,7 +255,6 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
             ),
           ),
           const SizedBox(height: 8),
@@ -266,7 +262,6 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
             'Your coin transactions will appear here',
             style: GoogleFonts.poppins(
               fontSize: 14,
-              color: Colors.grey.shade500,
             ),
           ),
         ],
@@ -275,14 +270,18 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
   }
 
   Widget _buildTransactionCard(TransactionModel transaction, int index) {
+    final bool isDarkMode = Get.isDarkMode;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color:
+            isDarkMode ? const Color.fromARGB(255, 24, 23, 23) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: isDarkMode
+                ? Colors.black.withOpacity(0.3)
+                : Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -302,7 +301,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade800,
+                      color: isDarkMode ? Colors.white : Colors.grey.shade800,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -353,17 +352,20 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
                   Icon(
                     Icons.access_time,
                     size: 14,
-                    color: Colors.grey.shade500,
+                    color: isDarkMode
+                        ? Colors.grey.shade400
+                        : Colors.grey.shade500,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     convertDateToNormal(transaction.createdAt.toString()),
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: Colors.grey.shade600,
+                      color: isDarkMode
+                          ? Colors.grey.shade300
+                          : Colors.grey.shade600,
                     ),
                   ),
-                  // const Spacer(),
                 ],
               ),
               InkWell(
@@ -380,7 +382,9 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: isDarkMode
+                        ? Colors.grey.shade700
+                        : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
@@ -390,14 +394,18 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
                         '${transaction.reference.substring(0, 8)}...',
                         style: GoogleFonts.poppins(
                           fontSize: 11,
-                          color: Colors.grey.shade700,
+                          color: isDarkMode
+                              ? Colors.grey.shade300
+                              : Colors.grey.shade700,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Icon(
                         Icons.copy,
                         size: 14,
-                        color: Colors.grey.shade600,
+                        color: isDarkMode
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade600,
                       ),
                     ],
                   ),
@@ -509,21 +517,18 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
       elevation: 0,
       title: Text(
         "Coin History",
         style: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Colors.grey.shade800,
         ),
       ),
       leading: IconButton(
         onPressed: () => Navigator.pop(context),
-        icon: Icon(
+        icon: const Icon(
           Icons.arrow_back_ios,
-          color: Colors.grey.shade700,
         ),
       ),
       actions: [
@@ -536,9 +541,8 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
               builder: (context) => FilterCoinHistory(),
             );
           },
-          icon: Icon(
+          icon: const Icon(
             Icons.tune,
-            color: Colors.grey.shade700,
           ),
         ),
       ],
@@ -556,186 +560,5 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
       default:
         return Colors.grey;
     }
-  }
-}
-
-class FilterCoinHistory extends StatelessWidget {
-  FilterCoinHistory({super.key});
-
-  final _userController = Get.find<UserController>();
-  final Rxn<DateTime> _startDate = Rxn<DateTime>();
-  final Rxn<DateTime> _endDate = Rxn<DateTime>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Text(
-                  "Filter by Date Range",
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-            const Divider(),
-            const SizedBox(height: 20),
-            Text(
-              "Start Date",
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Obx(
-              () => CustomTextField(
-                hintText: _startDate.value != null
-                    ? DateFormat("MMM dd, yyyy").format(_startDate.value!)
-                    : "Select start date",
-                readOnly: true,
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime.parse(
-                      _userController.userModel.value?.createdAt.toString() ??
-                          DateTime.now()
-                              .subtract(const Duration(days: 365))
-                              .toString(),
-                    ),
-                    lastDate: DateTime.now(),
-                    initialDate: _startDate.value ??
-                        DateTime.now().subtract(const Duration(days: 30)),
-                  );
-                  if (date != null) {
-                    _startDate.value = date;
-                  }
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "End Date",
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Obx(
-              () => CustomTextField(
-                hintText: _endDate.value != null
-                    ? DateFormat("MMM dd, yyyy").format(_endDate.value!)
-                    : "Select end date",
-                readOnly: true,
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    firstDate: _startDate.value ??
-                        DateTime.parse(
-                          _userController.userModel.value?.createdAt
-                                  .toString() ??
-                              DateTime.now()
-                                  .subtract(const Duration(days: 365))
-                                  .toString(),
-                        ),
-                    lastDate: DateTime.now(),
-                    initialDate: _endDate.value ?? DateTime.now(),
-                  );
-                  if (date != null) {
-                    _endDate.value = date;
-                  }
-                },
-              ),
-            ),
-            const SizedBox(height: 30),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      _startDate.value = null;
-                      _endDate.value = null;
-                      _userController.getUserCoinHistory();
-                      Navigator.pop(context);
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      "Clear Filter",
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: CustomButton(
-                    ontap: () async {
-                      if (_startDate.value != null && _endDate.value != null) {
-                        if (_startDate.value!.isAfter(_endDate.value!)) {
-                          Get.snackbar(
-                            'Invalid Date Range',
-                            'Start date must be before end date',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red.shade100,
-                            colorText: Colors.red.shade800,
-                          );
-                          return;
-                        }
-                      }
-
-                      await _userController.getUserCoinHistory(
-                        startDate: _startDate.value?.toIso8601String(),
-                        endDate: _endDate.value?.toIso8601String(),
-                      );
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "Apply Filter",
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
