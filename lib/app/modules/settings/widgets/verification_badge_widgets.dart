@@ -81,7 +81,7 @@ class BuildIdSelectionStep extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected
-                                ? Theme.of(context).primaryColor
+                                ? AppColors.primaryColor
                                 : Colors.grey.shade300,
                             width: 2,
                           ),
@@ -94,12 +94,17 @@ class BuildIdSelectionStep extends StatelessWidget {
                           children: [
                             Text(
                               idType['name']!,
-                              style: const TextStyle(fontSize: 16),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color:
+                                    isSelected ? AppColors.primaryColor : null,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                             if (isSelected)
                               Icon(
                                 Icons.check_circle,
-                                color: Theme.of(context).primaryColor,
+                                color: AppColors.primaryColor,
                               ),
                           ],
                         ),

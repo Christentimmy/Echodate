@@ -133,9 +133,10 @@ class _AppSettingsState extends State<AppSettings>
                       Obx(() {
                         final userModel = _userController.userModel.value;
                         if (userModel == null) {
-                          return const ShimmerWrapper(
+                          return ShimmerWrapper(
                             child: CircleAvatar(
                               radius: 30,
+                              backgroundColor: AppColors.primaryColor,
                             ),
                           );
                         }

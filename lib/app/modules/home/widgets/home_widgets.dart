@@ -43,54 +43,13 @@ class HeaderHomeWidget extends StatelessWidget {
               //   ),
               // ),
               // const SizedBox(width: 10),
-              Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color:
-                      Get.isDarkMode ? const Color(0xFF2D2D2D) : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  onPressed: () => PreferenceBottomSheet.show(context),
-                  icon: Icon(
-                    Icons.tune,
-                    color: AppColors.primaryColor,
-                  ),
-                  tooltip: "Preferences",
-                ),
+              _buildCustomIcon(
+                () => PreferenceBottomSheet.show(context),
+                Icons.tune,
               ),
-              Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color:
-                      Get.isDarkMode ? const Color(0xFF2D2D2D) : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    Get.to(() => const ProfileScreen());
-                  },
-                  icon: Icon(
-                    Icons.person,
-                    color: AppColors.primaryColor,
-                    size: 17,
-                  ),
-                  tooltip: "Profile",
-                ),
+              _buildCustomIcon(
+                () => Get.to(() => const ProfileScreen()),
+                Icons.person,
               ),
 
               // const SizedBox(width: 20),
@@ -112,6 +71,35 @@ class HeaderHomeWidget extends StatelessWidget {
             ],
           )
         ],
+      ),
+    );
+  }
+
+  Widget _buildCustomIcon(
+    VoidCallback onTap,
+    IconData icon,
+  ) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Get.isDarkMode ? const Color(0xFF2D2D2D) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: AppColors.primaryColor,
+          size: 17,
+        ),
       ),
     );
   }
