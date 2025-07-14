@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
-import 'package:echodate/app/modules/home/widgets/tinder_card_details.dart';
+import 'package:echodate/app/modules/home/views/alt_tinder_card_details.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -23,9 +23,7 @@ class LikeAndMatchCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (_userController.userModel.value?.plan != "free") {
-          Get.to(
-            () => TinderCardDetails(userModel: matchUserModel),
-          );
+          Get.to(() => AltTinderCardDetails(userModel: matchUserModel));
         }
       },
       child: Container(
@@ -174,7 +172,8 @@ class DisplayFreeCard extends StatelessWidget {
   }
 }
 
-Theme buildFilterIcon(BuildContext context, Function(String)? onSelectedMethod) {
+Theme buildFilterIcon(
+    BuildContext context, Function(String)? onSelectedMethod) {
   return Theme(
     data: Theme.of(context).copyWith(
       popupMenuTheme: PopupMenuThemeData(

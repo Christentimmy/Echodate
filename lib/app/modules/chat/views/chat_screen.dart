@@ -7,14 +7,13 @@ import 'package:echodate/app/modules/chat/widgets/textfield/chat_input_field_wid
 import 'package:echodate/app/modules/chat/widgets/media/media_preview_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/receiver_card.dart';
 import 'package:echodate/app/modules/chat/widgets/sender_card.dart';
+import 'package:echodate/app/modules/home/views/alt_tinder_card_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:echodate/app/modules/home/widgets/tinder_card_details.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/user_model.dart';
-// import 'package:echodate/app/resources/colors.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -152,13 +151,12 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           InkWell(
             onTap: () {
-              Get.to(() => TinderCardDetails(
-                    userModel: UserModel(
-                      id: widget.chatHead.userId,
-                      avatar: widget.chatHead.avatar,
-                      fullName: widget.chatHead.fullName,
-                    ),
-                  ));
+              final userModel = UserModel(
+                id: widget.chatHead.userId,
+                avatar: widget.chatHead.avatar,
+                fullName: widget.chatHead.fullName,
+              );
+              Get.to(() => AltTinderCardDetails(userModel: userModel));
             },
             child: CircleAvatar(
               radius: 22,
@@ -304,5 +302,4 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
-
 }

@@ -6,7 +6,6 @@ import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/Interest/views/relationtionship_preference_screen.dart';
 import 'package:echodate/app/modules/auth/views/change_password_screen.dart';
 import 'package:echodate/app/modules/profile/widgets/edit_profile_widgets.dart';
-import 'package:echodate/app/modules/settings/views/preference_setting_screen.dart';
 import 'package:echodate/app/modules/settings/views/verification_badge_screen.dart';
 import 'package:echodate/app/modules/settings/widgets/setting_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
@@ -91,12 +90,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: "Change Password",
                       icon: Icons.lock_outline_rounded,
                       onTap: () => Get.to(() => const ChangePasswordScreen()),
-                    ),
-                    _buildSettingTile(
-                      title: "Your Preferences",
-                      icon: Icons.tune_rounded,
-                      onTap: () =>
-                          Get.to(() => const PreferenceSettingScreen()),
                     ),
                     Obx(() {
                       final user = _userController.userModel.value;
