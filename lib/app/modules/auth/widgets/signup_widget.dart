@@ -1,9 +1,9 @@
-import 'dart:ui';
-
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/modules/auth/controller/signup_controller.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
+import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/utils/validator.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:echodate/app/widget/loader.dart';
@@ -32,8 +32,8 @@ class SignUpModalWidget extends StatelessWidget {
       decoration: AppColors.formFieldDecoration,
       child: Stack(
         children: [
-          _buildBackDrop(),
-          _getGradientOverlay(),
+          buildBackDrop(),
+          getGradientOverlay(),
           _buildSignUpFormWidget(context),
         ],
       ),
@@ -67,8 +67,9 @@ class SignUpModalWidget extends StatelessWidget {
                 NewCustomTextField(
                   prefixIconColor: Colors.orange,
                   controller: _signUpController.emailController,
-                  hintText: "Email/Number",
+                  hintText: "Email",
                   prefixIcon: Icons.email,
+                  validator: validateEmail,
                 ),
                 const SizedBox(height: 10),
                 Obx(() {
@@ -216,6 +217,7 @@ class SignUpModalWidget extends StatelessWidget {
 
   Widget _getCustomButton() {
     final isDark = Get.isDarkMode;
+
     return CustomButton(
       bgColor: isDark ? AppColors.fieldBackground : Colors.transparent,
       border: Border.all(
@@ -227,6 +229,10 @@ class SignUpModalWidget extends StatelessWidget {
         if (email.isEmpty) {
           CustomSnackbar.showErrorSnackBar("Email is required");
           return;
+        }
+        String? errorText = validateEmail(email);
+        if (errorText != null) {
+          return CustomSnackbar.showErrorSnackBar(errorText);
         }
         await _authController.sendSignUpOtp(email: email);
       },
@@ -243,29 +249,4 @@ class SignUpModalWidget extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildBackDrop() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(color: Colors.transparent),
-      ),
-    );
-  }
-
-  Widget _getGradientOverlay() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: AppColors.formFieldGradient,
-        ),
-      ),
-    );
-  }
-
-
 }

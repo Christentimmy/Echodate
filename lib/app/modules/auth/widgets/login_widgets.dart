@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:echodate/app/modules/auth/controller/login_controller.dart';
 import 'package:echodate/app/modules/auth/views/reset_password_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
+import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
@@ -29,33 +30,10 @@ class LoginModalWidget extends StatelessWidget {
       decoration: AppColors.formFieldDecoration,
       child: Stack(
         children: [
-          _buildBackDrop(),
-          _getGradientOverlay(),
+          buildBackDrop(),
+          getGradientOverlay(),
           _formFields(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBackDrop() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(color: Colors.transparent),
-      ),
-    );
-  }
-
-  Widget _getGradientOverlay() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: AppColors.formFieldGradient,
-        ),
       ),
     );
   }
