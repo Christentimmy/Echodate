@@ -662,8 +662,11 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> getPotentialMatches({bool? loadMore = false}) async {
-    isloading.value = true;
+  Future<void> getPotentialMatches({
+    bool? loadMore = false,
+    bool showLoader = true,
+  }) async {
+    isloading.value = showLoader;
 
     try {
       if (loadMore == true && hasNextPage) {

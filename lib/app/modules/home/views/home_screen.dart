@@ -55,13 +55,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: RefreshIndicator(
         color: AppColors.primaryColor,
         onRefresh: () async {
           await _storyController.getUserPostedStories();
           await _storyController.getAllStories();
-          await _userController.getPotentialMatches();
+          await _userController.getPotentialMatches(showLoader: false);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),

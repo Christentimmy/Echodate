@@ -89,9 +89,7 @@ class MessageController extends GetxController {
   }
 
   Future<void> getChatList({bool showLoading = true}) async {
-    if (showLoading) {
-      isChatListLoading.value = true;
-    }
+    isChatListLoading.value = showLoading;
     try {
       final storageController = Get.find<StorageController>();
       String? token = await storageController.getToken();
@@ -123,40 +121,6 @@ class MessageController extends GetxController {
       debugPrint(e.toString());
     } finally {
       isChatListLoading.value = false;
-    }
-    return;
-  }
-
-  Future<void> refreshChatList() async {
-    try {
-      final storageController = Get.find<StorageController>();
-      String? token = await storageController.getToken();
-      if (token == null || token.isEmpty) {
-        CustomSnackbar.showErrorSnackBar("Authentication required");
-        return;
-      }
-
-      final response = await _messageService.getChatList(
-        token: token,
-      );
-
-      if (response == null) return;
-      final decoded = json.decode(response.body);
-      String message = decoded["message"] ?? "";
-      if (response.statusCode != 200) {
-        CustomSnackbar.showErrorSnackBar(message);
-        return;
-      }
-      List chatHistory = decoded["chatList"] ?? [];
-      allChattedUserList.clear();
-      if (chatHistory.isEmpty) return;
-      List<ChatListModel> mapped =
-          chatHistory.map((e) => ChatListModel.fromJson(e)).toList();
-      allChattedUserList.value = mapped;
-      allChattedUserList.refresh();
-      if (response.statusCode == 200) isChattedListFetched.value = true;
-    } catch (e) {
-      debugPrint(e.toString());
     }
     return;
   }

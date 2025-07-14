@@ -12,12 +12,13 @@ class BottomNavigationScreen extends StatelessWidget {
   BottomNavigationScreen({super.key});
 
   final RxInt _currentIndex = 0.obs;
+
+  
   final List<Widget> _pages = [
     const HomeScreen(),
     const FavouriteScreen(),
     const MatchesScreen(),
     const ChatListScreen(),
-    // const ProfileScreen(),
     const AppSettings(),
   ];
 

@@ -20,9 +20,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _messageController.getChatList(showLoading: false);
       if (!_messageController.isChattedListFetched.value) {
-        _messageController.getChatList(showLoading: true);
+        _messageController.getChatList();
       }
     });
   }
@@ -30,40 +29,20 @@ class _ChatListScreenState extends State<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
           'Messages',
           style: TextStyle(
             fontSize: 24,
-            color: Colors.black87,
             fontWeight: FontWeight.w700,
           ),
         ),
-        actions: [
-          // Container(
-          //   margin: const EdgeInsets.only(right: 8),
-          //   decoration: BoxDecoration(
-          //     color: AppColors.primaryColor.withOpacity(0.1),
-          //     borderRadius: BorderRadius.circular(12),
-          //   ),
-          //   child: IconButton(
-          //     icon: Icon(
-          //       Icons.search_rounded,
-          //       color: AppColors.primaryColor,
-          //       size: 24,
-          //     ),
-          //     onPressed: () {},
-          //   ),
-          // ),
-        ],
       ),
       body: RefreshIndicator(
         color: AppColors.primaryColor,
         onRefresh: () async {
-          await _messageController.refreshChatList();
+          await _messageController.getChatList(showLoading: false);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -72,67 +51,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Section
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primaryColor.withOpacity(0.1),
-                        AppColors.primaryColor.withOpacity(0.05),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.chat_bubble_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "My Conversations",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Obx(() => Text(
-                                  "${_messageController.allChattedUserList.length} active chats",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                )),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
+                _buildHeader(),
                 const SizedBox(height: 24),
-
-                // Chat List Section
                 Obx(() {
+                  final isDark = Get.isDarkMode;
                   if (_messageController.isChatListLoading.value) {
                     return ListView.builder(
                       shrinkWrap: true,
@@ -143,63 +65,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   }
 
                   if (_messageController.allChattedUserList.isEmpty) {
-                    return Container(
-                      height: Get.height * 0.5,
-                      width: Get.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              child: Icon(
-                                Icons.chat_bubble_outline_rounded,
-                                size: 48,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No conversations yet',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Start chatting with your matches!',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[500],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                    return _buildEmptyList();
                   }
 
                   return Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isDark
+                          ? const Color.fromARGB(255, 26, 25, 25)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -234,12 +107,116 @@ class _ChatListScreenState extends State<ChatListScreen> {
     );
   }
 
+  Container _buildEmptyList() {
+    final isDark = Get.isDarkMode;
+    return Container(
+      height: Get.height * 0.5,
+      width: Get.width,
+      decoration: BoxDecoration(
+        color: isDark ? const Color.fromARGB(255, 26, 25, 25) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: Icon(
+                Icons.chat_bubble_outline_rounded,
+                size: 48,
+                color: isDark ? Colors.grey : null,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'No conversations yet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Start chatting with your matches!',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.primaryColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.chat_bubble_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "My Conversations",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Obx(() => Text(
+                      "${_messageController.allChattedUserList.length} active chats",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    )),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildChatItem(dynamic messageModel) {
+    final isDark = Get.isDarkMode;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.transparent,
       ),
       child: ListTile(
         onTap: () {
@@ -253,7 +230,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: isDark
+                        ? Colors.black.withOpacity(0.4)
+                        : Colors.black.withOpacity(0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -270,12 +249,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: isDark ? Colors.grey[800] : Colors.grey[300],
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Icon(
                       Icons.person,
-                      color: Colors.grey[400],
+                      color: isDark ? Colors.grey[600] : Colors.grey[400],
                       size: 24,
                     ),
                   ),
@@ -283,12 +262,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: isDark ? Colors.grey[800] : Colors.grey[300],
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Icon(
                       Icons.person,
-                      color: Colors.grey[400],
+                      color: isDark ? Colors.grey[600] : Colors.grey[400],
                       size: 24,
                     ),
                   ),
@@ -303,9 +282,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   width: 16,
                   height: 16,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? Colors.grey[900] : Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(
+                        color: isDark ? Colors.grey[900]! : Colors.white,
+                        width: 2),
                   ),
                   child: Container(
                     decoration: BoxDecoration(
@@ -319,10 +300,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
         ),
         title: Text(
           messageModel.fullName ?? "",
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: isDark ? Colors.white : Colors.black87,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -335,7 +316,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
               messageModel.lastMessage ?? "",
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
                 fontWeight: FontWeight.w400,
               ),
               maxLines: 1,
@@ -370,46 +351,82 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Widget _buildChatItemSkeleton() {
+    // Define colors based on theme
+    final bool isDark = Get.isDarkMode;
+
+    // Base and highlight colors for shimmer effect
+    final Color baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
+    final Color highlightColor = isDark ? Colors.grey[700]! : Colors.grey[100]!;
+
+    // Container colors for skeleton elements
+    final Color primarySkeletonColor =
+        isDark ? Colors.grey[700]! : Colors.grey[300]!;
+    final Color secondarySkeletonColor =
+        isDark ? Colors.grey[600]! : Colors.grey[200]!;
+
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: baseColor,
+      highlightColor: highlightColor,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        margin: const EdgeInsets.symmetric(
+          horizontal: 4,
+          vertical: 2,
+        ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: Colors.transparent,
         ),
         child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
           leading: Container(
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: primarySkeletonColor,
               borderRadius: BorderRadius.circular(20),
             ),
           ),
           title: Container(
             width: 100,
             height: 16,
-            color: Colors.grey[300],
+            color: primarySkeletonColor,
             margin: const EdgeInsets.only(bottom: 8),
           ),
           subtitle: Container(
             width: 150,
             height: 14,
-            color: Colors.grey[200],
+            color: secondarySkeletonColor,
           ),
           trailing: Container(
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: primarySkeletonColor,
               borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildSearchIcon() {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      decoration: BoxDecoration(
+        color: AppColors.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: IconButton(
+        icon: Icon(
+          Icons.search_rounded,
+          color: AppColors.primaryColor,
+          size: 24,
+        ),
+        onPressed: () {},
       ),
     );
   }
