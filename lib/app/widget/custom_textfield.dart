@@ -141,6 +141,7 @@ class CustomTextField extends StatelessWidget {
 class NewCustomTextField extends StatelessWidget {
   TextEditingController? controller;
   int? maxLines;
+  FocusNode? focusNode;
   final String hintText;
   TextStyle? hintStyle;
   TextStyle? textStyle;
@@ -187,6 +188,7 @@ class NewCustomTextField extends StatelessWidget {
     this.textStyle,
     this.onTap,
     this.prefixIconColor,
+    this.focusNode,
   });
 
   @override
@@ -195,6 +197,7 @@ class NewCustomTextField extends StatelessWidget {
       height: fieldHeight,
       child: TextFormField(
         maxLength: maxLength,
+        focusNode: focusNode,
         validator: validator ??
             (value) {
               if (value!.isEmpty) {

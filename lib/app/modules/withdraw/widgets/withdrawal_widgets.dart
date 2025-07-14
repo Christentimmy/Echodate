@@ -116,7 +116,7 @@ Widget buildHeader(WithdrawScreenController controller) {
       vertical: 16,
     ),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Get.theme.scaffoldBackgroundColor,
       border: Border(
         bottom: BorderSide(
           color: AppColors.borderColor,
@@ -135,7 +135,9 @@ Widget buildHeader(WithdrawScreenController controller) {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppColors.lightGrey,
+              color: Get.isDarkMode
+                  ? const Color.fromARGB(255, 46, 46, 46)
+                  : AppColors.lightGrey,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -145,13 +147,12 @@ Widget buildHeader(WithdrawScreenController controller) {
             ),
           ),
         ),
-        Expanded(
+        const Expanded(
           child: Text(
             'Withdraw',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AppColors.darkColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -162,7 +163,9 @@ Widget buildHeader(WithdrawScreenController controller) {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppColors.lightGrey,
+              color: Get.isDarkMode
+                  ? const Color.fromARGB(255, 46, 46, 46)
+                  : AppColors.lightGrey,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -311,8 +314,23 @@ class BuildWithdrawSection extends StatelessWidget {
           return Form(
             key: controller.withdrawFormKey,
             autovalidateMode: AutovalidateMode.always,
-            child: TextFormField(
-              validator: (value) {
+            child: NewCustomTextField(
+              hintText: "0.00",
+              prefixIcon: Icons.wallet,
+              prefixIconColor: AppColors.primaryColor,
+              controller: controller.withdrawAmountController,
+              focusNode: controller.withdrawFocusNode,
+              suffixIcon: controller.withdrawAmount > 0 ? Icons.close : null,
+              onSuffixTap: () {
+                controller.withdrawAmountController.clear();
+                HapticFeedback.lightImpact();
+              },
+              onChanged: (_) {
+                controller.canwithdrawM.value = controller.canWithdraw(
+                  _userController.userModel.value?.echocoinsBalance ?? 0,
+                );
+              },
+              validator: (v) {
                 if (model!.echocoinsBalance == null) {
                   return null;
                 }
@@ -325,80 +343,6 @@ class BuildWithdrawSection extends StatelessWidget {
                 }
                 return null;
               },
-              controller: controller.withdrawAmountController,
-              focusNode: controller.withdrawFocusNode,
-              onChanged: (_) {
-                controller.canwithdrawM.value = controller.canWithdraw(
-                  _userController.userModel.value?.echocoinsBalance ?? 0,
-                );
-              },
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: AppColors.darkColor,
-              ),
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.all(16),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    width: 1,
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    width: 1,
-                    color: AppColors.secondaryOrange,
-                  ),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    width: 1,
-                    color: Colors.red.shade300,
-                  ),
-                ),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    width: 1,
-                    color: Colors.red.shade300,
-                  ),
-                ),
-                hintText: '0',
-                hintStyle: TextStyle(
-                  fontSize: 20,
-                  color: Colors.grey[400],
-                ),
-                prefixIcon: Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'GH₵',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.secondaryColor,
-                    ),
-                  ),
-                ),
-                suffixIcon: controller.withdrawAmount > 0
-                    ? IconButton(
-                        onPressed: () {
-                          controller.withdrawAmountController.clear();
-                          HapticFeedback.lightImpact();
-                        },
-                        icon: Icon(
-                          Icons.close,
-                          color: Colors.grey[400],
-                          size: 20,
-                        ),
-                      )
-                    : null,
-              ),
             ),
           );
         }),
@@ -451,9 +395,13 @@ class BuildWithdrawSection extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: AppColors.lightGrey,
+            color: Get.isDarkMode
+                ? const Color.fromARGB(255, 46, 46, 46)
+                : AppColors.lightGrey,
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: AppColors.borderColor),
+            border: Get.isDarkMode
+                ? null
+                : Border.all(color: AppColors.borderColor),
           ),
           child: Text(
             label,
@@ -484,12 +432,11 @@ class BuildBankSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'Bank Account',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkColor,
               ),
             ),
             GestureDetector(
@@ -566,7 +513,9 @@ class BuildEachBankCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.lightGrey : Colors.white,
+          color: (Get.isDarkMode
+              ? const Color.fromARGB(255, 46, 46, 46)
+              : Colors.white),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? AppColors.primaryColor : AppColors.borderColor,
@@ -590,20 +539,19 @@ class BuildEachBankCard extends StatelessWidget {
                 children: [
                   Text(
                     bank.bankName ?? "",
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: bank.isVerified
-                          ? AppColors.darkColor
-                          : AppColors.secondaryColor,
+                      // color: bank.isVerified
+                      //     ? AppColors.darkColor
+                      //     : AppColors.secondaryColor,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${bank.accountName} • ${bank.accountNumber}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
-                      color: AppColors.secondaryColor,
                     ),
                   ),
                 ],

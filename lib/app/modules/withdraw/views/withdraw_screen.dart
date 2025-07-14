@@ -37,7 +37,7 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -73,7 +73,6 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
       ),
     );
   }
-
 }
 
 class BuildEachBankCard extends StatelessWidget {
