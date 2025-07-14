@@ -1,6 +1,6 @@
 import 'package:echodate/app/controller/auth_controller.dart';
-import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,47 +28,48 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Change Password",
           style: TextStyle(
-            color: AppColors.primaryColor,
             fontWeight: FontWeight.bold,
           ),
         ),
         elevation: 0,
-        leading: IconButton(
-          onPressed: () {
-            Get.back();
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios,
-          ),
-        ),
+        automaticallyImplyLeading: false,
       ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 10,
+        ),
         child: Column(
           children: [
             const SizedBox(height: 30),
 
             // Password Input Fields
             Obx(
-              () => _buildPasswordField(
-                label: "Old Password",
+              () => NewCustomTextField(
+                hintText: "Old Password",
                 controller: _oldPasswordController,
-                obscureText: _obscureOldPassword.value,
-                toggleObscure: () {
+                isObscure: _obscureOldPassword.value,
+                suffixIcon: _obscureOldPassword.value
+                    ? Icons.visibility_off
+                    : Icons.visibility,
+                onSuffixTap: () {
                   _obscureOldPassword.value = !_obscureOldPassword.value;
                 },
               ),
             ),
             const SizedBox(height: 15),
             Obx(
-              () => _buildPasswordField(
-                label: "New Password",
+              () => NewCustomTextField(
+                hintText: "New Password",
                 controller: _newPasswordController,
-                obscureText: _obscureNewPassword.value,
-                toggleObscure: () {
+                isObscure: _obscureNewPassword.value,
+                suffixIcon: _obscureOldPassword.value
+                    ? Icons.visibility_off
+                    : Icons.visibility,
+                onSuffixTap: () {
                   _obscureNewPassword.value = !_obscureNewPassword.value;
                 },
               ),
@@ -76,79 +77,42 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             const SizedBox(height: 15),
 
             Obx(
-              () => _buildPasswordField(
-                label: "Confirm Password",
+              () => NewCustomTextField(
+                hintText: "Confirm Password",
                 controller: _confirmPasswordController,
-                obscureText: _obscureConfirmPassword.value,
-                toggleObscure: () {
+                isObscure: _obscureConfirmPassword.value,
+                suffixIcon: _obscureOldPassword.value
+                    ? Icons.visibility_off
+                    : Icons.visibility,
+                onSuffixTap: () {
                   _obscureConfirmPassword.value =
                       !_obscureConfirmPassword.value;
                 },
               ),
             ),
-            const SizedBox(height: 30),
+            const Spacer(),
 
             // Change Password Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: CustomButton(
-                ontap: _authController.isLoading.value
-                    ? () {}
-                    : () async {
-                        await _authController.changePassword(
-                          oldPassword: _oldPasswordController.text,
-                          newPassword: _newPasswordController.text,
-                        );
-                      },
-                child: _authController.isLoading.value
-                    ? const Loader()
-                    : const Text(
-                        "Update Password",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
+            CustomButton(
+              ontap: _authController.isLoading.value
+                  ? () {}
+                  : () async {
+                      await _authController.changePassword(
+                        oldPassword: _oldPasswordController.text,
+                        newPassword: _newPasswordController.text,
+                      );
+                    },
+              child: _authController.isLoading.value
+                  ? const Loader()
+                  : const Text(
+                      "Update Password",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
                       ),
-              ),
+                    ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  // Reusable Password Field Widget
-  Widget _buildPasswordField({
-    required String label,
-    required TextEditingController controller,
-    required bool obscureText,
-    required VoidCallback toggleObscure,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.orange.withOpacity(0.1),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(color: Colors.orange, width: 2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(color: Colors.orange, width: 2),
-          ),
-          prefixIcon: const Icon(Icons.lock, color: Colors.orange),
-          suffixIcon: IconButton(
-            icon: Icon(
-              obscureText ? Icons.visibility_off : Icons.visibility,
-              color: Colors.orange,
-            ),
-            onPressed: toggleObscure,
-          ),
         ),
       ),
     );
