@@ -32,7 +32,7 @@ class CompleteProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Get.theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -45,13 +45,9 @@ class CompleteProfileScreen extends StatelessWidget {
                 SizedBox(height: Get.height * 0.1),
 
                 // Title
-                const Text(
+                Text(
                   "Profile details",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                  style: Get.textTheme.headlineMedium,
                 ),
 
                 const SizedBox(height: 30),
@@ -121,7 +117,7 @@ class CompleteProfileScreen extends StatelessWidget {
                   key: _formKey,
                   child: Column(
                     children: [
-                      CustomTextField(
+                      NewCustomTextField(
                         controller: _fullNameController,
                         hintText: "Full Name",
                       ),
@@ -129,7 +125,7 @@ class CompleteProfileScreen extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // Last Name Field
-                      CustomTextField(
+                      NewCustomTextField(
                         controller: _bioController,
                         hintText: "Bio",
                         maxLines: 3,

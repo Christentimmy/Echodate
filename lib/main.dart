@@ -28,7 +28,7 @@ class MainApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorObservers: [routeObserver],
-      themeMode: ThemeMode.light,
+      themeMode: ThemeMode.dark,
       darkTheme: darkTheme,
       theme: lightTheme,
       home: EchodateSplashScreen(),

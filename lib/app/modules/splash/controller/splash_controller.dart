@@ -186,7 +186,7 @@ class SplashController extends GetxController with GetTickerProviderStateMixin {
     }
     String? token = await storageController.getToken();
     if (token == null || token.isEmpty) {
-      Get.off(() => RegisterScreen());
+      Get.off(() => const RegisterScreen());
       return;
     }
     await userController.getUserStatus();
