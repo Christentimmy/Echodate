@@ -18,8 +18,6 @@ class AddBankScreen extends StatefulWidget {
 
 class _AddBankScreenState extends State<AddBankScreen> {
   RxString selectedBank = 'Select Bank'.obs;
-  // RxString accountName = ''.obs;
-  // RxString accountNumber = ''.obs;
   RxString bankCode = ''.obs;
   final _formKey = GlobalKey<FormState>();
   final UserService _userService = UserService();
@@ -49,7 +47,6 @@ class _AddBankScreenState extends State<AddBankScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: const Text(
           'Add bank',
           style: TextStyle(
@@ -84,8 +81,11 @@ class _AddBankScreenState extends State<AddBankScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(height: 5),
               Obx(
-                () => InkWell(
+                () => NewCustomTextField(
+                  hintText: selectedBank.value,
+                  readOnly: true,
                   onTap: () {
                     showBankSelectionDialog(
                       context: context,
@@ -94,20 +94,6 @@ class _AddBankScreenState extends State<AddBankScreen> {
                       selectedBank: selectedBank,
                     );
                   },
-                  child: Container(
-                    height: 55,
-                    width: Get.width,
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey, width: 1.0),
-                    ),
-                    child: Text(
-                      selectedBank.value,
-                    ),
-                  ),
                 ),
               ),
               SizedBox(height: Get.height * 0.02),
@@ -115,12 +101,12 @@ class _AddBankScreenState extends State<AddBankScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    CustomTextField(
+                    NewCustomTextField(
                       hintText: "Enter Account Name",
                       controller: _accountNameController,
                     ),
                     SizedBox(height: Get.height * 0.02),
-                    CustomTextField(
+                    NewCustomTextField(
                       keyboardType: TextInputType.number,
                       hintText: "Enter Account No",
                       controller: _accountNumberController,
