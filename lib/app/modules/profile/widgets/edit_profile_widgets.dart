@@ -240,7 +240,10 @@ class BuildGenderSelectField extends StatelessWidget {
         items: ['Male', 'Female', 'Other'].map((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(value),
+            child: Text(
+              value,
+              style: Get.textTheme.bodyMedium,
+            ),
           );
         }).toList(),
       ),

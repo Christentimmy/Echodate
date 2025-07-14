@@ -60,13 +60,15 @@ Widget buildSelectiveCards({
 }
 
 Widget buildInterestCards({required String interest}) {
+  final bool isDark = Get.isDarkMode;
+
   return Container(
     padding: const EdgeInsets.symmetric(
       horizontal: 15,
       vertical: 10,
     ),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: isDark ? Colors.grey[850] : Colors.white,
       borderRadius: BorderRadius.circular(20),
       border: Border.all(
         color: Colors.orange,
@@ -74,9 +76,11 @@ Widget buildInterestCards({required String interest}) {
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.orange.withOpacity(0.15),
-          blurRadius: 5,
-          spreadRadius: 1,
+          color: isDark
+              ? Colors.orange.withOpacity(0.25)
+              : Colors.orange.withOpacity(0.15),
+          blurRadius: isDark ? 8 : 5,
+          spreadRadius: isDark ? 2 : 1,
         ),
       ],
     ),

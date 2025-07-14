@@ -70,7 +70,6 @@ class _AppSettingsState extends State<AppSettings>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [

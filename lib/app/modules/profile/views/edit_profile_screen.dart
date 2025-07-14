@@ -19,10 +19,12 @@ class EditProfileScreen extends StatelessWidget {
     _editProfileController.init();
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: const Text(
           'Profile Pictures',
-          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -42,13 +44,13 @@ class EditProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10.0),
-              CustomTextField(
+              NewCustomTextField(
                 hintText: "Name",
                 controller: _editProfileController.nameController,
               ),
               const SizedBox(height: 10.0),
               Obx(
-                () => CustomTextField(
+                () => NewCustomTextField(
                   hintText: "Email",
                   controller: _editProfileController.emailController,
                   readOnly: _editProfileController.isEmailEditDisAllowed.value,
@@ -67,7 +69,7 @@ class EditProfileScreen extends StatelessWidget {
                     _editProfileController.phoneNumberController;
                 final isEditNum =
                     _editProfileController.isPhoneNumberEditDisAllowed.value;
-                return CustomTextField(
+                return NewCustomTextField(
                   hintText: "Phone Number",
                   controller: phoneController,
                   readOnly: isEditNum,
@@ -82,16 +84,15 @@ class EditProfileScreen extends StatelessWidget {
               BuildGenderSelectField(),
               const SizedBox(height: 10.0),
               Obx(
-                () => CustomTextField(
+                () => NewCustomTextField(
                   hintText: convertDateToNormal(
                     _userController.userModel.value?.dob ?? "",
                   ),
-                  hintStyle: const TextStyle(color: Colors.black),
                   readOnly: true,
                 ),
               ),
               const SizedBox(height: 10.0),
-              CustomTextField(
+              NewCustomTextField(
                 hintText: "Bio",
                 controller: _editProfileController.bioController,
                 maxLines: 3,
