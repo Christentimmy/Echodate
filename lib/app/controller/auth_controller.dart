@@ -82,10 +82,12 @@ class AuthController extends GetxController {
       final response = await _authService.sendSignUpOtp(email: email);
       if (response == null) return;
       final decoded = json.decode(response.body);
+      String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
-        CustomSnackbar.showErrorSnackBar(decoded["message"].toString());
+        CustomSnackbar.showErrorSnackBar(message);
         return;
       }
+      CustomSnackbar.showSuccessSnackBar(message);
     } catch (e) {
       debugPrint(e.toString());
     } finally {

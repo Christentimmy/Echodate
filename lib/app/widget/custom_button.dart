@@ -14,8 +14,6 @@ class CustomButton extends StatelessWidget {
   double? width;
   Widget? child;
   Gradient? bgRadient;
-  List<BoxShadow>? boxShadow;
-  bool? showShadow;
   CustomButton({
     super.key,
     this.text,
@@ -27,9 +25,6 @@ class CustomButton extends StatelessWidget {
     this.height,
     this.width,
     this.child,
-    this.bgRadient,
-    this.boxShadow,
-    this.showShadow,
   });
 
   @override
@@ -41,30 +36,9 @@ class CustomButton extends StatelessWidget {
         alignment: Alignment.center,
         width: width ?? Get.width,
         decoration: BoxDecoration(
-          boxShadow: boxShadow ??
-              (showShadow == true
-                  ? [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 2,
-                        spreadRadius: 1,
-                        offset: const Offset(0, 1.4),
-                      ),
-                    ]
-                  : null),
           border: border,
           borderRadius: borderRadius ?? BorderRadius.circular(15),
-          color: bgColor,
-          gradient: bgRadient != null || bgColor == null
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.primaryColor,
-                    const Color.fromARGB(255, 236, 167, 37),
-                  ],
-                )
-              : null,
+          color: bgColor ?? AppColors.primaryColor,
         ),
         child: child ??
             Text(

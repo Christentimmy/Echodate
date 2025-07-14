@@ -1,9 +1,6 @@
 import 'dart:math';
 import 'package:echodate/app/controller/auth_controller.dart';
-import 'package:echodate/app/modules/auth/controller/login_controller.dart';
 import 'package:echodate/app/modules/auth/controller/signup_controller.dart';
-import 'package:echodate/app/modules/auth/views/signup_screen.dart';
-import 'package:echodate/app/modules/auth/views/reset_password_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
@@ -12,168 +9,6 @@ import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
-class LoginFormField extends StatelessWidget {
-  LoginFormField({super.key});
-
-  final _loginController = Get.put(LoginController());
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 8,
-        horizontal: 20,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "Sign In",
-            style: Get.textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            "Enter your credentials to continue",
-            style: Get.textTheme.bodySmall,
-          ),
-          const SizedBox(height: 15),
-          Form(
-            key: _loginController.formKey,
-            child: Column(
-              children: [
-                _getEmailFormField(_loginController),
-                const SizedBox(height: 15),
-                Obx(() {
-                  RxBool isVsibile = _loginController.isPasswordVisible;
-                  return _getPasswordFormField(isVsibile, _loginController);
-                }),
-                const SizedBox(height: 30),
-              ],
-            ),
-          ),
-          CustomButton(
-            bgRadient: Get.isDarkMode
-                ? LinearGradient(
-                    colors: [
-                      AppColors.accentOrange400,
-                      AppColors.accentOrange600,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-            boxShadow: Get.isDarkMode
-                ? [
-                    BoxShadow(
-                      color: AppColors.accentOrange400.withOpacity(0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-            ontap: () async {
-              HapticFeedback.lightImpact();
-              FocusManager.instance.primaryFocus?.unfocus();
-              if (_loginController.formKey.currentState!.validate()) {
-                await _loginController.authController.loginUser(
-                  identifier: _loginController.emailController.text,
-                  password: _loginController.passwordController.text,
-                );
-                _loginController.clean();
-              }
-            },
-            child: Obx(
-              () => _loginController.authController.isLoading.value
-                  ? const Loader()
-                  : _getButtonContent(),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Align(
-            alignment: Alignment.centerRight,
-            child: InkWell(
-              onTap: () {
-                Get.to(() => const ResetPasswordScreen());
-              },
-              child: Text(
-                "Forgot your password?",
-                style: Get.textTheme.labelSmall,
-              ),
-            ),
-          ),
-          SizedBox(height: Get.height * 0.05),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 4,
-            children: [
-              Text(
-                "New to EchoDate? ",
-                style: TextStyle(
-                  color: Get.theme.primaryColor,
-                ),
-              ),
-              InkWell(
-                onTap: () {
-                  Get.to(() => RegisterScreen());
-                },
-                child: Text(
-                  "Create account",
-                  style: TextStyle(
-                    color: AppColors.accentOrange400,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _getButtonContent() {
-    if (Get.isDarkMode) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "Sign in",
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Icon(
-            Icons.arrow_forward,
-            size: 20,
-            color: AppColors.textPrimary,
-          ),
-        ],
-      );
-    } else {
-      return const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "Sign in",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(width: 10),
-          Icon(
-            Icons.arrow_forward,
-            size: 20,
-            color: Colors.white,
-          ),
-        ],
-      );
-    }
-  }
-}
 
 class SignUpFormFields extends StatelessWidget {
   SignUpFormFields({super.key});
@@ -209,10 +44,8 @@ class SignUpFormFields extends StatelessWidget {
 
   Widget _getCustomButton() {
     final isDark = Get.isDarkMode;
-
     return CustomButton(
       bgColor: isDark ? AppColors.fieldBackground : Colors.grey.shade50,
-      bgRadient: null,
       border: Border.all(
         width: 1,
         color: isDark ? AppColors.fieldBorder : Colors.grey.shade300,
@@ -226,8 +59,11 @@ class SignUpFormFields extends StatelessWidget {
         await _authController.sendSignUpOtp(email: email);
       },
       child: Obx(
-        () => _authController.isLoading.value
-            ? CircularProgressIndicator(color: AppColors.primaryColor)
+        () => _authController.isSignUpOtpLoading.value
+            ? Loader(
+                height: 20,
+                color: AppColors.primaryColor,
+              )
             : Text(
                 "Send-Code",
                 style: Get.textTheme.titleSmall,

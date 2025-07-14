@@ -157,25 +157,6 @@ class RegisterScreen extends StatelessWidget {
           const SizedBox(height: 25),
           Obx(() {
             return CustomButton(
-              bgRadient: Get.isDarkMode
-                  ? LinearGradient(
-                      colors: [
-                        AppColors.accentOrange400,
-                        AppColors.accentOrange600,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : null,
-              boxShadow: Get.isDarkMode
-                  ? [
-                      BoxShadow(
-                        color: AppColors.accentOrange400.withOpacity(0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : null,
               ontap: () async {
                 await _signUpController.signUp(_signUpFormKey);
               },
@@ -212,7 +193,7 @@ class RegisterScreen extends StatelessWidget {
               const Text("Already have an account? "),
               InkWell(
                 onTap: () {
-                  Get.to(() => LoginScreen());
+                  Get.to(() => const LoginScreen());
                 },
                 child: const Text(
                   "Sign In",

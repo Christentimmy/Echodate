@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 class LoginController extends GetxController
     with GetSingleTickerProviderStateMixin {
+      
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authController = Get.find<AuthController>();

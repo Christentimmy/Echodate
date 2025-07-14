@@ -1,5 +1,6 @@
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 // ignore: must_be_immutable
 class CustomTextField extends StatelessWidget {
@@ -212,14 +213,17 @@ class NewCustomTextField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         style: textStyle ??
-            const TextStyle(
+            TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.black,
+              color: Get.theme.primaryColor,
             ),
         maxLines: maxLines ?? 1,
         decoration: InputDecoration(
-          fillColor: bgColor,
+          fillColor: bgColor ??
+              (Get.isDarkMode
+                  ? AppColors.fieldBackground
+                  : Colors.grey.shade50),
           errorText: null,
           errorStyle: const TextStyle(height: 0, fontSize: 0),
           errorMaxLines: null,
@@ -227,11 +231,7 @@ class NewCustomTextField extends StatelessWidget {
           filled: bgColor != null ? true : false,
           counterText: maxLength != null ? "" : null,
           hintText: hintText,
-          hintStyle: hintStyle ??
-              TextStyle(
-                fontSize: 14,
-                color: const Color(0xff000000).withOpacity(0.25),
-              ),
+          hintStyle: hintStyle ?? Get.textTheme.bodySmall,
           prefix: prefix,
           prefixIcon: prefixIcon == null
               ? null
@@ -248,21 +248,37 @@ class NewCustomTextField extends StatelessWidget {
             ),
           ),
           enabledBorder: enabledBorder ??
-              OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  width: 1,
-                  color: Colors.grey.shade300,
-                ),
-              ),
+              (Get.isDarkMode
+                  ? OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        width: 1,
+                        color: AppColors.fieldBorder,
+                      ),
+                    )
+                  : OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        width: 1,
+                        color: Colors.grey.shade300,
+                      ),
+                    )),
           focusedBorder: focusedBorder ??
-              OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  width: 1,
-                  color: AppColors.primaryColor,
-                ),
-              ),
+              (Get.isDarkMode
+                  ? OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        width: 2,
+                        color: AppColors.fieldFocus,
+                      ),
+                    )
+                  : OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        width: 1,
+                        color: AppColors.primaryColor,
+                      ),
+                    )),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
