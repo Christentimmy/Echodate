@@ -342,40 +342,57 @@ class _OtpVerificationBottomSheetState
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Get.isDarkMode;
+
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 60,
-      textStyle: const TextStyle(
+      textStyle: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.w600,
+        color: isDark ? Colors.white : Colors.black,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: isDark ? Colors.grey[800] : Colors.grey.shade200,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(
+          color: isDark ? Colors.grey[600]! : Colors.grey.shade300,
+        ),
       ),
     );
 
     final focusedPinTheme = defaultPinTheme.copyDecorationWith(
       border: Border.all(color: AppColors.primaryColor, width: 2),
       borderRadius: BorderRadius.circular(12),
+      color: isDark ? Colors.grey[750] : Colors.grey.shade200,
     );
 
     final submittedPinTheme = defaultPinTheme.copyDecorationWith(
       border: Border.all(color: AppColors.primaryColor, width: 2),
       borderRadius: BorderRadius.circular(12),
+      color: isDark ? Colors.grey[750] : Colors.grey.shade200,
     );
 
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[900] : Colors.white,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.5)
+                : Colors.black.withOpacity(0.1),
+            blurRadius: isDark ? 20 : 10,
+            spreadRadius: isDark ? 5 : 0,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: SingleChildScrollView(
         child: Padding(
@@ -390,7 +407,7 @@ class _OtpVerificationBottomSheetState
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: isDark ? Colors.grey[600] : Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -412,7 +429,7 @@ class _OtpVerificationBottomSheetState
               Text(
                 'We have sent a verification code to ${_editProfileController.getMaskedContact(widget.contactType == 'email', widget.contactValue)}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey.shade600,
+                      color: isDark ? Colors.grey[400] : Colors.grey.shade600,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -456,10 +473,18 @@ class _OtpVerificationBottomSheetState
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: AppColors.primaryColor,
+                  disabledBackgroundColor:
+                      isDark ? Colors.grey[700] : Colors.grey.shade300,
+                  disabledForegroundColor:
+                      isDark ? Colors.grey[500] : Colors.grey.shade500,
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
+                  elevation: isDark ? 8 : 2,
+                  shadowColor: isDark
+                      ? Colors.black.withOpacity(0.3)
+                      : Colors.grey.withOpacity(0.2),
                 ),
                 child: Obx(
                   () => _editProfileController.isSubmitting.value
@@ -485,7 +510,9 @@ class _OtpVerificationBottomSheetState
                 children: [
                   Text(
                     'Didn\'t receive the code?',
-                    style: TextStyle(color: Colors.grey.shade600),
+                    style: TextStyle(
+                      color: isDark ? Colors.grey[400] : Colors.grey.shade600,
+                    ),
                   ),
                   TextButton(
                     onPressed: _timerController.secondsRemaining <= 0
@@ -496,6 +523,11 @@ class _OtpVerificationBottomSheetState
                             );
                           }
                         : null,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primaryColor,
+                      disabledForegroundColor:
+                          isDark ? Colors.grey[600] : Colors.grey.shade400,
+                    ),
                     child: Obx(
                       () => Text(
                         _timerController.secondsRemaining <= 0
@@ -503,7 +535,11 @@ class _OtpVerificationBottomSheetState
                             : '${_timerController.secondsRemaining}s',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primaryColor,
+                          color: _timerController.secondsRemaining <= 0
+                              ? AppColors.primaryColor
+                              : (isDark
+                                  ? Colors.grey[600]
+                                  : Colors.grey.shade400),
                         ),
                       ),
                     ),
