@@ -35,6 +35,7 @@ class UserModel {
   String? password;
   String? otpCode;
   Stats? stats;
+  DateTime? subscriptionEndDate;
 
   UserModel({
     this.id,
@@ -71,6 +72,7 @@ class UserModel {
     this.otpCode,
     this.isVerified,
     this.stats,
+    this.subscriptionEndDate,
   });
 
   factory UserModel.fromJson(json) {
@@ -99,6 +101,9 @@ class UserModel {
           : null,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'])
+          : null,
+      subscriptionEndDate: json['subscriptionEndDate'] != null
+          ? DateTime.tryParse(json['subscriptionEndDate'])
           : null,
       gender: json['gender'] ?? "",
       interestedIn: json['interested_in'] ?? "",

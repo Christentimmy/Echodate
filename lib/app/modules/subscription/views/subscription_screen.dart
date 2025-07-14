@@ -29,7 +29,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         centerTitle: true,
         title: const Text(
           "Subscription Plan",
@@ -73,18 +72,19 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   }
 
                   final currentPlan = _userController.userModel.value?.plan;
-                  
+
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: _userController.allSubscriptionPlanList.length,
                     itemBuilder: (context, index) {
-                      final subModel = _userController.allSubscriptionPlanList[index];
+                      final subModel =
+                          _userController.allSubscriptionPlanList[index];
                       final isCurrentPlan = currentPlan == subModel.id;
-                      
+
                       return InkWell(
-                        onTap: isCurrentPlan 
-                            ? null 
+                        onTap: isCurrentPlan
+                            ? null
                             : () {
                                 Get.to(
                                   () => SubPaymentScreen(subModel: subModel),
@@ -97,8 +97,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           subModel: subModel,
                           isCurrentPlan: isCurrentPlan,
                           features: subModel.features
-                              ?.map((e) => _buildFeature(e))
-                              .toList() ?? [],
+                                  ?.map((e) => _buildFeature(e))
+                                  .toList() ??
+                              [],
                         ),
                       );
                     },
@@ -185,7 +186,7 @@ class SubsCard extends StatelessWidget {
   final SubModel subModel;
   final bool isCurrentPlan;
 
-  const SubsCard({
+  SubsCard({
     super.key,
     required this.title,
     required this.price,
@@ -195,16 +196,17 @@ class SubsCard extends StatelessWidget {
     this.isCurrentPlan = false,
   });
 
+  final _userController = Get.find<UserController>();
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: AppColors.primaryColor,
-        border: isCurrentPlan 
-            ? Border.all(color: Colors.amber, width: 3) 
-            : null,
-        boxShadow: isCurrentPlan 
+        border:
+            isCurrentPlan ? Border.all(color: Colors.amber, width: 3) : null,
+        boxShadow: isCurrentPlan
             ? [
                 BoxShadow(
                   color: Colors.amber.withOpacity(0.5),
@@ -212,7 +214,7 @@ class SubsCard extends StatelessWidget {
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 )
-              ] 
+              ]
             : null,
       ),
       padding: const EdgeInsets.all(15),
@@ -235,7 +237,10 @@ class SubsCard extends StatelessWidget {
                     if (isCurrentPlan) ...[
                       const SizedBox(width: 10),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.amber,
                           borderRadius: BorderRadius.circular(12),
@@ -243,9 +248,8 @@ class SubsCard extends StatelessWidget {
                         child: const Text(
                           "ACTIVE",
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 8,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
                           ),
                         ),
                       ),
@@ -283,14 +287,40 @@ class SubsCard extends StatelessWidget {
             ],
           ),
           if (isCurrentPlan)
-            const Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: Text(
-                "Your current subscription plan",
-                style: TextStyle(
-                  color: Colors.amber,
-                  fontWeight: FontWeight.bold,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                children: [
+                  const Text(
+                    "Current plan",
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  Obx(() {
+                    final userModel = _userController.userModel.value;
+                    final endDate = userModel?.subscriptionEndDate;
+                    final dateNow = DateTime.now();
+                    String daysLeftText = "";
+                    if (endDate != null) {
+                      final daysLeft = endDate.difference(dateNow).inDays;
+                      if (daysLeft >= 0) {
+                        daysLeftText = "($daysLeft days left)";
+                      } else {
+                        daysLeftText = "(Expired)";
+                      }
+                    }
+                    return Text(
+                      daysLeftText,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  })
+                ],
               ),
             ),
         ],
