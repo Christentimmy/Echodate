@@ -474,10 +474,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
+        final isDark = Get.isDarkMode;
+        final backgroundColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+        final textColor = isDark ? Colors.white : Colors.black87;
+        final secondaryTextColor = isDark ? Colors.white70 : Colors.grey[600];
+        final handleColor = isDark ? Colors.white30 : Colors.grey[300];
+
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, -5),
+              ),
+            ],
           ),
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom + 20,
@@ -488,20 +501,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Handle indicator
               Container(
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: handleColor,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(height: 24),
+
+              // Phone icon container
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: AppColors.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.primaryColor.withOpacity(0.2),
+                    width: 1,
+                  ),
                 ),
                 child: Icon(
                   Icons.phone_outlined,
@@ -510,27 +530,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+
+              // Title
+              Text(
                 "Add Phone Number",
                 style: TextStyle(
                   fontSize: 24,
-                  color: Colors.black87,
+                  color: textColor,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 8),
+
+              // Subtitle
               Text(
                 "Add your phone number for better security",
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey[600],
+                  color: secondaryTextColor,
                   fontWeight: FontWeight.w400,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
-              CustomTextField(
+
+              // Phone number input field
+              NewCustomTextField(
                 hintText: "Enter phone number",
                 prefixIcon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
@@ -539,64 +565,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primaryColor,
-                        AppColors.primaryColor.withOpacity(0.8),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryColor.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      await _authController.sendNumberOTP(
-                          phoneNumber: "+$number",
-                          callback: () {
-                            showPhoneNumberEditBottomSheet("+$number");
-                          });
+
+              // Continue button
+              CustomButton(
+                ontap: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  await _authController.sendNumberOTP(
+                    phoneNumber: "+$number",
+                    callback: () {
+                      showPhoneNumberEditBottomSheet("+$number");
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Obx(
-                      () => _authController.isLoading.value
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              "Continue",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
-                  ),
+                  );
+                },
+                child: Obx(
+                  () => _authController.isLoading.value
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          "Continue",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         );
