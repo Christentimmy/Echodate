@@ -537,7 +537,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
-              backgroundColor: Colors.transparent,
+              // backgroundColor: Colors.transparent,
               builder: (context) => FilterCoinHistory(),
             );
           },

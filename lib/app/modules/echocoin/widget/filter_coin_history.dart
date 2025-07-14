@@ -1,5 +1,3 @@
-
-
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';
@@ -19,7 +17,6 @@ class FilterCoinHistory extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -62,8 +59,10 @@ class FilterCoinHistory extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Obx(
-              () => CustomTextField(
+            Obx(() {
+              final userAccRegDate = _userController.userModel.value?.createdAt;
+              if (userAccRegDate == null) return const SizedBox.shrink();
+              return NewCustomTextField(
                 hintText: _startDate.value != null
                     ? DateFormat("MMM dd, yyyy").format(_startDate.value!)
                     : "Select start date",
@@ -71,22 +70,15 @@ class FilterCoinHistory extends StatelessWidget {
                 onTap: () async {
                   final date = await showDatePicker(
                     context: context,
-                    firstDate: DateTime.parse(
-                      _userController.userModel.value?.createdAt.toString() ??
-                          DateTime.now()
-                              .subtract(const Duration(days: 365))
-                              .toString(),
-                    ),
+                    firstDate: userAccRegDate,
                     lastDate: DateTime.now(),
-                    initialDate: _startDate.value ??
-                        DateTime.now().subtract(const Duration(days: 30)),
                   );
                   if (date != null) {
                     _startDate.value = date;
                   }
                 },
-              ),
-            ),
+              );
+            }),
             const SizedBox(height: 20),
             Text(
               "End Date",
@@ -96,8 +88,10 @@ class FilterCoinHistory extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Obx(
-              () => CustomTextField(
+            Obx(() {
+              final userAccRegDate = _userController.userModel.value?.createdAt;
+              if (userAccRegDate == null) return const SizedBox.shrink();
+              return NewCustomTextField(
                 hintText: _endDate.value != null
                     ? DateFormat("MMM dd, yyyy").format(_endDate.value!)
                     : "Select end date",
@@ -105,14 +99,7 @@ class FilterCoinHistory extends StatelessWidget {
                 onTap: () async {
                   final date = await showDatePicker(
                     context: context,
-                    firstDate: _startDate.value ??
-                        DateTime.parse(
-                          _userController.userModel.value?.createdAt
-                                  .toString() ??
-                              DateTime.now()
-                                  .subtract(const Duration(days: 365))
-                                  .toString(),
-                        ),
+                    firstDate: userAccRegDate,
                     lastDate: DateTime.now(),
                     initialDate: _endDate.value ?? DateTime.now(),
                   );
@@ -120,8 +107,8 @@ class FilterCoinHistory extends StatelessWidget {
                     _endDate.value = date;
                   }
                 },
-              ),
-            ),
+              );
+            }),
             const SizedBox(height: 30),
             Row(
               children: [
