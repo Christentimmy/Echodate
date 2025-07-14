@@ -42,9 +42,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      // backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
         title: const Text(
@@ -52,7 +51,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: Colors.black,
             letterSpacing: -0.8,
           ),
         ),
@@ -60,7 +58,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Container(
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: Get.isDarkMode
+                  ? const Color.fromARGB(255, 37, 37, 37)
+                  : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
@@ -68,7 +68,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: const Icon(
                 FontAwesomeIcons.xmark,
                 size: 18,
-                color: Colors.black54,
               ),
             ),
           ),
@@ -258,7 +257,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         vertical: 12,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Get.isDarkMode
+            ? const Color.fromARGB(255, 37, 37, 37)
+            : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -290,7 +291,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black87,
                   letterSpacing: -0.4,
                 ),
               ),
@@ -326,7 +326,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
+                  color: Get.isDarkMode
+                      ? const Color.fromARGB(255, 53, 52, 52)
+                      : Colors.grey[50],
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -342,7 +344,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: Colors.black87,
                   ),
                 ),
               ),
@@ -399,7 +400,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey[50],
+              color: Get.isDarkMode
+                  ? const Color.fromARGB(255, 53, 52, 52)
+                  : Colors.grey[50],
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -418,7 +421,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 2),
