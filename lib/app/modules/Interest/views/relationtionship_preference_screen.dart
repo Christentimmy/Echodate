@@ -1,6 +1,5 @@
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/gender/widgets/gender_widget.dart';
-import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +32,7 @@ class _RelationtionshipPreferenceScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Get.theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -44,50 +43,32 @@ class _RelationtionshipPreferenceScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () => Get.back(),
-                      child: Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.transparent,
-                          border: Border.all(
-                            width: 1,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        child:
-                            const Icon(Icons.arrow_back, color: Colors.black),
+                InkWell(
+                  onTap: () => Get.back(),
+                  child: Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.transparent,
+                      border: Border.all(
+                        width: 1,
+                        color: Colors.grey,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        "Skip",
-                        style: TextStyle(
-                          color: AppColors.primaryColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Get.theme.primaryColor,
                     ),
-                  ],
+                  ),
                 ),
 
                 SizedBox(height: Get.height * 0.1),
 
                 // Title
-                const Text(
+                Text(
                   "Relationship Preference",
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                  style: Get.textTheme.headlineMedium,
                 ),
 
                 const SizedBox(height: 30),
