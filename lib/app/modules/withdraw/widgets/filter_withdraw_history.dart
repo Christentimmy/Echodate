@@ -44,7 +44,7 @@ class FilterWithdrawHistory extends StatelessWidget {
           const SizedBox(height: 10),
           const Text("Start Date"),
           Obx(
-            () => CustomTextField(
+            () => NewCustomTextField(
               hintText: DateFormat("MMM dd yyyy").format(
                 _startDate.value ?? DateTime.now(),
               ),

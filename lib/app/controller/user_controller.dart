@@ -653,8 +653,9 @@ class UserController extends GetxController {
         CustomSnackbar.showErrorSnackBar(decoded["message"]);
         return;
       }
+      await getPotentialMatches();
       await getUserDetails();
-      CustomSnackbar.showSuccessSnackBar(decoded["message"]);
+      // CustomSnackbar.showSuccessSnackBar(decoded["message"]);
     } catch (e) {
       debugPrint(e.toString());
     } finally {

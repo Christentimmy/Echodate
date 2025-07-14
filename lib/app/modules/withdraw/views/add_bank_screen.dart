@@ -1,6 +1,6 @@
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/bank_model.dart';
-import 'package:echodate/app/modules/withdraw/widgets/withdrawal_widgets.dart';
+import 'package:echodate/app/modules/withdraw/widgets/withdraw_screen_widgets.dart';
 import 'package:echodate/app/services/user_service.dart';
 import 'package:echodate/app/widget/custom_button.dart';
 import 'package:echodate/app/widget/custom_textfield.dart';

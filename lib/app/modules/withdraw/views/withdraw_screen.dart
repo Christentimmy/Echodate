@@ -1,6 +1,6 @@
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/withdraw/controller/withdraw_screen_controller.dart';
-import 'package:echodate/app/modules/withdraw/widgets/withdrawal_widgets.dart';
+import 'package:echodate/app/modules/withdraw/widgets/withdraw_screen_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
