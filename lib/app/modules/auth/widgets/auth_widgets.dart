@@ -45,7 +45,7 @@ class SignUpFormFields extends StatelessWidget {
   Widget _getCustomButton() {
     final isDark = Get.isDarkMode;
     return CustomButton(
-      bgColor: isDark ? AppColors.fieldBackground : Colors.grey.shade50,
+      bgColor: isDark ? AppColors.fieldBackground : Colors.transparent,
       border: Border.all(
         width: 1,
         color: isDark ? AppColors.fieldBorder : Colors.grey.shade300,

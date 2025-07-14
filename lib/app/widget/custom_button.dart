@@ -14,6 +14,7 @@ class CustomButton extends StatelessWidget {
   double? width;
   Widget? child;
   Gradient? bgRadient;
+  bool? isDarkMode;
   CustomButton({
     super.key,
     this.text,
@@ -25,6 +26,7 @@ class CustomButton extends StatelessWidget {
     this.height,
     this.width,
     this.child,
+    this.isDarkMode = false,
   });
 
   @override
