@@ -70,7 +70,7 @@ class _AppSettingsState extends State<AppSettings>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -93,18 +93,22 @@ class _AppSettingsState extends State<AppSettings>
   }
 
   Widget _buildMainSettings() {
+    final bool isDark = Get.isDarkMode;
+
     return SingleChildScrollView(
       child: Column(
         children: [
           Container(
             margin: const EdgeInsets.only(bottom: 24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Colors.grey[850] : Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 2,
+                  color: isDark
+                      ? Colors.black.withOpacity(0.3)
+                      : Colors.black.withOpacity(0.05),
+                  blurRadius: isDark ? 8 : 2,
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -203,17 +207,21 @@ class _AppSettingsState extends State<AppSettings>
           Container(
             margin: const EdgeInsets.only(bottom: 24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Colors.grey[850] : Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 2,
+                  color: isDark
+                      ? Colors.black.withOpacity(0.3)
+                      : Colors.black.withOpacity(0.05),
+                  blurRadius: isDark ? 8 : 2,
                   offset: const Offset(0, 2),
                 ),
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 2,
+                  color: isDark
+                      ? Colors.black.withOpacity(0.2)
+                      : Colors.black.withOpacity(0.05),
+                  blurRadius: isDark ? 6 : 2,
                   offset: const Offset(2, 0),
                 ),
               ],
@@ -228,8 +236,14 @@ class _AppSettingsState extends State<AppSettings>
                     Get.to(() => const SettingsScreen());
                   },
                 ),
-                Divider(height: 1, color: Colors.grey[100]),
-                Divider(height: 1, color: Colors.grey[100]),
+                Divider(
+                  height: 1,
+                  color: isDark ? Colors.grey[700] : Colors.grey[100],
+                ),
+                Divider(
+                  height: 1,
+                  color: isDark ? Colors.grey[700] : Colors.grey[100],
+                ),
                 _buildSettingsItem(
                   icon: FontAwesomeIcons.creditCard,
                   title: 'Withdraw Coin',
@@ -238,7 +252,10 @@ class _AppSettingsState extends State<AppSettings>
                     Get.to(() => const WithdrawalScreen());
                   },
                 ),
-                Divider(height: 1, color: Colors.grey[100]),
+                Divider(
+                  height: 1,
+                  color: isDark ? Colors.grey[700] : Colors.grey[100],
+                ),
                 _buildSettingsItem(
                   icon: FontAwesomeIcons.crown,
                   title: 'Premium Features',
@@ -247,7 +264,10 @@ class _AppSettingsState extends State<AppSettings>
                     Get.to(() => const SubscriptionScreen());
                   },
                 ),
-                Divider(height: 1, color: Colors.grey[100]),
+                Divider(
+                  height: 1,
+                  color: isDark ? Colors.grey[700] : Colors.grey[100],
+                ),
                 _buildSettingsItem(
                   icon: Icons.music_note,
                   title: 'Echo Coins',
@@ -256,7 +276,10 @@ class _AppSettingsState extends State<AppSettings>
                     Get.to(() => const AllEchoCoinsScreen());
                   },
                 ),
-                Divider(height: 1, color: Colors.grey[100]),
+                Divider(
+                  height: 1,
+                  color: isDark ? Colors.grey[700] : Colors.grey[100],
+                ),
                 _buildSettingsItem(
                   icon: Icons.dark_mode,
                   title: 'Dark Mode',
@@ -272,12 +295,14 @@ class _AppSettingsState extends State<AppSettings>
           // Support Section
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Colors.grey[850] : Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 2,
+                  color: isDark
+                      ? Colors.black.withOpacity(0.3)
+                      : Colors.black.withOpacity(0.05),
+                  blurRadius: isDark ? 8 : 2,
                   offset: const Offset(2, 0),
                 ),
               ],
@@ -292,7 +317,9 @@ class _AppSettingsState extends State<AppSettings>
                     Get.to(() => const ContactUsPage());
                   },
                 ),
-                Divider(height: 1, color: Colors.grey[100]),
+                Divider(
+                    height: 1,
+                    color: isDark ? Colors.grey[700] : Colors.grey[100]),
                 Obx(() {
                   final isloading = _authController.isLoading.value;
                   return _buildSettingsItem(
@@ -323,10 +350,18 @@ class _AppSettingsState extends State<AppSettings>
     Function(bool)? onToggle,
     bool showChevron = true,
   }) {
+    final bool isDark = Get.isDarkMode;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: hasToggle ? null : onTap,
+        splashColor: isDark
+            ? Colors.white.withOpacity(0.1)
+            : Colors.grey.withOpacity(0.1),
+        highlightColor: isDark
+            ? Colors.white.withOpacity(0.05)
+            : Colors.grey.withOpacity(0.05),
         child: Container(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -359,7 +394,7 @@ class _AppSettingsState extends State<AppSettings>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
+                        color: isDark ? Colors.grey[100] : Colors.grey[800],
                       ),
                     ),
                     if (subtitle != null) ...[
@@ -368,7 +403,7 @@ class _AppSettingsState extends State<AppSettings>
                         subtitle,
                         style: TextStyle(
                           fontSize: 10,
-                          color: Colors.grey[500],
+                          color: isDark ? Colors.grey[400] : Colors.grey[500],
                         ),
                       ),
                     ],
@@ -395,7 +430,11 @@ class _AppSettingsState extends State<AppSettings>
                               ],
                             )
                           : null,
-                      color: toggleValue ? null : Colors.grey[300],
+                      color: toggleValue
+                          ? null
+                          : isDark
+                              ? Colors.grey[600]
+                              : Colors.grey[300],
                     ),
                     child: AnimatedAlign(
                       duration: const Duration(milliseconds: 300),
@@ -411,7 +450,9 @@ class _AppSettingsState extends State<AppSettings>
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: isDark
+                                  ? Colors.black.withOpacity(0.4)
+                                  : Colors.black.withOpacity(0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -424,7 +465,7 @@ class _AppSettingsState extends State<AppSettings>
               else if (showChevron)
                 Icon(
                   Icons.chevron_right,
-                  color: Colors.grey[400],
+                  color: isDark ? Colors.grey[500] : Colors.grey[400],
                   size: 20,
                 ),
             ],
