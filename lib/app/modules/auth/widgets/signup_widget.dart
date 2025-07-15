@@ -1,4 +1,5 @@
 import 'package:echodate/app/controller/auth_controller.dart';
+import 'package:echodate/app/controller/theme_controller.dart';
 import 'package:echodate/app/modules/auth/controller/signup_controller.dart';
 import 'package:echodate/app/modules/auth/views/login_screen.dart';
 import 'package:echodate/app/modules/auth/widgets/auth_widgets.dart';
@@ -18,6 +19,7 @@ class SignUpModalWidget extends StatelessWidget {
   final GlobalKey<FormState> _signUpFormKey = GlobalKey<FormState>();
   final _signUpController = Get.put(SignUpController());
   final _authController = Get.find<AuthController>();
+  final _themeController = Get.find<ThemeController>();
 
   @override
   Widget build(BuildContext context) {
@@ -216,28 +218,27 @@ class SignUpModalWidget extends StatelessWidget {
   }
 
   Widget _getCustomButton() {
-    final isDark = Get.isDarkMode;
-
-    return CustomButton(
-      bgColor: isDark ? AppColors.fieldBackground : Colors.transparent,
-      border: Border.all(
-        width: 1,
-        color: isDark ? AppColors.fieldBorder : Colors.grey.shade300,
-      ),
-      ontap: () async {
-        String email = _signUpController.emailController.text.trim();
-        if (email.isEmpty) {
-          CustomSnackbar.showErrorSnackBar("Email is required");
-          return;
-        }
-        String? errorText = validateEmail(email);
-        if (errorText != null) {
-          return CustomSnackbar.showErrorSnackBar(errorText);
-        }
-        await _authController.sendSignUpOtp(email: email);
-      },
-      child: Obx(
-        () => _authController.isSignUpOtpLoading.value
+    return Obx(() {
+      final isDark = _themeController.isDarkMode.value;
+      return CustomButton(
+        bgColor: isDark ? AppColors.fieldBackground : Colors.transparent,
+        border: Border.all(
+          width: 1,
+          color: isDark ? AppColors.fieldBorder : Colors.grey.shade300,
+        ),
+        ontap: () async {
+          String email = _signUpController.emailController.text.trim();
+          if (email.isEmpty) {
+            CustomSnackbar.showErrorSnackBar("Email is required");
+            return;
+          }
+          String? errorText = validateEmail(email);
+          if (errorText != null) {
+            return CustomSnackbar.showErrorSnackBar(errorText);
+          }
+          await _authController.sendSignUpOtp(email: email);
+        },
+        child: _authController.isSignUpOtpLoading.value
             ? Loader(
                 height: 20,
                 color: AppColors.primaryColor,
@@ -246,7 +247,7 @@ class SignUpModalWidget extends StatelessWidget {
                 "Send-Code",
                 style: Get.textTheme.titleSmall,
               ),
-      ),
-    );
+      );
+    });
   }
 }

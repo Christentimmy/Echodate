@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/message_controller.dart';
+import 'package:echodate/app/controller/theme_controller.dart';
 import 'package:echodate/app/modules/chat/views/chat_screen.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class ChatListScreen extends StatefulWidget {
 
 class _ChatListScreenState extends State<ChatListScreen> {
   final _messageController = Get.find<MessageController>();
+  final _themeController = Get.find<ThemeController>();
 
   @override
   void initState() {
@@ -54,18 +56,18 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 _buildHeader(),
                 const SizedBox(height: 24),
                 Obx(() {
-                  final isDark = Get.isDarkMode;
+                  final isDark = _themeController.isDarkMode.value;
                   if (_messageController.isChatListLoading.value) {
                     return ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: 4,
-                      itemBuilder: (context, index) => _buildChatItemSkeleton(),
+                      itemBuilder: (context, index) => _buildChatItemSkeleton(isDark),
                     );
                   }
 
                   if (_messageController.allChattedUserList.isEmpty) {
-                    return _buildEmptyList();
+                    return _buildEmptyList(isDark);
                   }
 
                   return Container(
@@ -94,7 +96,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       itemBuilder: (context, index) {
                         final messageModel =
                             _messageController.allChattedUserList[index];
-                        return _buildChatItem(messageModel);
+                        return _buildChatItem(messageModel, isDark);
                       },
                     ),
                   );
@@ -107,8 +109,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     );
   }
 
-  Container _buildEmptyList() {
-    final isDark = Get.isDarkMode;
+  Container _buildEmptyList(bool isDark) {
     return Container(
       height: Get.height * 0.5,
       width: Get.width,
@@ -211,8 +212,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     );
   }
 
-  Widget _buildChatItem(dynamic messageModel) {
-    final isDark = Get.isDarkMode;
+  Widget _buildChatItem(dynamic messageModel, bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: BoxDecoration(
@@ -350,9 +350,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     );
   }
 
-  Widget _buildChatItemSkeleton() {
-    // Define colors based on theme
-    final bool isDark = Get.isDarkMode;
+  Widget _buildChatItemSkeleton(bool isDark) {
 
     // Base and highlight colors for shimmer effect
     final Color baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
