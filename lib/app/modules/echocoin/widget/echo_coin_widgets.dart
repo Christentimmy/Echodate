@@ -36,9 +36,9 @@ class BuildCoinGridWidget extends StatelessWidget {
             },
             child: Container(
               decoration: BoxDecoration(
-                color: index == _currentIndex.value
-                    ? const Color(0xFFFFF0F0)
-                    : Colors.grey[200],
+                color: (Get.isDarkMode
+                    ? const Color.fromARGB(255, 22, 22, 22)
+                    : Colors.grey[200]),
                 borderRadius: BorderRadius.circular(12),
                 border: index == _currentIndex.value
                     ? Border.all(

@@ -3,6 +3,7 @@ import 'package:echodate/app/modules/echocoin/widget/echo_coin_widgets.dart';
 import 'package:echodate/app/modules/withdraw/controller/withdraw_screen_controller.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +63,7 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      // backgroundColor: Colors.grey[100],
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -72,7 +73,9 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Get.isDarkMode
+                    ? const Color.fromARGB(255, 22, 22, 22)
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -91,7 +94,6 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Colors.grey,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -126,7 +128,6 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
                           style: const TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
                           ),
                         ),
                       ),
@@ -160,7 +161,9 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Get.isDarkMode
+                  ? const Color.fromARGB(255, 27, 27, 27)
+                  : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -220,19 +223,17 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
   AppBar _buildAppBar() {
     final controller = Get.put(WithdrawScreenController());
     return AppBar(
-      backgroundColor: Colors.grey[100],
       elevation: 0,
       title: const Text(
         "Get Coins",
         style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.bold,
-          color: Colors.black,
         ),
       ),
       centerTitle: true,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+        icon: const Icon(Icons.arrow_back_ios),
         onPressed: () => Navigator.of(Get.context!).pop(),
       ),
       actions: [
@@ -260,7 +261,6 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
               ),
             ),
             const SizedBox(height: 16),
@@ -292,7 +292,6 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
                           "No packages available",
                           style: TextStyle(
                             fontSize: 18,
-                            color: Colors.grey,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -318,99 +317,22 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Custom amount input
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 12,
+            NewCustomTextField(
+              hintText: "0.00",
+              controller: _amountController,
+              focusNode: _amountFocusNode,
+              maxLines: 1,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
               ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.primaryColor.withOpacity(0.1),
-                        ),
-                        child: Icon(
-                          Icons.monetization_on,
-                          color: AppColors.primaryColor,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        "Amount (GH₵)",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: _amountController,
-                    cursorColor: AppColors.primaryColor,
-                    focusNode: _amountFocusNode,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d*\.?\d{0,2}'),
-                      ),
-                    ],
-                    style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "0.00",
-                      hintStyle: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[300],
-                      ),
-                      border: InputBorder.none,
-                      prefixIcon: Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        child: const Text(
-                          "GH₵",
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      prefixIconConstraints: const BoxConstraints(
-                        minWidth: 0,
-                        minHeight: 0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              prefixIcon: Icons.wallet,
+              prefixIconColor: AppColors.primaryColor,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(
+                  RegExp(r'^\d*\.?\d{0,2}'),
+                ),
+              ],
             ),
-
             const SizedBox(height: 24),
 
             // Quick amount buttons
@@ -418,8 +340,7 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
               "Quick amounts",
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 12),
@@ -435,11 +356,13 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
-                      vertical: 5,
+                      vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(25),
+                      color: Get.isDarkMode
+                          ? const Color.fromARGB(255, 22, 22, 22)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: Colors.grey[300]!,
                         width: 1,
@@ -456,7 +379,7 @@ class _AllEchoCoinsScreenState extends State<AllEchoCoinsScreen>
                     child: Text(
                       "GH₵$amount",
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryColor,
                       ),

@@ -1,5 +1,6 @@
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 // ignore: must_be_immutable
@@ -163,6 +164,7 @@ class NewCustomTextField extends StatelessWidget {
   InputBorder? enabledBorder;
   Function()? onTap;
   Widget? prefix;
+  List<TextInputFormatter>? inputFormatters;
   NewCustomTextField({
     super.key,
     this.hintStyle,
@@ -189,6 +191,7 @@ class NewCustomTextField extends StatelessWidget {
     this.onTap,
     this.prefixIconColor,
     this.focusNode,
+    this.inputFormatters,
   });
 
   @override
@@ -198,6 +201,7 @@ class NewCustomTextField extends StatelessWidget {
       child: TextFormField(
         maxLength: maxLength,
         focusNode: focusNode,
+        inputFormatters: inputFormatters,
         validator: validator ??
             (value) {
               if (value!.isEmpty) {
