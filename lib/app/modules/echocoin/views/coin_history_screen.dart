@@ -1,4 +1,4 @@
-
+import 'package:echodate/app/controller/theme_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/transaction_model.dart';
 import 'package:echodate/app/modules/echocoin/widget/filter_coin_history.dart';
@@ -18,6 +18,7 @@ class CoinHistoryScreen extends StatefulWidget {
 
 class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
   final _userController = Get.find<UserController>();
+  final _themeController = Get.find<ThemeController>();
   final ScrollController _scrollController = ScrollController();
   int _page = 1;
   String _selectedFilter = 'all';
@@ -196,6 +197,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
         );
       },
       child: Obx(() {
+        final isDark = _themeController.isDarkMode.value;
         if (_userController.isloading.value &&
             _userController.userTransactionHistory.isEmpty) {
           return Center(
@@ -233,7 +235,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
             }
 
             final transaction = _userController.userTransactionHistory[index];
-            return _buildTransactionCard(transaction, index);
+            return _buildTransactionCard(transaction, index, isDark);
           },
         );
       }),
@@ -269,20 +271,24 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
     );
   }
 
-  Widget _buildTransactionCard(TransactionModel transaction, int index) {
-    final bool isDarkMode = Get.isDarkMode;
+  Widget _buildTransactionCard(
+    TransactionModel transaction,
+    int index,
+    bool isDarkMode,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color:
-            isDarkMode ? const Color.fromARGB(255, 24, 23, 23) : Colors.white,
+        color: isDarkMode
+            ? const Color.fromARGB(255, 24, 23, 23)
+            : const Color(0xFFF9F9F9),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
                 ? Colors.black.withOpacity(0.3)
-                : Colors.black.withOpacity(0.05),
-            blurRadius: 8,
+                : Colors.black.withOpacity(0.12),
+            blurRadius: 10,
             offset: const Offset(0, 2),
           ),
         ],
