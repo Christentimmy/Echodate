@@ -81,15 +81,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       final subModel =
                           _userController.allSubscriptionPlanList[index];
                       final isCurrentPlan = currentPlan == subModel.id;
-
                       return InkWell(
-                        onTap: isCurrentPlan
-                            ? null
-                            : () {
-                                Get.to(
-                                  () => SubPaymentScreen(subModel: subModel),
-                                );
-                              },
+                        onTap: () {
+                          Get.to(() => SubPaymentScreen(subModel: subModel));
+                        },
                         child: SubsCard(
                           title: subModel.title ?? "",
                           price: subModel.price.toString(),
