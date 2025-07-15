@@ -1,3 +1,4 @@
+import 'package:echodate/app/controller/theme_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,6 +14,7 @@ class BuildCoinGridWidget extends StatelessWidget {
   final NumberFormat currencyFormat = NumberFormat("#,##0.00", "en_US");
   final RxInt _currentIndex = (-1).obs;
   final _userController = Get.find<UserController>();
+  final _themeController = Get.find<ThemeController>();
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +30,16 @@ class BuildCoinGridWidget extends StatelessWidget {
       itemCount: _userController.allEchoCoins.length,
       itemBuilder: (context, index) {
         final coinOption = _userController.allEchoCoins[index];
-        return Obx(
-          () => InkWell(
+        return Obx(() {
+          final isDark = _themeController.isDarkMode.value;
+          return InkWell(
             onTap: () {
               _currentIndex.value = index;
               selectedCoinPackage.value = coinOption.id;
             },
             child: Container(
               decoration: BoxDecoration(
-                color: (Get.isDarkMode
+                color: (isDark
                     ? const Color.fromARGB(255, 22, 22, 22)
                     : Colors.grey[200]),
                 borderRadius: BorderRadius.circular(12),
@@ -91,8 +94,8 @@ class BuildCoinGridWidget extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        );
+          );
+        });
       },
     );
   }
