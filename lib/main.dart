@@ -1,5 +1,6 @@
 import 'package:echodate/app/bindings/app_bindings.dart';
 import 'package:echodate/app/controller/one_signal_controller.dart';
+import 'package:echodate/app/controller/theme_controller.dart';
 import 'package:echodate/app/modules/splash/views/echo_splash_screen.dart';
 import 'package:echodate/app/theme/app_theme_data.dart';
 import 'package:flutter/material.dart';
@@ -24,15 +25,18 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get.changeThemeMode(ThemeMode.dark);
-    // final ThemeController themeController = Get.put(ThemeController());
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      navigatorObservers: [routeObserver],
-      themeMode: ThemeMode.dark,
-      darkTheme: darkTheme,
-      theme: lightTheme,
-      home: EchodateSplashScreen(),
-      initialBinding: AppBindings(),
+    final ThemeController themeController = Get.put(ThemeController());
+    return Obx(
+      () => GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        navigatorObservers: [routeObserver],
+        themeMode:
+            themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+        darkTheme: darkTheme,
+        theme: lightTheme,
+        home: EchodateSplashScreen(),
+        initialBinding: AppBindings(),
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/controller/auth_controller.dart';
+import 'package:echodate/app/controller/theme_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/echocoin/views/all_echo_coins_screen.dart';
 import 'package:echodate/app/modules/profile/views/edit_profile_screen.dart';
@@ -27,7 +28,7 @@ class _AppSettingsState extends State<AppSettings>
   final _authController = Get.find<AuthController>();
 
   String currentScreen = 'main';
-  bool darkMode = false;
+  final ThemeController _themeController = Get.find<ThemeController>();
 
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -80,7 +81,10 @@ class _AppSettingsState extends State<AppSettings>
                   position: _slideAnimation,
                   child: Padding(
                     padding: const EdgeInsets.all(18.0),
-                    child: _buildMainSettings(),
+                    child: Obx(() {
+                      final isDark = _themeController.isDarkMode.value;
+                      return _buildMainSettings(isDark);
+                    }),
                   ),
                 ),
               ),
@@ -91,9 +95,7 @@ class _AppSettingsState extends State<AppSettings>
     );
   }
 
-  Widget _buildMainSettings() {
-    final bool isDark = Get.isDarkMode;
-
+  Widget _buildMainSettings(bool isDark) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -280,13 +282,17 @@ class _AppSettingsState extends State<AppSettings>
                   height: 1,
                   color: isDark ? Colors.grey[700] : Colors.grey[100],
                 ),
-                _buildSettingsItem(
-                  icon: Icons.dark_mode,
-                  title: 'Dark Mode',
-                  hasToggle: true,
-                  toggleValue: darkMode,
-                  onToggle: (value) => setState(() => darkMode = value),
-                  showChevron: false,
+                Obx(
+                  () => _buildSettingsItem(
+                    icon: Icons.dark_mode,
+                    title: 'Dark Mode',
+                    hasToggle: true,
+                    toggleValue: _themeController.isDarkMode.value,
+                    onToggle: (value) {
+                      _themeController.toggleTheme();
+                    },
+                    showChevron: false,
+                  ),
                 ),
               ],
             ),
@@ -350,18 +356,10 @@ class _AppSettingsState extends State<AppSettings>
     Function(bool)? onToggle,
     bool showChevron = true,
   }) {
-    final bool isDark = Get.isDarkMode;
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: hasToggle ? null : onTap,
-        splashColor: isDark
-            ? Colors.white.withOpacity(0.1)
-            : Colors.grey.withOpacity(0.1),
-        highlightColor: isDark
-            ? Colors.white.withOpacity(0.05)
-            : Colors.grey.withOpacity(0.05),
         child: Container(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -391,20 +389,16 @@ class _AppSettingsState extends State<AppSettings>
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.grey[100] : Colors.grey[800],
                       ),
                     ),
                     if (subtitle != null) ...[
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isDark ? Colors.grey[400] : Colors.grey[500],
-                        ),
+                        style: const TextStyle(fontSize: 10),
                       ),
                     ],
                   ],
@@ -430,11 +424,7 @@ class _AppSettingsState extends State<AppSettings>
                               ],
                             )
                           : null,
-                      color: toggleValue
-                          ? null
-                          : isDark
-                              ? Colors.grey[600]
-                              : Colors.grey[300],
+                      color: toggleValue ? null : Colors.grey,
                     ),
                     child: AnimatedAlign(
                       duration: const Duration(milliseconds: 300),
@@ -450,9 +440,7 @@ class _AppSettingsState extends State<AppSettings>
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
-                              color: isDark
-                                  ? Colors.black.withOpacity(0.4)
-                                  : Colors.black.withOpacity(0.2),
+                              color: Colors.black.withOpacity(0.4),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -465,7 +453,7 @@ class _AppSettingsState extends State<AppSettings>
               else if (showChevron)
                 Icon(
                   Icons.chevron_right,
-                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+                  color: Colors.grey[500],
                   size: 20,
                 ),
             ],
