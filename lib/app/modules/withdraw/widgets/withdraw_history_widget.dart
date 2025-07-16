@@ -25,7 +25,9 @@ class WithdrawHistoryListSection extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: Get.isDarkMode ? const Color.fromARGB(255, 19, 18, 18) : const Color(0xFFE0E5EC),
+            color: Get.isDarkMode
+                ? const Color.fromARGB(255, 19, 18, 18)
+                : const Color(0xFFE0E5EC),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -116,15 +118,12 @@ class WithdrawHistoryCard extends StatelessWidget {
             children: [
               Text(
                 convertDateToNormal(payment.createdAt.toString()),
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
+                style: const TextStyle(fontSize: 10),
               ),
               const Spacer(),
               RichText(
                 text: TextSpan(
-                  style: GoogleFonts.poppins(
-                    color: Colors.black,
-                    fontSize: 10,
-                  ),
+                  style: GoogleFonts.poppins(fontSize: 10),
                   children: [
                     const TextSpan(text: "status: "),
                     TextSpan(
