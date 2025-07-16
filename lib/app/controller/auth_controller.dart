@@ -410,7 +410,8 @@ class AuthController extends GetxController {
         () => OTPVerificationScreen(
           email: email,
           showEditDetails: false,
-          onVerifiedCallBack: () {
+          onVerifiedCallBack: () async {
+            await storageController.deleteToken();
             Get.to(() => CreateNewPasswordScreen(email: email));
           },
         ),
