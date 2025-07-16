@@ -69,7 +69,7 @@ class TinderCard extends StatelessWidget {
                 child: InkWell(
                   onTap: () {
                     Get.to(
-                      () => CoinTransferScreen(
+                      () => SendCoinsScreen(
                         recipientName: profile.fullName ?? "",
                         recipientId: profile.id ?? "",
                       ),

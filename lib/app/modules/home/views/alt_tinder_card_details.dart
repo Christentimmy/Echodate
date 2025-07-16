@@ -4,6 +4,7 @@ import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/chat_list_model.dart';
 import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/chat/views/chat_screen.dart';
+import 'package:echodate/app/modules/echocoin/views/send_coins_screen.dart';
 import 'package:echodate/app/modules/home/controller/tinder_card_controller.dart';
 import 'package:echodate/app/modules/home/widgets/shimmer_loader.dart';
 import 'package:echodate/app/resources/colors.dart';
@@ -417,10 +418,17 @@ class _AltTinderCardDetailsState extends State<AltTinderCardDetails> {
             }
             return InkWell(
               onTap: () {
-                Get.toNamed('/send-coins', arguments: {
-                  "recipientId": userModel?.id,
-                  "recipientName": userModel?.fullName,
-                });
+                // Get.toNamed('/send-coins', arguments: {
+                //   "recipientId": userModel?.id,
+                //   "recipientName": userModel?.fullName,
+                // });
+                if (userModel == null) return;
+                Get.to(
+                  () => SendCoinsScreen(
+                    recipientName: userModel.fullName!,
+                    recipientId: userModel.id!,
+                  ),
+                );
               },
               child: Container(
                 height: 45,
