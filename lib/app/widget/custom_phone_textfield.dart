@@ -81,7 +81,7 @@ class CustomPhoneNumberField extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           flex: 3,
-          child: CustomTextField(
+          child: NewCustomTextField(
             controller: phoneNumberController,
             hintText: "Phone Number",
             prefixIcon: Icons.phone,

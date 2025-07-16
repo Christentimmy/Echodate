@@ -14,9 +14,11 @@ class OTPVerificationScreen extends StatefulWidget {
   String? email;
   String? phoneNumber;
   final VoidCallback onVerifiedCallBack;
+  bool? showEditDetails;
   OTPVerificationScreen({
     super.key,
     this.email,
+    this.showEditDetails = true,
     required this.onVerifiedCallBack,
     this.phoneNumber,
   });
@@ -50,13 +52,13 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
     super.dispose();
   }
 
-  Future<void> changeAuthDetails() async {
+  Future<void> changeAuthDetails(String? email) async {
     final userController = Get.find<UserController>();
-    if (widget.email != null) {
+    if (email != null) {
       ContactUpdateBottomSheet.show(
         context: context,
         type: ContactType.email,
-        initialValue: widget.email ?? "",
+        initialValue: email,
         onSave: (newEmail) async {
           await _authController.changeAuthDetails(
             email: newEmail,
@@ -92,7 +94,6 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: Obx(() {
         return Stack(
@@ -117,30 +118,27 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
                           const SizedBox(height: 15),
                           Text(
                             "A Verification code has been sent to\n${widget.email ?? widget.phoneNumber}",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
-                              color: const Color(0xff000000).withOpacity(0.5),
                               height: 1.1,
                             ),
                           ),
                           const SizedBox(height: 15),
-                          widget.email != null || widget.phoneNumber != null
+                          widget.showEditDetails == true
                               ? Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    const Text(
                                       "Wrong details?",
                                       style: TextStyle(
                                         fontSize: 16,
-                                        color: const Color(0xff000000)
-                                            .withOpacity(0.5),
                                         height: 1.1,
                                       ),
                                     ),
                                     InkWell(
                                       onTap: () async {
-                                        await changeAuthDetails();
+                                        await changeAuthDetails(widget.email);
                                       },
                                       child: Text(
                                         " Change",
@@ -169,7 +167,9 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
                                 ),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: const Color(0xffF1F1F1),
+                                  color: Get.isDarkMode
+                                      ? const Color.fromARGB(255, 37, 37, 37)
+                                      : const Color(0xffF1F1F1),
                                 ),
                               ),
                             ),
@@ -178,7 +178,6 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
                           CustomButton(
                             text: "Continue",
                             ontap: () async {
-                              print("called");
                               await _authController.verifyOtp(
                                 otpCode: _otpController.text,
                                 email: widget.email,
@@ -240,12 +239,9 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
+        const Text(
           "Didn't receive the code? ",
-          style: TextStyle(
-            fontSize: 16,
-            color: const Color(0xff000000).withOpacity(0.5),
-          ),
+          style: TextStyle(fontSize: 16),
         ),
         Obx(
           () => InkWell(
@@ -293,7 +289,6 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
           const TextSpan(
             text: "Enter your ",
             style: TextStyle(
-              color: Colors.black,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -358,7 +353,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen>
 }
 
 void showUpdateContactBottomSheet(
-    BuildContext context, String type, String currentValue) {
+  BuildContext context,
+  String type,
+  String currentValue,
+) {
   TextEditingController _controller = TextEditingController(
     text: currentValue,
   );

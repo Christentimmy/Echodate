@@ -348,7 +348,7 @@ class AuthController extends GetxController {
       await storage.deleteToken();
       userController.clearUserData();
       storyController.clearUserData();
-      Get.offAll(() => RegisterScreen());
+      Get.offAll(() => const RegisterScreen());
     } catch (error) {
       debugPrint(error.toString());
     } finally {
@@ -404,16 +404,14 @@ class AuthController extends GetxController {
       //   return;
       // }
       CustomSnackbar.showSuccessSnackBar(
-          "Please check your inbox. If the email is linked to an account, an OTP has been sent.");
+        "Please check your inbox. If the email is linked to an account, an OTP has been sent.",
+      );
       Get.to(
         () => OTPVerificationScreen(
           email: email,
+          showEditDetails: false,
           onVerifiedCallBack: () {
-            Get.to(
-              () => CreateNewPasswordScreen(
-                email: email,
-              ),
-            );
+            Get.to(() => CreateNewPasswordScreen(email: email));
           },
         ),
       );

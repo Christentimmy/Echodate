@@ -53,7 +53,7 @@ class _PickHobbiesScreenState extends State<PickHobbiesScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              CustomTextField(
+              NewCustomTextField(
                 hintText: "Search",
                 onChanged: (value) {
                   searchedText.value = value;

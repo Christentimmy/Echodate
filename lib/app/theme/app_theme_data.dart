@@ -54,6 +54,11 @@ final ThemeData lightTheme = ThemeData(
       fontSize: 13,
       fontWeight: FontWeight.w500,
     ),
+    labelMedium: GoogleFonts.montserrat(
+      color: Colors.black87,
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
+    ),
   ),
 );
 
@@ -106,6 +111,11 @@ final ThemeData darkTheme = ThemeData(
     ),
     labelSmall: GoogleFonts.montserrat(
       color: AppColors.accentOrange400,
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
+    ),
+    labelMedium: GoogleFonts.montserrat(
+      color: Colors.white,
       fontSize: 13,
       fontWeight: FontWeight.w500,
     ),

@@ -31,7 +31,7 @@ void showBankSelectionDialog({
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomTextField(
+              NewCustomTextField(
                 hintText: 'Search',
                 onChanged: (query) {
                   filteredBanks.value = query;

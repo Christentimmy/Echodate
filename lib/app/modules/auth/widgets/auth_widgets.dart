@@ -1,6 +1,9 @@
 import 'dart:ui';
 import 'package:echodate/app/controller/auth_controller.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/utils/validator.dart';
+import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -44,7 +47,6 @@ class ContactUpdateBottomSheet extends StatefulWidget {
     this.primaryColor = Colors.orange,
   });
 
-  // Static method to show the bottom sheet
   static Future<void> show({
     required BuildContext context,
     required ContactType type,
@@ -55,7 +57,6 @@ class ContactUpdateBottomSheet extends StatefulWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => ContactUpdateBottomSheet(
         type: type,
         initialValue: initialValue,
@@ -72,33 +73,12 @@ class ContactUpdateBottomSheet extends StatefulWidget {
 
 class _ContactUpdateBottomSheetState extends State<ContactUpdateBottomSheet> {
   late TextEditingController _controller;
-  bool _isValid = false;
-  String? _errorText;
   final _authController = Get.find<AuthController>();
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialValue);
-    _validate(_controller.text);
-    _controller.addListener(() {
-      _validate(_controller.text);
-    });
-  }
-
-  void _validate(String value) {
-    setState(() {
-      if (widget.type == ContactType.email) {
-        final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-        _isValid = emailRegex.hasMatch(value);
-        _errorText = _isValid ? null : 'Please enter a valid email address';
-      } else {
-        // Simple phone validation (can be improved based on your requirements)
-        final phoneRegex = RegExp(r'^\d{10,15}$');
-        _isValid = phoneRegex.hasMatch(value);
-        _errorText = _isValid ? null : 'Please enter a valid phone number';
-      }
-    });
   }
 
   @override
@@ -128,7 +108,7 @@ class _ContactUpdateBottomSheetState extends State<ContactUpdateBottomSheet> {
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
+          // color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(
@@ -192,62 +172,35 @@ class _ContactUpdateBottomSheetState extends State<ContactUpdateBottomSheet> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  TextField(
-                    controller: _controller,
-                    keyboardType: keyboardType,
-                    inputFormatters: inputFormatters,
-                    decoration: InputDecoration(
+                  Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: NewCustomTextField(
                       hintText: hint,
-                      errorText: _errorText,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide:
-                            BorderSide(color: widget.primaryColor, width: 2),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide:
-                            const BorderSide(color: Colors.red, width: 1),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
+                      controller: _controller,
+                      keyboardType: keyboardType,
+                      inputFormatters: inputFormatters,
+                      validator: validateEmail,
                     ),
                   ),
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isValid
-                          ? () {
-                              widget.onSave(_controller.text);
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.primaryColor,
-                        foregroundColor: Colors.white,
-                        disabledBackgroundColor: Colors.grey[300],
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Obx(
-                        () => _authController.isLoading.value
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : const Text(
-                                'Save Changes',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  CustomButton(
+                    ontap: () {
+                      if (_formKey.currentState!.validate()) return;
+                      widget.onSave(_controller.text);
+                    },
+                    child: Obx(
+                      () => _authController.isLoading.value
+                          ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                          : const Text(
+                              'Save Changes',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
-                      ),
+                            ),
                     ),
                   ),
                 ],

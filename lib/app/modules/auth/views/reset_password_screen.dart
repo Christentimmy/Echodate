@@ -1,4 +1,8 @@
 import 'package:echodate/app/controller/auth_controller.dart';
+import 'package:echodate/app/resources/colors.dart';
+import 'package:echodate/app/utils/validator.dart';
+import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:math' as math;
@@ -43,8 +47,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
 
   @override
   Widget build(BuildContext context) {
+    // print(Get.isDarkMode);
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Get.theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const NeverScrollableScrollPhysics(),
@@ -55,9 +60,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
               children: [
                 const SizedBox(height: 20),
                 IconButton(
-                  onPressed: () {
-                    // Navigate back
-                  },
+                  onPressed: () => Get.back(),
                   icon: const Icon(Icons.arrow_back_ios),
                   color: Colors.orange,
                 ).animate().fadeIn(duration: 400.ms).slideX(begin: -10, end: 0),
@@ -82,7 +85,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
           ),
         ).animate().fadeIn(delay: 200.ms).slideY(begin: -10, end: 0),
         const SizedBox(height: 12),
@@ -90,7 +92,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
           "Enter your email and we'll send you instructions to reset your password.",
           style: TextStyle(
             fontSize: 16,
-            color: Colors.black54,
             height: 1.5,
           ),
         ).animate().fadeIn(delay: 400.ms).slideY(begin: 10, end: 0),
@@ -103,107 +104,50 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
       key: _formKey,
       child: Column(
         children: [
-          _buildAnimatedEmailField()
-              .animate()
-              .fadeIn(delay: 600.ms)
-              .slideX(begin: 30, end: 0),
+          NewCustomTextField(
+            hintText: "your@example.com",
+            keyboardType: TextInputType.emailAddress,
+            controller: _emailController,
+            prefixIcon: Icons.email_outlined,
+            prefixIconColor: AppColors.primaryColor,
+            validator: validateEmail,
+          ).animate().fadeIn().slideX(begin: 30, end: 0),
           const SizedBox(height: 24),
-          _buildSubmitButton()
-              .animate()
-              .fadeIn(delay: 800.ms)
-              .slideY(begin: 20, end: 0),
+          CustomButton(
+            ontap: () async {
+              if (_authController.isLoading.value) {
+                return;
+              }
+              FocusManager.instance.primaryFocus?.unfocus();
+              if (_formKey.currentState!.validate()) {
+                await _authController.sendOtpForgotPassword(
+                  email: _emailController.text,
+                );
+              }
+            },
+            child: Obx(
+              () => _authController.isLoading.value
+                  ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      "continue",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+            ),
+          ).animate().fadeIn(delay: 800.ms).slideY(begin: 20, end: 0),
           const SizedBox(height: 40),
           _buildDecorationElements(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAnimatedEmailField() {
-    return TextFormField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(
-        hintText: "your@example.com",
-        hintStyle: const TextStyle(
-          fontSize: 14,
-          color: Colors.black26,
-        ),
-        prefixIcon: const Icon(
-          Icons.email_outlined,
-          color: Colors.orange,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        filled: true,
-        fillColor: Colors.orange.withOpacity(0.1),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(
-            color: Colors.orange,
-            width: 2,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return "Please enter your email";
-        }
-        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-          return "Please enter a valid email";
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: _authController.isLoading.value
-            ? null
-            : () async {
-                FocusManager.instance.primaryFocus?.unfocus();
-                if (_formKey.currentState!.validate()) {
-                  await _authController.sendOtpForgotPassword(
-                    email: _emailController.text,
-                  );
-                }
-              },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          elevation: 0,
-        ),
-        child: Obx(
-          () => _authController.isLoading.value
-              ? const SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-              : const Text(
-                  "continue",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-        ),
       ),
     );
   }
@@ -294,5 +238,4 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
       ),
     );
   }
-
 }

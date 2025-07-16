@@ -134,7 +134,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
             const Text(
               'Your password has been reset successfully.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 13),
             ).animate().fadeIn(delay: 300.ms).slideY(begin: 10, end: 0),
           ],
         ),
@@ -151,12 +151,12 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () {
-                Get.offAll(() => LoginScreen());
+                Get.offAll(() => const LoginScreen());
               },
               child: const Text(
                 'Go to Login',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -171,7 +171,6 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: [
@@ -214,17 +213,15 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
         const Text(
           "Create New Password",
           style: TextStyle(
-            fontSize: 28,
+            fontSize: 23,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
           ),
         ).animate().fadeIn(delay: 200.ms).slideY(begin: -10, end: 0),
         const SizedBox(height: 12),
         Text(
           "Create a new password for ${widget.email}",
           style: const TextStyle(
-            fontSize: 16,
-            color: Colors.black54,
+            fontSize: 13,
             height: 1.5,
           ),
         ).animate().fadeIn(delay: 400.ms).slideY(begin: 10, end: 0),
@@ -274,12 +271,11 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
       controller: _passwordController,
       obscureText: _obscurePassword,
       onChanged: _checkPasswordStrength,
+      style: Get.textTheme.labelMedium,
+      cursorColor: Colors.white,
       decoration: InputDecoration(
         hintText: "Enter your new password",
-        hintStyle: const TextStyle(
-          fontSize: 14,
-          color: Colors.black26,
-        ),
+        hintStyle: Get.textTheme.bodySmall,
         prefixIcon: const Icon(
           Icons.lock_outline,
           color: Colors.orange,
@@ -340,10 +336,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
           children: [
             const Text(
               "Password Strength",
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.black54,
-              ),
+              style: TextStyle(fontSize: 12),
             ),
             Text(
               _passwordStrengthText,
@@ -386,12 +379,11 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
     return TextFormField(
       controller: _confirmPasswordController,
       obscureText: _obscureConfirmPassword,
+      style: Get.textTheme.labelMedium,
+      cursorColor: Colors.white,
       decoration: InputDecoration(
         hintText: "Confirm your new password",
-        hintStyle: const TextStyle(
-          fontSize: 14,
-          color: Colors.black26,
-        ),
+        hintStyle: Get.textTheme.bodySmall,
         prefixIcon: const Icon(
           Icons.lock_outline,
           color: Colors.orange,
@@ -453,10 +445,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
         children: [
           const Text(
             "Password Requirements:",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           _buildRequirementRow(
@@ -495,10 +484,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
         const SizedBox(width: 8),
         Text(
           text,
-          style: TextStyle(
-            fontSize: 14,
-            color: isMet ? Colors.black87 : Colors.black54,
-          ),
+          style: const TextStyle(fontSize: 11),
         ),
       ],
     );
@@ -666,5 +652,4 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen>
       ),
     );
   }
-
 }

@@ -88,7 +88,7 @@ class CreateStoryScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              CustomTextField(
+              NewCustomTextField(
                 controller: _storyScreenController.descriptionController,
                 hintText: "Write here...",
                 maxLines: 4,
