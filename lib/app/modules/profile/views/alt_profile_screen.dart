@@ -121,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       body: RefreshIndicator(
         color: AppColors.primaryColor,
         onRefresh: () async {
@@ -316,7 +316,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   width: double.infinity,
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey[50],
+                                    color: Get.isDarkMode
+                                        ? const Color.fromARGB(255, 34, 34, 34)
+                                        : Colors.grey.shade50,
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Obx(
@@ -325,8 +327,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                                           "",
                                       style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.grey[700],
                                         height: 1.6,
+                                        color: Get.theme.primaryColor,
                                       ),
                                     ),
                                   ),
@@ -588,7 +590,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       style: const TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.bold,
-        color: Colors.black87,
       ),
     );
   }
@@ -599,7 +600,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       curve: Curves.easeInOut,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Get.isDarkMode
+            ? const Color.fromARGB(255, 34, 34, 34)
+            : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -633,7 +636,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
                 ),
               );
             },
@@ -653,45 +655,41 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildInterestChip(String interest, String icon) {
-    return GestureDetector(
-      onTap: () {
-        // Add a subtle bounce animation on tap
-        // You can implement haptic feedback here too
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: Colors.grey[200]!),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Get.isDarkMode
+            ? const Color.fromARGB(255, 34, 34, 34)
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "$icon ",
+            style: const TextStyle(fontSize: 12),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            interest,
+            style: TextStyle(
+              color: Get.theme.primaryColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "$icon ",
-              style: const TextStyle(fontSize: 12),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              interest,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
