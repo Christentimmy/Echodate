@@ -50,7 +50,7 @@ class _AltTinderCardDetailsState extends State<AltTinderCardDetails> {
       backgroundColor: Colors.black,
       body: Obx(
         () => _userController.isloading.value
-            ? const AltTinderCardShimmerLoader()
+            ? const EnhancedAltTinderCardShimmerLoader()
             : Stack(
                 children: [
                   _buildImageWidget(),
