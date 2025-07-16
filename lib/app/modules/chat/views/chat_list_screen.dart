@@ -62,7 +62,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: 4,
-                      itemBuilder: (context, index) => _buildChatItemSkeleton(isDark),
+                      itemBuilder: (context, index) =>
+                          _buildChatItemSkeleton(isDark),
                     );
                   }
 
@@ -301,9 +302,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
         title: Text(
           messageModel.fullName ?? "",
           style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: isDark ? Colors.white : Colors.black87,
+            fontSize: 15,
+            fontWeight: FontWeight.normal,
+            color: Get.theme.primaryColor,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -351,7 +352,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Widget _buildChatItemSkeleton(bool isDark) {
-
     // Base and highlight colors for shimmer effect
     final Color baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
     final Color highlightColor = isDark ? Colors.grey[700]! : Colors.grey[100]!;

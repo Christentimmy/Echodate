@@ -24,7 +24,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get.changeThemeMode(ThemeMode.dark);
     final ThemeController themeController = Get.put(ThemeController());
     return Obx(
       () => GetMaterialApp(
