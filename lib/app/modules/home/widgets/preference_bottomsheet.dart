@@ -465,36 +465,3 @@ class _PreferenceBottomSheetState extends State<PreferenceBottomSheet>
     );
   }
 }
-
-// Usage: Add this to your home screen
-class PreferenceIconButton extends StatelessWidget {
-  const PreferenceIconButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Get.isDarkMode;
-    
-    return Container(
-      margin: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2D2D2D) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: IconButton(
-        onPressed: () => PreferenceBottomSheet.show(context),
-        icon: Icon(
-          Icons.tune,
-          color: AppColors.primaryColor,
-        ),
-        tooltip: "Preferences",
-      ),
-    );
-  }
-}

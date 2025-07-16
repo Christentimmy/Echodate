@@ -3,6 +3,7 @@ import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/utils/image_picker.dart';
 import 'package:echodate/app/widget/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class SupportController extends GetxController {
@@ -16,6 +17,8 @@ class SupportController extends GetxController {
   RxList<File> attachments = <File>[].obs;
 
   Future<void> sendMessage({required GlobalKey<FormState> formKey}) async {
+    HapticFeedback.mediumImpact();
+    FocusManager.instance.primaryFocus?.unfocus();
     if (!formKey.currentState!.validate()) {
       return;
     }

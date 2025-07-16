@@ -1,7 +1,7 @@
 import 'package:echodate/app/modules/support/controller/support_controller.dart';
 import 'package:echodate/app/resources/colors.dart';
-import 'package:echodate/app/resources/text_style.dart';
 import 'package:echodate/app/widget/custom_button.dart';
+import 'package:echodate/app/widget/custom_textfield.dart';
 import 'package:echodate/app/widget/loader.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +71,6 @@ class BuildSupportHeader extends StatelessWidget {
 class SupportFormFields extends StatelessWidget {
   SupportFormFields({super.key});
 
-  // final _supportController = Get.put(SupportController());
   final supportController = Get.find<SupportController>();
 
   @override
@@ -79,7 +78,9 @@ class SupportFormFields extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Get.isDarkMode
+            ? const Color.fromARGB(255, 27, 27, 27)
+            : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -94,108 +95,32 @@ class SupportFormFields extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Send us a message",
-              style: AppTextStyles.titleLarge,
+              style: Get.textTheme.bodyLarge,
             ),
             const SizedBox(height: 24),
             _buildDropdownField(context),
             const SizedBox(height: 20),
-            _buildTextField(
+            NewCustomTextField(
+              hintText: "Subject",
               controller: supportController.subjectController,
-              label: "Subject",
-              icon: Icons.subject_outlined,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Please enter a subject";
-                }
-                return null;
-              },
+              prefixIcon: Icons.subject_outlined,
+              prefixIconColor: AppColors.primaryColor,
             ),
 
             const SizedBox(height: 20),
-
-            // Message Field
-            _buildTextField(
-              controller: supportController.messageController,
+            NewCustomTextField(
               label: "Message",
-              icon: Icons.message_outlined,
+              controller: supportController.messageController,
+              prefixIcon: Icons.message_outlined,
               maxLines: 3,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Please enter your message";
-                }
-                return null;
-              },
+              prefixIconColor: AppColors.primaryColor,
+              floatingLabelBehavior: FloatingLabelBehavior.never,
             ),
 
             const SizedBox(height: 32),
-            SizedBox(
-              height: 45,
-              width: double.infinity,
-              child: Row(
-                children: [
-                  Container(
-                    height: 45,
-                    width: 45,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.orange[600]!, width: 2),
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.attach_file, color: Colors.orange[600]),
-                      onPressed: () async {
-                        await supportController.addAttachment();
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Obx(() {
-                    if (supportController.attachments.isEmpty) {
-                      return Text(
-                        "No Attachments",
-                        style: TextStyle(color: Colors.grey[600]),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
-                  Obx(() {
-                    if (supportController.attachments.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    return Expanded(
-                      child: ListView.builder(
-                        itemCount: supportController.attachments.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          final file = supportController.attachments[index];
-                          final label =
-                              "${file.path.split('/').last.substring(0, 5)}..";
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            child: Chip(
-                              label: Text(label),
-                              deleteIcon: const Icon(
-                                Icons.close,
-                                size: 16,
-                                color: Colors.red,
-                              ),
-                              onDeleted: () {
-                                supportController.attachments.removeAt(index);
-                              },
-                              backgroundColor: Colors.orange[50],
-                              labelStyle: TextStyle(color: Colors.orange[600]),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
+            _buildAttachmentComponents(),
             const SizedBox(height: 32),
 
             // Send Button
@@ -216,7 +141,11 @@ class SupportFormFields extends StatelessWidget {
                           SizedBox(width: 8),
                           Text(
                             "Send Message",
-                            style: AppTextStyles.buttonTextStyle,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ],
                       ),
@@ -228,22 +157,85 @@ class SupportFormFields extends StatelessWidget {
     );
   }
 
+  Widget _buildAttachmentComponents() {
+    return SizedBox(
+      height: 45,
+      width: double.infinity,
+      child: Row(
+        children: [
+          Container(
+            height: 45,
+            width: 45,
+            decoration: BoxDecoration(
+              color: Get.isDarkMode ? Colors.black : Colors.grey[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange[600]!, width: 2),
+            ),
+            child: IconButton(
+              icon: Icon(Icons.attach_file, color: Colors.orange[600]),
+              onPressed: () async {
+                await supportController.addAttachment();
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+          Obx(() {
+            if (supportController.attachments.isEmpty) {
+              return Text(
+                "No Attachments",
+                style: TextStyle(color: Colors.grey[600]),
+              );
+            }
+            return Expanded(
+              child: ListView.builder(
+                itemCount: supportController.attachments.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  final file = supportController.attachments[index];
+                  final label =
+                      "${file.path.split('/').last.substring(0, 5)}..";
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Chip(
+                      label: Text(label),
+                      deleteIcon: const Icon(
+                        Icons.close,
+                        size: 16,
+                        color: Colors.red,
+                      ),
+                      onDeleted: () {
+                        supportController.attachments.removeAt(index);
+                      },
+                      backgroundColor:
+                          Get.isDarkMode ? Colors.black : Colors.orange[50],
+                      labelStyle: TextStyle(color: Colors.orange[600]),
+                    ),
+                  );
+                },
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDropdownField(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.fieldBorder,
+        ),
       ),
       child: DropdownButtonFormField<String>(
         value: supportController.selectedCategory.value.isEmpty
             ? null
             : supportController.selectedCategory.value,
         decoration: InputDecoration(
-          labelText: "Category",
           prefixIcon: Icon(Icons.category_outlined, color: Colors.orange[600]),
-          labelStyle: TextStyle(color: Colors.grey[600]),
           filled: true,
-          fillColor: Colors.grey[50],
+          fillColor: Get.isDarkMode ? Colors.transparent : Colors.grey[50],
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -265,17 +257,16 @@ class SupportFormFields extends StatelessWidget {
             vertical: 16,
           ),
         ),
-        hint: Text(
-          "Select a category",
-          style: TextStyle(color: Colors.grey[600]),
-        ),
-        dropdownColor: Colors.white,
+        hint: const Text("Select a category"),
         items: supportController.categories.map((String category) {
           return DropdownMenuItem<String>(
             value: category,
             child: Text(
               category.substring(0, 1).toUpperCase() + category.substring(1),
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 16,
+                color: Get.theme.primaryColor,
+              ),
             ),
           );
         }).toList(),
@@ -289,50 +280,6 @@ class SupportFormFields extends StatelessWidget {
           return null;
         },
         icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange[600]),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    int maxLines = 1,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      validator: validator,
-      cursorColor: AppColors.primaryColor,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: Colors.orange[600]),
-        labelStyle: TextStyle(color: Colors.grey[600]),
-        filled: true,
-        fillColor: Colors.grey[50],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.orange[600]!, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
       ),
     );
   }

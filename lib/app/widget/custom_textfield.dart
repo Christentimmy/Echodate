@@ -143,7 +143,7 @@ class NewCustomTextField extends StatelessWidget {
   TextEditingController? controller;
   int? maxLines;
   FocusNode? focusNode;
-  final String hintText;
+  String? hintText;
   TextStyle? hintStyle;
   TextStyle? textStyle;
   IconData? prefixIcon;
@@ -165,9 +165,17 @@ class NewCustomTextField extends StatelessWidget {
   Function()? onTap;
   Widget? prefix;
   List<TextInputFormatter>? inputFormatters;
+  EdgeInsetsGeometry? contentPadding;
+  String? label;
+  TextStyle? labelStyle;
+  FloatingLabelBehavior? floatingLabelBehavior;
+
   NewCustomTextField({
     super.key,
     this.hintStyle,
+    this.floatingLabelBehavior,
+    this.label,
+    this.labelStyle,
     this.prefix,
     this.maxLines,
     this.focusedBorder,
@@ -180,7 +188,7 @@ class NewCustomTextField extends StatelessWidget {
     this.bgColor,
     this.onSuffixTap,
     this.isObscure,
-    required this.hintText,
+    this.hintText,
     this.fieldHeight,
     this.validator,
     this.readOnly,
@@ -192,6 +200,7 @@ class NewCustomTextField extends StatelessWidget {
     this.prefixIconColor,
     this.focusNode,
     this.inputFormatters,
+    this.contentPadding,
   });
 
   @override
@@ -239,6 +248,9 @@ class NewCustomTextField extends StatelessWidget {
           counterText: maxLength != null ? "" : null,
           hintText: hintText,
           hintStyle: hintStyle ?? Get.textTheme.bodySmall,
+          label: label != null ? Text(label!) : null,
+          labelStyle: labelStyle ?? Get.textTheme.bodySmall,
+          floatingLabelBehavior: floatingLabelBehavior,
           prefix: prefix,
           prefixIcon: prefixIcon == null
               ? null
@@ -300,6 +312,7 @@ class NewCustomTextField extends StatelessWidget {
               color: Colors.red,
             ),
           ),
+          contentPadding: contentPadding,
         ),
       ),
     );

@@ -78,7 +78,9 @@ class AppColors {
 
   // Form field colors
   static Color fieldBackground = const Color(0xFF262626);
-  static Color fieldBorder = const Color(0xFF404040);
+  // static Color fieldBorder = const Color(0xFF404040);
+  static Color get fieldBorder =>
+      Get.isDarkMode ? const Color(0xFF404040) : Colors.grey.shade300;
   static Color fieldFocus = const Color(0xFFFF8C42);
 
   // Orange accents for dark theme

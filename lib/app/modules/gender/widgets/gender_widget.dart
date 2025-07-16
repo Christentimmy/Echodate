@@ -1,12 +1,15 @@
+import 'package:echodate/app/controller/theme_controller.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+final themeController = Get.find<ThemeController>();
 
 Widget buildGenderOption(String gender, RxString selectedGender,
     {bool showCheck = true}) {
   return Obx(() {
     bool isSelected = selectedGender.value == gender;
-    final isDark = Get.isDarkMode;
+    final isDark = themeController.isDarkMode.value;
 
     return GestureDetector(
       onTap: () {

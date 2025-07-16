@@ -3,7 +3,6 @@ import 'package:echodate/app/models/support_ticket_model.dart';
 import 'package:echodate/app/modules/support/controller/support_controller.dart';
 import 'package:echodate/app/modules/support/widgets/support_widgets.dart';
 import 'package:echodate/app/resources/colors.dart';
-import 'package:echodate/app/resources/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -37,23 +36,23 @@ class _ContactUsPageState extends State<ContactUsPage>
   @override
   void dispose() {
     _tabController.dispose();
+    Get.delete<SupportController>();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text(
+        title: Text(
           "Support",
-          style: AppTextStyles.titleLarge,
+          style: Get.textTheme.bodyLarge,
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black54),
+          icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -62,7 +61,9 @@ class _ContactUsPageState extends State<ContactUsPage>
           Container(
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Get.isDarkMode
+                  ? const Color.fromARGB(255, 27, 27, 27)
+                  : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -120,7 +121,10 @@ class _ContactUsPageState extends State<ContactUsPage>
             child: TabBarView(
               physics: const NeverScrollableScrollPhysics(),
               controller: _tabController,
-              children: [_buildContactUsTab(), _buildAllTicketsTab()],
+              children: [
+                _buildContactUsTab(),
+                _buildAllTicketsTab(),
+              ],
             ),
           ),
         ],
@@ -154,8 +158,8 @@ class _ContactUsPageState extends State<ContactUsPage>
               Expanded(
                 child: _buildContactCard(
                   icon: Icons.phone_outlined,
-                  title: "Phone",
-                  subtitle: "Soon...",
+                  title: "Email",
+                  subtitle: "Support@echodate.me",
                 ),
               ),
               const SizedBox(width: 16),
@@ -187,13 +191,9 @@ class _ContactUsPageState extends State<ContactUsPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
-            const Text(
+            Text(
               "All Tickets",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
+              style: Get.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
             Obx(() {
@@ -213,7 +213,7 @@ class _ContactUsPageState extends State<ContactUsPage>
                       "No tickets found",
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -240,7 +240,9 @@ class _ContactUsPageState extends State<ContactUsPage>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Get.isDarkMode
+            ? const Color.fromARGB(255, 22, 22, 22)
+            : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -258,7 +260,7 @@ class _ContactUsPageState extends State<ContactUsPage>
             children: [
               Text(
                 "${supportTickelModel.category?.capitalizeFirst}",
-                style: AppTextStyles.titleLarge,
+                style: Get.textTheme.bodyLarge,
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -282,16 +284,16 @@ class _ContactUsPageState extends State<ContactUsPage>
             supportTickelModel.description.length > 115
                 ? "${supportTickelModel.description.substring(0, 114)}..."
                 : supportTickelModel.description,
-            style: AppTextStyles.titleMedium,
+            style: Get.textTheme.bodySmall,
           ),
           const SizedBox(height: 8),
           Text(
             'CreatedAt: ${DateFormat('dd MMM yyyy').format(supportTickelModel.createdAt)}',
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: const TextStyle(fontSize: 12),
           ),
           Text(
             'TicketId: ${supportTickelModel.id}',
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: const TextStyle(fontSize: 12),
           ),
         ],
       ),
@@ -306,7 +308,9 @@ class _ContactUsPageState extends State<ContactUsPage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Get.isDarkMode
+            ? const Color.fromARGB(255, 27, 27, 27)
+            : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -332,13 +336,12 @@ class _ContactUsPageState extends State<ContactUsPage>
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: const TextStyle(fontSize: 9),
             textAlign: TextAlign.center,
           ),
         ],

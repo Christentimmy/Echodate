@@ -16,7 +16,7 @@ final ThemeData lightTheme = ThemeData(
     ),
     headlineMedium: GoogleFonts.montserrat(
       fontSize: 22,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w800,
       color: AppColors.darkColor,
     ),
     headlineSmall: GoogleFonts.montserrat(
@@ -24,9 +24,14 @@ final ThemeData lightTheme = ThemeData(
       fontWeight: FontWeight.bold,
       color: AppColors.bgOrange600,
     ),
+    displayMedium: GoogleFonts.montserrat(
+      fontSize: 20,
+      fontWeight: FontWeight.w800,
+      color: Colors.black87,
+    ),
     bodyLarge: GoogleFonts.montserrat(
       fontSize: 16,
-      fontWeight: FontWeight.normal,
+      fontWeight: FontWeight.w700,
       color: Colors.black87,
     ),
     bodyMedium: GoogleFonts.montserrat(
@@ -66,7 +71,12 @@ final ThemeData darkTheme = ThemeData(
     ),
     headlineMedium: GoogleFonts.montserrat(
       fontSize: 22,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w800,
+      color: Colors.white,
+    ),
+    displayMedium: GoogleFonts.montserrat(
+      fontSize: 20,
+      fontWeight: FontWeight.w800,
       color: Colors.white,
     ),
     headlineSmall: GoogleFonts.montserrat(
@@ -76,7 +86,7 @@ final ThemeData darkTheme = ThemeData(
     ),
     bodyLarge: GoogleFonts.montserrat(
       fontSize: 16,
-      fontWeight: FontWeight.normal,
+      fontWeight: FontWeight.w700,
       color: Colors.white70,
     ),
     bodyMedium: GoogleFonts.montserrat(
