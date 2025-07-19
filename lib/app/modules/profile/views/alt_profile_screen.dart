@@ -235,14 +235,18 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     );
                                   }),
                                   const SizedBox(height: 10),
-                                  const Text(
-                                    'Alex Johnson',
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                                  Obx(() {
+                                    final model =
+                                        _userController.userModel.value;
+                                    return Text(
+                                      model?.fullName ?? "",
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  }),
                                   const SizedBox(height: 4),
                                   Obx(() {
                                     final model =
