@@ -6,6 +6,7 @@ import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/user_model.dart';
+import 'package:echodate/app/modules/auth/controller/login_controller.dart';
 import 'package:echodate/app/modules/auth/views/create_new_password.dart';
 import 'package:echodate/app/modules/auth/views/otp_verify_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
@@ -239,6 +240,7 @@ class AuthController extends GetxController {
     required String password,
   }) async {
     isLoading.value = true;
+    final loginController = Get.find<LoginController>();
     try {
       final response = await _authService.loginUser(
         identifier: identifier,
@@ -256,7 +258,7 @@ class AuthController extends GetxController {
       }
       if (response.statusCode == 402) {
         CustomSnackbar.showErrorSnackBar(message);
-        Get.offAll(() => RegisterScreen());
+        Get.offAll(() => const RegisterScreen());
         return;
       }
       final socketController = Get.find<SocketController>();
@@ -291,6 +293,7 @@ class AuthController extends GetxController {
     } catch (e) {
       debugPrint(e.toString());
     } finally {
+      loginController.clean();
       isLoading.value = false;
     }
   }

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:echodate/app/modules/auth/controller/login_controller.dart';
 import 'package:echodate/app/modules/auth/views/reset_password_screen.dart';
 import 'package:echodate/app/modules/auth/views/signup_screen.dart';
@@ -97,7 +96,6 @@ class LoginModalWidget extends StatelessWidget {
                   identifier: _loginController.emailController.text,
                   password: _loginController.passwordController.text,
                 );
-                _loginController.clean();
               }
             },
             child: Obx(
