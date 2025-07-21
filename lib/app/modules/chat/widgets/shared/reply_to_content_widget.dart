@@ -487,6 +487,12 @@ class ReplyToContent extends StatelessWidget {
                       },
                       width: 45,
                       height: 40,
+                      errorWidget: (context, url, error) {
+                        return const Icon(
+                          Icons.error,
+                          color: Colors.black,
+                        );
+                      },
                     ),
                   ),
                 )

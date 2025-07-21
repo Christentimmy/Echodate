@@ -70,7 +70,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
     super.initState();
     _viewStoryScreenController.init();
     _initializeProgressAnimation();
-    // _startStoryTimer();
+    _startStoryTimer();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -257,24 +257,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
                   _buildStoryContent(story),
                   _buildStoryViewers(storyModel, story),
                   _buildDeleteIcon(storyModel, context),
-                  Positioned(
-                    right: 15,
-                    top: 50,
-                    child: InkWell(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (context) {
-                            return ReportBottomSheet(
-                              reporteeId: storyModel.userId!,
-                              type: ReportType.story,
-                            );
-                          },
-                        );
-                      },
-                      child: const Icon(Icons.report),
-                    ),
-                  ),
+                  _buildReportButton(context, storyModel),
                 ],
               ),
             ),
@@ -282,6 +265,30 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
         ),
       );
     });
+  }
+
+  Positioned _buildReportButton(
+    BuildContext context,
+    StoryModel storyModel,
+  ) {
+    return Positioned(
+      right: 15,
+      top: 50,
+      child: InkWell(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return ReportBottomSheet(
+                reporteeId: storyModel.userId!,
+                type: ReportType.story,
+              );
+            },
+          );
+        },
+        child: const Icon(Icons.report),
+      ),
+    );
   }
 
   Obx _buildDeleteIcon(StoryModel storyModel, BuildContext context) {
