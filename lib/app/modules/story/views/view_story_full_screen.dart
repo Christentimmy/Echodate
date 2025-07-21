@@ -5,6 +5,7 @@ import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/models/story_model.dart';
+import 'package:echodate/app/modules/home/widgets/report_bottom_sheet.dart';
 import 'package:echodate/app/modules/story/controller/view_story_full_screen_controller.dart';
 import 'package:echodate/app/modules/story/widgets/create_story_widgets.dart';
 import 'package:echodate/app/modules/story/widgets/story_video_player.dart';
@@ -69,7 +70,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
     super.initState();
     _viewStoryScreenController.init();
     _initializeProgressAnimation();
-    _startStoryTimer();
+    // _startStoryTimer();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -256,6 +257,24 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
                   _buildStoryContent(story),
                   _buildStoryViewers(storyModel, story),
                   _buildDeleteIcon(storyModel, context),
+                  Positioned(
+                    right: 15,
+                    top: 50,
+                    child: InkWell(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return ReportBottomSheet(
+                              reporteeId: storyModel.userId!,
+                              type: ReportType.story,
+                            );
+                          },
+                        );
+                      },
+                      child: const Icon(Icons.report),
+                    ),
+                  ),
                 ],
               ),
             ),
