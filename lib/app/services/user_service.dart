@@ -1191,4 +1191,37 @@ class UserService {
     }
     return null;
   }
+
+  Future<http.Response?> reportUser({
+    required String token,
+    required String type,
+    required String reason,
+    required String reporteeId,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/user/create-report");
+      final response = await client
+          .post(
+            url,
+            headers: {
+              "Authorization": "Bearer $token",
+              "Content-Type": "application/json",
+            },
+            body: jsonEncode({
+              "type": type,
+              "description": reason,
+              "reportedUser": reporteeId,
+            }),
+          )
+          .timeout(const Duration(seconds: 60));
+      return response;
+    } on SocketException catch (e) {
+      debugPrint("No internet connection $e");
+    } on TimeoutException {
+      debugPrint("Request timeout");
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
 }

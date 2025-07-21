@@ -6,6 +6,7 @@ import 'package:echodate/app/models/user_model.dart';
 import 'package:echodate/app/modules/chat/views/chat_screen.dart';
 import 'package:echodate/app/modules/echocoin/views/send_coins_screen.dart';
 import 'package:echodate/app/modules/home/controller/tinder_card_controller.dart';
+import 'package:echodate/app/modules/home/widgets/report_bottom_sheet.dart';
 import 'package:echodate/app/modules/home/widgets/shimmer_loader.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:echodate/app/utils/age_calculator.dart';
@@ -396,54 +397,79 @@ class _AltTinderCardDetailsState extends State<AltTinderCardDetails> {
         horizontal: 15,
         vertical: Get.height * 0.08,
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              InkWell(
+                onTap: () => Get.back(),
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.grey.withOpacity(0.3),
+                  child: const Icon(
+                    Icons.close,
+                    size: 17,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Obx(() {
+                final userModel = _tinderCardController.userModel.value;
+                if (_userController.isloading.value ||
+                    userModel?.plan == "free") {
+                  return const SizedBox.shrink();
+                }
+                return InkWell(
+                  onTap: () {
+                    if (userModel == null) return;
+                    Get.to(
+                      () => SendCoinsScreen(
+                        recipientName: userModel.fullName!,
+                        recipientId: userModel.id!,
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 45,
+                    width: 45,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.primaryColor,
+                    ),
+                    child: const Icon(
+                      Icons.account_balance_wallet,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+          const SizedBox(height: 5),
           InkWell(
-            onTap: () => Get.back(),
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) {
+                  return ReportBottomSheet(
+                    reporteeId: widget.userModel.id!,
+                    type: ReportType.profile,
+                  );
+                },
+              );
+            },
             child: CircleAvatar(
               radius: 18,
-              backgroundColor: Colors.grey.withOpacity(0.8),
+              backgroundColor: Colors.grey.withOpacity(0.3),
               child: const Icon(
-                Icons.close,
+                Icons.report,
                 size: 17,
-                color: Colors.white,
+                color: Colors.red,
               ),
             ),
           ),
-          const Spacer(),
-          Obx(() {
-            final userModel = _tinderCardController.userModel.value;
-            if (_userController.isloading.value || userModel?.plan == "free") {
-              return const SizedBox.shrink();
-            }
-            return InkWell(
-              onTap: () {
-                // Get.toNamed('/send-coins', arguments: {
-                //   "recipientId": userModel?.id,
-                //   "recipientName": userModel?.fullName,
-                // });
-                if (userModel == null) return;
-                Get.to(
-                  () => SendCoinsScreen(
-                    recipientName: userModel.fullName!,
-                    recipientId: userModel.id!,
-                  ),
-                );
-              },
-              child: Container(
-                height: 45,
-                width: 45,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: AppColors.primaryColor,
-                ),
-                child: const Icon(
-                  Icons.account_balance_wallet,
-                  color: Colors.white,
-                ),
-              ),
-            );
-          }),
         ],
       ),
     );

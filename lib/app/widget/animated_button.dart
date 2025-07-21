@@ -350,7 +350,6 @@ class _AnimatedCustomButtonState extends State<AnimatedCustomButton>
   }
 }
 
-// Usage example for your swipe buttons
 class SwipeButtonsRow extends StatefulWidget {
   final String userId;
   final VoidCallback onDislike;

@@ -1,14 +1,39 @@
+import 'package:echodate/app/controller/user_controller.dart';
+import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class ReportType {
+  static const profile = ReportType._('profile');
+  static const story = ReportType._('story');
+  static const message = ReportType._('message');
+  static const other = ReportType._('other');
+
+  final String value;
+
+  const ReportType._(this.value);
+
+  @override
+  String toString() => value;
+}
+
+
 
 class ReportBottomSheet extends StatefulWidget {
-  const ReportBottomSheet({super.key});
+  final String reporteeId;
+  final ReportType type;
+  const ReportBottomSheet({
+    super.key,
+    required this.reporteeId,
+    required this.type,
+  });
 
   @override
   State<ReportBottomSheet> createState() => _ReportBottomSheetState();
 }
 
 class _ReportBottomSheetState extends State<ReportBottomSheet> {
-  bool _isLoading = false;
+  final _userController = Get.find<UserController>();
 
   final List<String> _reportReasons = [
     "No reason",
@@ -17,30 +42,15 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
     "Inappropriate content",
     "Underage or minor",
     "Off-Hinge behavior",
-    "Someone is in danger"
+    "Someone is in danger",
+    "Other"
   ];
 
   void _reportUser(String reason) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simulate a network request delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    // Close the bottom sheet after reporting
-    Navigator.pop(context);
-
-    // Show confirmation message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Report submitted: $reason"),
-        duration: const Duration(seconds: 2),
-      ),
+    await _userController.reportUser(
+      type: widget.type.value,
+      reason: reason,
+      reporteeId: widget.reporteeId,
     );
   }
 
@@ -48,30 +58,27 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            ) // Show loading
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: _reportReasons
-                  .map((reason) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[200],
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            minimumSize: const Size(double.infinity, 50),
-                          ),
-                          onPressed: () => _reportUser(reason),
-                          child: Text(reason),
-                        ),
-                      ))
-                  .toList(),
-            ),
+      child: Obx(
+        () => _userController.isloading.value
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryColor,
+                ),
+              )
+            : ListView.builder(
+                itemCount: _reportReasons.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      _reportReasons[index],
+                      style: Get.textTheme.labelMedium,
+                    ),
+                    onTap: () => _reportUser(_reportReasons[index]),
+                    contentPadding: EdgeInsets.zero,
+                  );
+                },
+              ),
+      ),
     );
   }
 }

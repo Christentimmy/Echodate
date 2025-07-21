@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:app_links/app_links.dart';
 import 'package:echodate/app/controller/location_controller.dart';
 import 'package:echodate/app/controller/storage_controller.dart';
 import 'package:echodate/app/models/bank_model.dart';
@@ -1508,6 +1509,78 @@ class UserController extends GetxController {
       debugPrint(e.toString());
     } finally {
       isloading.value = false;
+    }
+  }
+
+  Future<void> reportUser({
+    required String type,
+    required String reason,
+    required String reporteeId,
+  }) async {
+    isloading.value = true;
+    try {
+      final storageController = Get.find<StorageController>();
+      String? token = await storageController.getToken();
+      if (token == null) return;
+      final response = await _userService.reportUser(
+        token: token,
+        type: type,
+        reason: reason,
+        reporteeId: reporteeId,
+      );
+      if (response == null) return;
+      var responseBody = json.decode(response.body);
+      String message = responseBody["message"] ?? "";
+      if (response.statusCode != 201) {
+        CustomSnackbar.showErrorSnackBar(message);
+        return;
+      }
+      Navigator.pop(Get.context!);
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
+        SnackBar(
+          content: Text("Report submitted: $reason"),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isloading.value = false;
+    }
+  }
+
+  Future<void> initDeepLinks(AppLinks appLinks) async {
+    try {
+      final appLink = await appLinks.getInitialLink();
+      if (appLink != null) {
+        _handleDeepLink(appLink);
+      }
+
+      appLinks.uriLinkStream.listen((Uri? uri) {
+        if (uri != null) {
+          _handleDeepLink(uri);
+        }
+      });
+    } catch (e) {
+      print('Error initializing deep links: $e');
+    }
+  }
+
+  void _handleDeepLink(Uri uri) {
+    if (uri.host == 'payment-success') {
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        try {
+          getUserDetails();
+          if (Get.currentRoute != '/bottom-navigation') {
+            Get.offAll(
+              () => BottomNavigationScreen(),
+              predicate: (route) => false,
+            );
+          }
+        } catch (e) {
+          debugPrint('Error handling deep link: $e');
+        }
+      });
     }
   }
 }
