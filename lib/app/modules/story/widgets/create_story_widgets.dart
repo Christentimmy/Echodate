@@ -26,12 +26,9 @@ Future<dynamic> displayMediaOptionWidget(
             Icons.videocam,
             color: AppColors.primaryColor,
           ),
-          title: const Text(
+          title: Text(
             'Select a video',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Get.textTheme.bodyLarge,
           ),
           onTap: () {
             Navigator.pop(context);
@@ -43,12 +40,9 @@ Future<dynamic> displayMediaOptionWidget(
             Icons.photo_library,
             color: AppColors.primaryColor,
           ),
-          title: const Text(
+          title: Text(
             'Select from gallery',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Get.textTheme.bodyLarge,
           ),
           onTap: () {
             Navigator.pop(context);
@@ -243,7 +237,10 @@ class StoryVisibilityRadioWidget extends StatelessWidget {
           () => ListTile(
             minTileHeight: 35,
             contentPadding: EdgeInsets.zero,
-            title: const Text('Public'),
+            title: Text(
+              'Public',
+              style: Get.textTheme.bodyMedium,
+            ),
             leading: Radio<String>(
               value: 'public',
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -259,7 +256,10 @@ class StoryVisibilityRadioWidget extends StatelessWidget {
           () => ListTile(
             minTileHeight: 35,
             contentPadding: EdgeInsets.zero,
-            title: const Text('Matches Only'),
+            title: Text(
+              'Matches Only',
+              style: Get.textTheme.bodyMedium,
+            ),
             leading: Radio<String>(
               value: 'matches-only',
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

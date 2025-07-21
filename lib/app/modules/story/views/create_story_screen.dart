@@ -40,7 +40,9 @@ class CreateStoryScreen extends StatelessWidget {
                     InkWell(
                       onTap: () {
                         displayMediaOptionWidget(
-                            context, _storyScreenController);
+                          context,
+                          _storyScreenController,
+                        );
                       },
                       child: Container(
                         width: 80,
