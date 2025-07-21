@@ -8,6 +8,7 @@ import 'package:echodate/app/modules/chat/widgets/media/media_preview_widget.dar
 import 'package:echodate/app/modules/chat/widgets/receiver_card.dart';
 import 'package:echodate/app/modules/chat/widgets/sender_card.dart';
 import 'package:echodate/app/modules/home/views/alt_tinder_card_details.dart';
+import 'package:echodate/app/modules/home/widgets/report_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -49,7 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -140,7 +141,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
       elevation: 0,
       titleSpacing: 0.0,
       leading: InkWell(
@@ -171,11 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               Text(
                 widget.chatHead.fullName ?? "",
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Get.textTheme.bodyLarge,
               ),
               Text(
                 widget.chatHead.online == true ? "Online" : "Offline",
@@ -189,6 +185,22 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
+      actions: [
+        IconButton(
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return ReportBottomSheet(
+                  reporteeId: widget.chatHead.userId ?? "",
+                  type: ReportType.message,
+                );
+              },
+            );
+          },
+          icon: const Icon(Icons.more_vert),
+        ),
+      ],
     );
   }
 

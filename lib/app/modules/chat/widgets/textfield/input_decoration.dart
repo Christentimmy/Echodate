@@ -1,7 +1,19 @@
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 BoxDecoration chatInputFieldDecoration({bool? showBorderRadius = true}) {
+  if (Get.isDarkMode) {
+    return BoxDecoration(
+      color: Colors.black,
+      borderRadius:
+          showBorderRadius == false ? null : BorderRadius.circular(30),
+      border: Border.all(
+        color: const Color(0xFFE0E0E0),
+        width: 1,
+      ),
+    );
+  }
   return BoxDecoration(
     color: AppColors.lightGrey,
     borderRadius: showBorderRadius == false ? null : BorderRadius.circular(30),

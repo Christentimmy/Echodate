@@ -9,6 +9,11 @@ final ThemeData lightTheme = ThemeData(
   splashFactory: NoSplash.splashFactory,
   scaffoldBackgroundColor: Colors.white,
   textTheme: GoogleFonts.montserratTextTheme().copyWith(
+    titleMedium: GoogleFonts.montserrat(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: Colors.black,
+    ),
     headlineLarge: GoogleFonts.montserrat(
       fontSize: 24,
       fontWeight: FontWeight.bold,
@@ -69,6 +74,11 @@ final ThemeData darkTheme = ThemeData(
   splashColor: Colors.transparent,
   splashFactory: NoSplash.splashFactory,
   textTheme: GoogleFonts.montserratTextTheme().copyWith(
+    titleMedium: GoogleFonts.montserrat(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: Colors.white,
+    ),
     headlineLarge: GoogleFonts.montserrat(
       fontSize: 24,
       fontWeight: FontWeight.bold,

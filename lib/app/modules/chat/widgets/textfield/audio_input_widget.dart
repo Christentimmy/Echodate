@@ -16,7 +16,7 @@ class AudioInputPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: chatInputFieldDecoration(showBorderRadius: false),
+      decoration: chatInputFieldDecoration(),
       width: Get.width,
       padding: const EdgeInsets.only(top: 10, right: 10, bottom: 4),
       child: Column(

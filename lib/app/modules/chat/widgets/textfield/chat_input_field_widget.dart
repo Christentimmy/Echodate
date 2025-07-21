@@ -21,18 +21,15 @@ class NewChatInputFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: Obx(() {
-        final isRecording = controller.audioController.isRecording.value;
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: isRecording
-              ? AudioInputPreview(controller: controller)
-              : _buildInputFieldRow(context),
-        );
-      }),
-    );
+    return Obx(() {
+      final isRecording = controller.audioController.isRecording.value;
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: isRecording
+            ? AudioInputPreview(controller: controller)
+            : _buildInputFieldRow(context),
+      );
+    });
   }
 
   Widget _buildInputFieldRow(BuildContext context) {
@@ -70,17 +67,13 @@ class NewChatInputFields extends StatelessWidget {
                       cursorColor: AppColors.primaryColor,
                       controller: controller.textMessageController,
                       onChanged: controller.handleTyping,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      decoration: const InputDecoration(
+                      style: Get.textTheme.labelMedium,
+                      decoration: InputDecoration(
                         hintText: "Type a message...",
-                        hintStyle: TextStyle(
-                          fontSize: 12,
-                        ),
+                        hintStyle: Get.textTheme.labelMedium,
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12),
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),

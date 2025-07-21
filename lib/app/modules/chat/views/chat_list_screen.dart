@@ -301,11 +301,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         ),
         title: Text(
           messageModel.fullName ?? "",
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.normal,
-            color: Get.theme.primaryColor,
-          ),
+          style: Get.textTheme.titleMedium,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

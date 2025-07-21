@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 class NewCustomTextField extends StatelessWidget {
   TextEditingController? controller;
   int? maxLines;
+  int? minLines;
   FocusNode? focusNode;
   String? hintText;
   TextStyle? hintStyle;
@@ -43,6 +44,7 @@ class NewCustomTextField extends StatelessWidget {
     this.labelStyle,
     this.prefix,
     this.maxLines,
+    this.minLines,
     this.focusedBorder,
     this.enabledBorder,
     this.onChanged,
@@ -95,6 +97,7 @@ class NewCustomTextField extends StatelessWidget {
         keyboardType: keyboardType,
         style: textStyle ?? Get.textTheme.labelMedium,
         maxLines: maxLines ?? 1,
+        minLines: minLines ?? 1,
         decoration: InputDecoration(
           fillColor: bgColor ??
               (Get.isDarkMode
