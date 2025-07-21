@@ -1536,12 +1536,7 @@ class UserController extends GetxController {
         return;
       }
       Navigator.pop(Get.context!);
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Text("Report submitted: $reason"),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      CustomSnackbar.showSuccessSnackBar("Report submitted successfully");
     } catch (e) {
       debugPrint(e.toString());
     } finally {
