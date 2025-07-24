@@ -69,7 +69,7 @@ class _SplashScreen1State extends State<SplashScreen1>
       }
       String? token = await storageController.getToken();
       if (token == null || token.isEmpty) {
-        Get.off(() => RegisterScreen());
+        Get.off(() => const RegisterScreen());
         return;
       }
       await userController.getUserStatus();
@@ -105,39 +105,6 @@ class _SplashScreen1State extends State<SplashScreen1>
                 color: Colors.white,
                 letterSpacing: 1.5,
               ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class SplashScreen2 extends StatelessWidget {
-  const SplashScreen2({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 2), () {
-      Get.to(() => const OnboardingScreen());
-    });
-
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.white, Colors.orangeAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: const Center(
-          child: Text(
-            "ECHODATE",
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.orange,
             ),
           ),
         ),

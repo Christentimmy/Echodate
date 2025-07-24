@@ -1,7 +1,6 @@
 import 'package:echodate/app/modules/splash/controller/splash_controller.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-
 import 'package:get/get.dart';
 
 class EchodateSplashScreen extends StatelessWidget {
@@ -38,70 +37,23 @@ class EchodateSplashScreen extends StatelessWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Letters appearing one by one
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(_splashController.appName.length,
-                          (index) {
-                        return AnimatedBuilder(
-                          animation: _splashController.letterControllers[index],
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: Offset(
-                                  0,
-                                  30 *
-                                      (1 -
-                                          _splashController
-                                              .letterAnimations[index].value)),
-                              child: Transform.scale(
-                                scale: _splashController
-                                    .letterAnimations[index].value,
-                                child: Opacity(
-                                  opacity: _splashController
-                                      .letterFadeAnimations[index].value,
-                                  child: _buildBrickLetter(
-                                      _splashController.appName[index], index),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      }),
+                    // Letters appearing one by one with heart positioned relative to text
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                              _splashController.appName.length, (index) {
+                            return _buildEachLetter(index);
+                          }),
+                        ),
+
+                        // Heart icon positioned relative to the text row
+                        if (_splashController.appName.isNotEmpty)
+                          _buildAnimatedHeartIcon(),
+                      ],
                     ),
-                    // Heart icon that bounces on the last letter
-                    if (_splashController.appName.isNotEmpty)
-                      AnimatedBuilder(
-                        animation: _splashController.loveIconController,
-                        builder: (context, child) {
-                          // Find the position of the last letter
-                          const letterWidth = 39.0;
-                          final totalWidth =
-                              letterWidth * _splashController.appName.length;
-                          return Positioned(
-                            left: (totalWidth / 2) +
-                                (letterWidth *
-                                    (_splashController.appName.length / 2 -
-                                        0.5)),
-                            bottom: 27,
-                            child: Transform.translate(
-                              offset: Offset(
-                                  0,
-                                  _splashController
-                                          .loveIconBounceAnimation.value -
-                                      24),
-                              child: Transform.scale(
-                                scale: _splashController
-                                    .loveIconScaleAnimation.value,
-                                child: const Icon(
-                                  Icons.favorite,
-                                  color: Colors.white,
-                                  size: 40,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
                   ],
                 ),
               ),
@@ -112,6 +64,53 @@ class EchodateSplashScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  AnimatedBuilder _buildEachLetter(int index) {
+    return AnimatedBuilder(
+      animation: _splashController.letterControllers[index],
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(
+              0, 30 * (1 - _splashController.letterAnimations[index].value)),
+          child: Transform.scale(
+            scale: _splashController.letterAnimations[index].value,
+            child: Opacity(
+              opacity: _splashController.letterFadeAnimations[index].value,
+              child: _buildBrickLetter(_splashController.appName[index], index),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  AnimatedBuilder _buildAnimatedHeartIcon() {
+    return AnimatedBuilder(
+      animation: _splashController.loveIconController,
+      builder: (context, child) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final screenHeight = MediaQuery.of(context).size.height;
+        return Positioned(
+          right: screenWidth * 0.08,
+          top: screenHeight * 0.012,
+          child: Transform.translate(
+            offset: Offset(
+              0,
+              _splashController.loveIconBounceAnimation.value - 24,
+            ),
+            child: Transform.scale(
+              scale: _splashController.loveIconScaleAnimation.value,
+              child: Icon(
+                Icons.favorite,
+                color: Colors.white,
+                size: screenWidth * 0.1,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -179,7 +178,6 @@ class EchodateSplashScreen extends StatelessWidget {
         return Stack(
           alignment: Alignment.center,
           children: [
-          
             if (progress < 0.7)
               Transform.translate(
                 offset: Offset(
