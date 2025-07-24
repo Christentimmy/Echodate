@@ -65,7 +65,7 @@ class TinderCard extends StatelessWidget {
         profile.plan != "free"
             ? Positioned(
                 top: 20,
-                right: 10,
+                right: 20,
                 child: InkWell(
                   onTap: () {
                     Get.to(
@@ -76,8 +76,8 @@ class TinderCard extends StatelessWidget {
                     );
                   },
                   child: Container(
-                    height: 45,
-                    width: 45,
+                    height: 40,
+                    width: 40,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: AppColors.primaryColor,
@@ -85,6 +85,7 @@ class TinderCard extends StatelessWidget {
                     child: const Icon(
                       FontAwesomeIcons.wallet,
                       color: Colors.white,
+                      size: 18,
                     ),
                   ),
                 ),
