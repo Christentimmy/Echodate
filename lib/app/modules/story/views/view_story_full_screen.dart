@@ -91,14 +91,17 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
       }
     }
   }
-
+ 
   @override
   void dispose() {
     _progressAnimationController.dispose();
     _storyTimer?.cancel();
+    _storyTimer = null;
     routeObserver.unsubscribe(this);
     _textController.dispose();
     WidgetsBinding.instance.removeObserver(this);
+    _videoPlayerKey = GlobalKey();
+
     super.dispose();
   }
 
@@ -216,7 +219,13 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
         return _buildNoStoriesView();
       }
 
-      final story = stories[_viewStoryScreenController.currentStoryIndex.value];
+      final currentStoryIndex =
+          _viewStoryScreenController.currentStoryIndex.value;
+      if (currentStoryIndex >= stories.length) {
+        _viewStoryScreenController.currentStoryIndex.value = 0;
+        return _buildNoStoriesView();
+      }
+      final story = stories[currentStoryIndex];
 
       return Scaffold(
         resizeToAvoidBottomInset: false,
@@ -267,15 +276,18 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
     });
   }
 
-  Positioned _buildReportButton(
+  Widget _buildReportButton(
     BuildContext context,
     StoryModel storyModel,
   ) {
+    final userModel = _userController.userModel.value;
+    if (userModel?.id == storyModel.userId) return const SizedBox.shrink();
     return Positioned(
       right: 15,
       top: 50,
       child: InkWell(
         onTap: () {
+          _pauseStory();
           showModalBottomSheet(
             context: context,
             builder: (context) {
@@ -284,7 +296,9 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
                 type: ReportType.story,
               );
             },
-          );
+          ).then((_) {
+            _resumeStory();
+          });
         },
         child: const Icon(Icons.report),
       ),
@@ -340,12 +354,22 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
     final index = _viewStoryScreenController.currentUserIndex.value;
     if (index >= _storyController.allstoriesList.length) {
       _viewStoryScreenController.currentUserIndex.value = 0;
+      return _storyController.allstoriesList.isNotEmpty;
     }
+    final storyModel = _storyController.allstoriesList[index];
+    if (storyModel.stories == null || storyModel.stories!.isEmpty) {
+      return false;
+    }
+
     return true;
   }
 
   StoryModel _getCurrentStoryModel() {
     final index = _viewStoryScreenController.currentUserIndex.value;
+    if (index >= _storyController.allstoriesList.length) {
+      _viewStoryScreenController.currentUserIndex.value = 0;
+      return _storyController.allstoriesList.first;
+    }
     return _storyController.allstoriesList[index];
   }
 
@@ -375,9 +399,24 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
               imageUrl: story.mediaUrl ?? "",
               width: Get.width,
               height: Get.height * 0.67,
-              // fit: BoxFit.cover,
-              errorWidget: (context, url, error) =>
-                  const Icon(Icons.broken_image),
+              errorWidget: (context, url, error) {
+                // ADD BETTER ERROR HANDLING:
+                print('Story media load failed: $error');
+                return Container(
+                  width: Get.width,
+                  height: Get.height * 0.67,
+                  color: Colors.grey[800],
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.broken_image, color: Colors.white, size: 50),
+                      SizedBox(height: 10),
+                      Text('Media not available',
+                          style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                );
+              },
               placeholder: (context, url) => const Center(
                 child: CircularProgressIndicator(color: Colors.white),
               ),

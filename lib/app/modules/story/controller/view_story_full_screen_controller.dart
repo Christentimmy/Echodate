@@ -32,6 +32,11 @@ class ViewStoryFullScreenController extends GetxController {
   }
 
   void goToNextStory() {
+    // ADD BOUNDS CHECKING:
+    if (currentUserIndex.value >= _storyController.allstoriesList.length) {
+      return Navigator.pop(Get.context!);
+    }
+
     final storyModel = _storyController.allstoriesList[currentUserIndex.value];
     final stories = storyModel.stories;
     final allStories = _storyController.allstoriesList;
@@ -42,29 +47,34 @@ class ViewStoryFullScreenController extends GetxController {
 
     if (currentStoryIndex.value < stories.length - 1) {
       currentStoryIndex.value++;
-      final story = stories[currentStoryIndex.value];
-      _storyController.markStoryAsSeen(
-        storyModel.id,
-        story.id ?? "",
-        storyModel.userId ?? "",
-      );
+      // ADD BOUNDS CHECK HERE TOO:
+      if (currentStoryIndex.value < stories.length) {
+        final story = stories[currentStoryIndex.value];
+        _storyController.markStoryAsSeen(
+          storyModel.id,
+          story.id ?? "",
+          storyModel.userId ?? "",
+        );
+      }
     } else if (currentUserIndex.value < allStories.length - 1) {
       currentUserIndex.value++;
       currentStoryIndex.value = 0;
-      final nextStoryModel = allStories[currentUserIndex.value];
-      if (nextStoryModel.stories?.isNotEmpty ?? false) {
-        final story = nextStoryModel.stories![0];
-        _storyController.markStoryAsSeen(
-          nextStoryModel.id,
-          story.id ?? "",
-          nextStoryModel.userId ?? "",
-        );
+      // ADD SAFETY CHECK:
+      if (currentUserIndex.value < allStories.length) {
+        final nextStoryModel = allStories[currentUserIndex.value];
+        if (nextStoryModel.stories?.isNotEmpty ?? false) {
+          final story = nextStoryModel.stories![0];
+          _storyController.markStoryAsSeen(
+            nextStoryModel.id,
+            story.id ?? "",
+            nextStoryModel.userId ?? "",
+          );
+        }
       }
     } else {
       Navigator.pop(Get.context!);
     }
 
-    // Notify view that story changed
     onStoryChanged?.call();
   }
 
@@ -102,7 +112,4 @@ class ViewStoryFullScreenController extends GetxController {
     // Notify view that story changed
     onStoryChanged?.call();
   }
-
-
-
 }

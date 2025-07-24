@@ -1,12 +1,11 @@
 import 'dart:typed_data';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:video_compress/video_compress.dart';
 
-class StoryCard extends StatefulWidget {
+class StoryCard extends StatelessWidget {
   final StoryModel story;
   final List<StoryModel> allStories;
   final int index;
@@ -21,11 +20,6 @@ class StoryCard extends StatefulWidget {
     required this.onTap,
   });
 
-  @override
-  State<StoryCard> createState() => _StoryCardState();
-}
-
-class _StoryCardState extends State<StoryCard> {
   bool _isVideo(String url) {
     return url.endsWith(".mp4") ||
         url.endsWith(".mov") ||
@@ -33,26 +27,32 @@ class _StoryCardState extends State<StoryCard> {
         url.endsWith(".mkv");
   }
 
-  Rxn<Uint8List> uint8list = Rxn<Uint8List>();
+  Future<Uint8List?> _getThumbNail() async {
+    final mediaUrl = story.stories?.first.mediaUrl;
+    if (mediaUrl == null || mediaUrl.isEmpty) {
+      return null;
+    }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (_isVideo(widget.story.stories?.first.mediaUrl ?? "")) {
-        uint8list.value = await VideoCompress.getByteThumbnail(
-          widget.story.stories?.first.mediaUrl ?? "",
-          quality: 50,
-          position: -1,
-        );
-      }
-    });
+    try {
+      return await VideoCompress.getByteThumbnail(
+        mediaUrl,
+        quality: 50,
+        position: -1,
+      );
+    } catch (e) {
+      debugPrint('Video thumbnail generation failed: $e');
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
+    if (story.stories == null || story.stories!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return InkWell(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Column(
@@ -60,29 +60,14 @@ class _StoryCardState extends State<StoryCard> {
           children: [
             CircleAvatar(
               radius: 32,
-              backgroundColor:
-                  widget.isSeen ? Colors.grey : AppColors.primaryColor,
-              child: _isVideo(widget.story.stories?.first.mediaUrl ?? "")
-                  ? Obx(() {
-                      if (uint8list.value != null) {
-                        return CircleAvatar(
-                          radius: 30,
-                          backgroundImage: MemoryImage(uint8list.value!),
-                        );
-                      } else {
-                        return const CircleAvatar(radius: 30);
-                      }
-                    })
-                  : CircleAvatar(
-                      radius: 30,
-                      backgroundImage: NetworkImage(
-                        widget.story.stories?.first.mediaUrl ?? "",
-                      ),
-                    ),
+              backgroundColor: isSeen ? Colors.grey : AppColors.primaryColor,
+              child: _isVideo(story.stories?.first.mediaUrl ?? "")
+                  ? _buildVideoThumbNail()
+                  : _buildImage(),
             ),
             const SizedBox(height: 4),
             Text(
-              widget.story.fullName?.split(" ")[0].toString() ?? "",
+              story.fullName?.split(" ")[0].toString() ?? "",
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -91,6 +76,52 @@ class _StoryCardState extends State<StoryCard> {
           ],
         ),
       ),
+    );
+  }
+
+  CircleAvatar _buildImage() {
+    return CircleAvatar(
+      radius: 30,
+      backgroundImage: CachedNetworkImageProvider(
+        story.stories?.first.mediaUrl ?? "",
+      ),
+      onBackgroundImageError: (exception, stackTrace) {
+        debugPrint('Story image load failed: $exception');
+      },
+      child: story.stories?.first.mediaUrl?.isEmpty ?? true
+          ? const Icon(Icons.person, color: Colors.grey)
+          : null,
+    );
+  }
+
+  FutureBuilder<Uint8List?> _buildVideoThumbNail() {
+    return FutureBuilder(
+      future: _getThumbNail(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircleAvatar(
+            radius: 30,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          );
+        }
+
+        // HANDLE ERROR STATE:
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+          return const CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.grey,
+            child: Icon(Icons.play_circle_outline, color: Colors.white),
+          );
+        }
+
+        return CircleAvatar(
+          radius: 30,
+          backgroundImage: MemoryImage(snapshot.data!),
+        );
+      },
     );
   }
 }

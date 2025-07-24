@@ -1,4 +1,3 @@
-
 import 'package:echodate/app/controller/story_controller.dart';
 import 'package:echodate/app/controller/user_controller.dart';
 import 'package:echodate/app/modules/story/controller/view_story_full_screen_controller.dart';
@@ -7,7 +6,6 @@ import 'package:echodate/app/modules/story/widgets/story_card_widget.dart';
 import 'package:echodate/app/modules/story/widgets/user_posted_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 
 class StoryCardBuilderWidget extends StatelessWidget {
   StoryCardBuilderWidget({super.key});
@@ -40,8 +38,16 @@ class StoryCardBuilderWidget extends StatelessWidget {
               allStories: _storyController.allstoriesList,
             );
           }
-          final story = _storyController.allstoriesList[index - 1];
+          final storyIndex = index - 1;
+          if (storyIndex >= _storyController.allstoriesList.length) {
+            return const SizedBox.shrink();
+          }
+          final story = _storyController.allstoriesList[storyIndex];
           final userId = _userController.userModel.value?.id ?? "";
+          
+          if (story.stories == null || story.stories!.isEmpty) {
+            return const SizedBox.shrink();
+          }
           bool isSeen = story.stories
                   ?.every((s) => s.viewedBy?.contains(userId) ?? false) ??
               false;
