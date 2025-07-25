@@ -20,6 +20,7 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Obx(() {
+            print(_userController.potentialMatchesList.length);
             if (_userController.isloading.value) {
               return const Center(
                 child: CircularProgressIndicator(
@@ -75,10 +76,10 @@ class GetPotentialMatchesBuilder extends StatelessWidget {
   }
 
   Widget _buildEmptySwipeCardWidget() {
-    return const Center(
+    return Center(
       child: Text(
         "No matches found",
-        style: TextStyle(color: Colors.black),
+        style: Get.textTheme.bodyMedium,
       ),
     ).animate(
       effects: [

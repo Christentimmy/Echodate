@@ -7,9 +7,6 @@ class ViewStoryFullScreenController extends GetxController {
   RxInt currentStoryIndex = 0.obs;
   RxInt tapIndexHomePage = 0.obs;
 
-  // bool _hasNavigatedBack = false;
-  // bool get hasNavigatedBack => _hasNavigatedBack;
-
   final _storyController = Get.find<StoryController>();
 
   // Callback for when story changes (used by the view to restart timers)
@@ -35,9 +32,9 @@ class ViewStoryFullScreenController extends GetxController {
   }
 
   void goToNextStory() {
-    // if (_hasNavigatedBack) return;
     if (currentUserIndex.value >= _storyController.allstoriesList.length) {
-      return Navigator.pop(Get.context!);
+      Navigator.maybePop(Get.context!);
+      return;
     }
 
     final storyModel = _storyController.allstoriesList[currentUserIndex.value];
@@ -45,7 +42,8 @@ class ViewStoryFullScreenController extends GetxController {
     final allStories = _storyController.allstoriesList;
 
     if (stories == null || stories.isEmpty) {
-      return Navigator.pop(Get.context!);
+      Navigator.maybePop(Get.context!);
+      return;
     }
 
     if (currentStoryIndex.value < stories.length - 1) {
@@ -62,7 +60,6 @@ class ViewStoryFullScreenController extends GetxController {
     } else if (currentUserIndex.value < allStories.length - 1) {
       currentUserIndex.value++;
       currentStoryIndex.value = 0;
-      // ADD SAFETY CHECK:
       if (currentUserIndex.value < allStories.length) {
         final nextStoryModel = allStories[currentUserIndex.value];
         if (nextStoryModel.stories?.isNotEmpty ?? false) {

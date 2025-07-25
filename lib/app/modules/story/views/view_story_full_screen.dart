@@ -118,7 +118,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
 
     _progressAnimationController.addStatusListener((status) {
       if (status == AnimationStatus.completed && !_isPaused) {
-        // _goToNextStory();
+        _goToNextStory();
       }
     });
   }
@@ -241,7 +241,9 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
           onPanEnd: (details) {
             if (_dragOffset >
                 MediaQuery.of(context).size.height * _dragThreshold) {
-              Navigator.pop(context);
+              _pauseStory();
+              Navigator.maybePop(Get.context!);
+              return;
             } else {
               setState(() {
                 _isDragging = false;
@@ -543,7 +545,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 _buildTextField(storyModel),
-                SizedBox(height: _isKeyboardVisible ? 10 : 40.0),
+                SizedBox(height: _isKeyboardVisible ? 10 : 65.0),
               ],
             ),
     );

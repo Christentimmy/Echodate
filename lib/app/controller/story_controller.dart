@@ -116,7 +116,6 @@ class StoryController extends GetxController {
 
       if (response == null) return;
       final decoded = json.decode(response.body);
-      print(decoded);
       String message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
         debugPrint(message);
