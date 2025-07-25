@@ -20,7 +20,7 @@ class VerificationService {
         ..files.add(await http.MultipartFile.fromPath('id_back', idBack.path))
         ..files.add(await http.MultipartFile.fromPath('selfie', selfie.path));
 
-      final streamedResponse = await request.send().timeout(const Duration(seconds: 15));
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 60));
       final response = await http.Response.fromStream(streamedResponse);
       return response;
     } on TimeoutException catch (_) {

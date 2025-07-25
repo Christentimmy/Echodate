@@ -117,10 +117,8 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
     ).animate(_progressAnimationController);
 
     _progressAnimationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed &&
-          !_isPaused &&
-          !_viewStoryScreenController.hasNavigatedBack) {
-        _goToNextStory();
+      if (status == AnimationStatus.completed && !_isPaused) {
+        // _goToNextStory();
       }
     });
   }
@@ -541,9 +539,12 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
                 ),
               ),
             )
-          : Align(
-              alignment: Alignment.bottomCenter,
-              child: _buildTextField(storyModel),
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                _buildTextField(storyModel),
+                SizedBox(height: _isKeyboardVisible ? 10 : 40.0),
+              ],
             ),
     );
   }
@@ -551,7 +552,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
   Widget _buildTextField(StoryModel storyModel) {
     return Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 5,
+        bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Row(
         children: [

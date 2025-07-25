@@ -168,13 +168,27 @@ class _AppSettingsState extends State<AppSettings>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Obx(
-                            () => Text(
-                              _userController.userModel.value?.fullName ?? "",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                              ),
+                            () => Row(
+                              children: [
+                                Text(
+                                  _userController.userModel.value?.fullName ??
+                                      "",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 3),
+                                _userController.userModel.value?.isVerified ==
+                                        true
+                                    ? const Icon(
+                                        Icons.verified,
+                                        color: Colors.blue,
+                                        size: 18,
+                                      )
+                                    : const SizedBox.shrink(),
+                              ],
                             ),
                           ),
                           Obx(() {

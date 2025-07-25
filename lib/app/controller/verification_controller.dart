@@ -34,6 +34,7 @@ class VerificationController extends GetxController {
       final message = decoded["message"] ?? "";
       if (response.statusCode != 200) {
         CustomSnackbar.showErrorSnackBar(message);
+        return;
       }
       Get.offAll(() => BottomNavigationScreen());
     } catch (e) {

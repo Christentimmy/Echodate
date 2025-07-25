@@ -140,6 +140,7 @@ class EditProfileScreen extends StatelessWidget {
               }),
               const SizedBox(height: 20.0),
               BuildSaveButton(),
+              const SizedBox(height: 35.0),
             ],
           ),
         ),
