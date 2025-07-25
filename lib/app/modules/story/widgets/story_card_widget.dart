@@ -1,9 +1,7 @@
-import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:echodate/app/models/story_model.dart';
 import 'package:echodate/app/resources/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:video_compress/video_compress.dart';
 
 class StoryCard extends StatelessWidget {
   final StoryModel story;
@@ -27,24 +25,6 @@ class StoryCard extends StatelessWidget {
         url.endsWith(".mkv");
   }
 
-  Future<Uint8List?> _getThumbNail() async {
-    final mediaUrl = story.stories?.first.mediaUrl;
-    if (mediaUrl == null || mediaUrl.isEmpty) {
-      return null;
-    }
-
-    try {
-      return await VideoCompress.getByteThumbnail(
-        mediaUrl,
-        quality: 50,
-        position: -1,
-      );
-    } catch (e) {
-      debugPrint('Video thumbnail generation failed: $e');
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (story.stories == null || story.stories!.isEmpty) {
@@ -61,9 +41,7 @@ class StoryCard extends StatelessWidget {
             CircleAvatar(
               radius: 32,
               backgroundColor: isSeen ? Colors.grey : AppColors.primaryColor,
-              child: _isVideo(story.stories?.first.mediaUrl ?? "")
-                  ? _buildVideoThumbNail()
-                  : _buildImage(),
+              child: _buildMedia(),
             ),
             const SizedBox(height: 4),
             Text(
@@ -77,6 +55,15 @@ class StoryCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildMedia() {
+    bool isVideo = _isVideo(story.stories?.first.mediaUrl ?? "");
+    if (isVideo) {
+      return _buildVideoThumbNail();
+    } else {
+      return _buildImage();
+    }
   }
 
   CircleAvatar _buildImage() {
@@ -94,34 +81,18 @@ class StoryCard extends StatelessWidget {
     );
   }
 
-  FutureBuilder<Uint8List?> _buildVideoThumbNail() {
-    return FutureBuilder(
-      future: _getThumbNail(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircleAvatar(
-            radius: 30,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          );
-        }
-
-        // HANDLE ERROR STATE:
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
-          return const CircleAvatar(
-            radius: 30,
-            backgroundColor: Colors.grey,
-            child: Icon(Icons.play_circle_outline, color: Colors.white),
-          );
-        }
-
-        return CircleAvatar(
-          radius: 30,
-          backgroundImage: MemoryImage(snapshot.data!),
-        );
+  _buildVideoThumbNail() {
+    return CircleAvatar(
+      radius: 30,
+      backgroundImage: CachedNetworkImageProvider(
+        story.stories?.first.thumbnailUrl ?? "",
+      ),
+      onBackgroundImageError: (exception, stackTrace) {
+        debugPrint('Story image load failed: $exception');
       },
+      child: story.stories?.first.thumbnailUrl?.isEmpty ?? true
+          ? const Icon(Icons.person, color: Colors.grey)
+          : null,
     );
   }
 }

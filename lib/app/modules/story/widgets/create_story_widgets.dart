@@ -28,7 +28,9 @@ Future<dynamic> displayMediaOptionWidget(
           ),
           title: Text(
             'Select a video',
-            style: Get.textTheme.bodyLarge,
+            style: Get.textTheme.bodyMedium!.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           onTap: () {
             Navigator.pop(context);
@@ -42,7 +44,9 @@ Future<dynamic> displayMediaOptionWidget(
           ),
           title: Text(
             'Select from gallery',
-            style: Get.textTheme.bodyLarge,
+            style: Get.textTheme.bodyMedium!.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           onTap: () {
             Navigator.pop(context);

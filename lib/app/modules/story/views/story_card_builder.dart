@@ -44,7 +44,7 @@ class StoryCardBuilderWidget extends StatelessWidget {
           }
           final story = _storyController.allstoriesList[storyIndex];
           final userId = _userController.userModel.value?.id ?? "";
-          
+
           if (story.stories == null || story.stories!.isEmpty) {
             return const SizedBox.shrink();
           }

@@ -37,6 +37,7 @@ class StoryModel {
 class Stories {
   final String? content;
   final String? mediaUrl;
+  final String? thumbnailUrl;
   final String? mediaType;
   final DateTime? createdAt;
   final DateTime? expiresAt;
@@ -51,6 +52,7 @@ class Stories {
     this.expiresAt,
     this.viewedBy,
     this.id,
+    this.thumbnailUrl,
   });
 
   Map<String, dynamic> toMap() {
@@ -69,6 +71,7 @@ class Stories {
     return Stories(
       content: map['content'] ?? "",
       mediaUrl: map['mediaUrl'] ?? "",
+      thumbnailUrl: map['thumbnailUrl'] ?? "",
       mediaType: map['mediaType'] ?? "",
       createdAt: map['createdAt'] != null
           ? DateTime.tryParse(map['createdAt'].toString())

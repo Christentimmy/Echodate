@@ -52,6 +52,7 @@ dependencies:
   appinio_swiper: ^2.1.1
   path: ^1.9.1
   app_links: ^6.4.0
+  emoji_picker_flutter: ^4.3.0
 
 dev_dependencies:
   flutter_test:

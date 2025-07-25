@@ -91,7 +91,7 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
       }
     }
   }
- 
+
   @override
   void dispose() {
     _progressAnimationController.dispose();
@@ -117,7 +117,9 @@ class _ViewStoryFullScreenState extends State<ViewStoryFullScreen>
     ).animate(_progressAnimationController);
 
     _progressAnimationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed && !_isPaused) {
+      if (status == AnimationStatus.completed &&
+          !_isPaused &&
+          !_viewStoryScreenController.hasNavigatedBack) {
         _goToNextStory();
       }
     });
