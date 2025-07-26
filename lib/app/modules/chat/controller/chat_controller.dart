@@ -43,6 +43,8 @@ class ChatController extends GetxController {
   final isVisible = true.obs;
   Timer? _visibilityTimer;
 
+  final RxBool showEmojiPicker = false.obs;
+
   @override
   void onInit() {
     super.onInit();

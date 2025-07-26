@@ -5,8 +5,8 @@ import 'package:echodate/app/modules/chat/widgets/shared/reply_to_content_widget
 import 'package:echodate/app/modules/chat/widgets/textfield/audio_input_widget.dart';
 import 'package:echodate/app/modules/chat/widgets/textfield/input_decoration.dart';
 import 'package:echodate/app/resources/colors.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 class NewChatInputFields extends StatelessWidget {
@@ -33,101 +33,135 @@ class NewChatInputFields extends StatelessWidget {
   }
 
   Widget _buildInputFieldRow(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Column(
       children: [
-        Container(
-          constraints: BoxConstraints(
-            maxWidth: Get.width * 0.845,
-            minHeight: 45,
-          ),
-          margin: const EdgeInsets.all(2.5),
-          decoration: chatInputFieldDecoration(),
-          child: Column(
-            children: [
-              ReplyToContent(
-                controller: controller,
-                chatHead: chatHead,
-                isSender: false,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Container(
+              constraints: BoxConstraints(
+                maxWidth: Get.width * 0.845,
+                minHeight: 45,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              margin: const EdgeInsets.all(2.5),
+              decoration: chatInputFieldDecoration(),
+              child: Column(
                 children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const FaIcon(
-                      FontAwesomeIcons.solidFaceSmile,
-                      color: Colors.grey,
-                    ),
+                  ReplyToContent(
+                    controller: controller,
+                    chatHead: chatHead,
+                    isSender: false,
                   ),
-                  Expanded(
-                    child: TextField(
-                      minLines: 1,
-                      maxLines: 3,
-                      cursorColor: AppColors.primaryColor,
-                      controller: controller.textMessageController,
-                      onChanged: controller.handleTyping,
-                      style: Get.textTheme.labelMedium,
-                      decoration: InputDecoration(
-                        hintText: "Type a message...",
-                        hintStyle: Get.textTheme.labelMedium,
-                        border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      // IconButton(
+                      //   onPressed: () {
+                      //     FocusManager.instance.primaryFocus?.unfocus();
+                      //     Future.delayed(const Duration(milliseconds: 200), () {
+                      //       controller.showEmojiPicker.toggle();
+                      //     });
+                      //   },
+                      //   icon: const FaIcon(
+                      //     FontAwesomeIcons.solidFaceSmile,
+                      //     color: Colors.grey,
+                      //   ),
+                      // ),
+                      const SizedBox(width: 13),
+                      Expanded(
+                        child: TextField(
+                          minLines: 1,
+                          maxLines: 3,
+                          onTap: () {
+                            controller.showEmojiPicker.value = false;
+                            FocusManager.instance.primaryFocus?.requestFocus();
+                          },
+                          cursorColor: AppColors.primaryColor,
+                          controller: controller.textMessageController,
+                          onChanged: controller.handleTyping,
+                          style: Get.textTheme.labelMedium,
+                          decoration: InputDecoration(
+                            hintText: "Type a message...",
+                            hintStyle: Get.textTheme.labelMedium,
+                            border: InputBorder.none,
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.attach_file_rounded,
-                      color: Colors.grey,
-                    ),
-                    onPressed: () => _showMediaPickerBottomSheet(context),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.attach_file_rounded,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () => _showMediaPickerBottomSheet(context),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            Obx(() {
+              final hasTextOrMedia = controller.wordsTyped.value.isNotEmpty ||
+                  controller.mediaController.selectedFile.value != null ||
+                  controller.audioController.selectedFile.value != null ||
+                  controller.mediaController.multipleMediaSelected.isNotEmpty;
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 2.0),
+                child: CircleAvatar(
+                  radius: 24,
+                  backgroundColor: AppColors.primaryColor,
+                  child: IconButton(
+                    icon: Icon(
+                      hasTextOrMedia ? Icons.send : Icons.mic,
+                      color: Colors.white,
+                      size: hasTextOrMedia ? 18 : null,
+                    ),
+                    onPressed: hasTextOrMedia
+                        ? controller.sendMessage
+                        : controller.audioController.startRecording,
+                  ),
+                ),
+              );
+            }),
+          ],
         ),
-        Obx(() {
-          if (controller.wordsTyped.value.isNotEmpty ||
-              controller.mediaController.selectedFile.value != null ||
-              controller.audioController.selectedFile.value != null ||
-              controller.mediaController.multipleMediaSelected.isNotEmpty) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 2.0),
-              child: CircleAvatar(
-                radius: 24,
-                backgroundColor: AppColors.primaryColor,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.send,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                  onPressed: controller.sendMessage,
-                ),
-              ),
-            );
-          } else {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 2.0),
-              child: CircleAvatar(
-                radius: 24,
-                backgroundColor: AppColors.primaryColor,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.mic,
-                    color: Colors.white,
-                  ),
-                  onPressed: controller.audioController.startRecording,
-                ),
-              ),
-            );
-          }
-        }),
+        // Emoji picker
+        // _buildEmojiPicker(),
       ],
     );
+  }
+
+  Obx buildEmojiPicker() {
+    return Obx(() => controller.showEmojiPicker.value
+        ? SizedBox(
+            height: Get.height * 0.35,
+            child: EmojiPicker(
+              onEmojiSelected: (category, emoji) {
+                final text = controller.textMessageController.text;
+                final selection = controller.textMessageController.selection;
+                final newText = text.replaceRange(
+                  selection.start,
+                  selection.end,
+                  emoji.emoji,
+                );
+                controller.textMessageController.value = TextEditingValue(
+                  text: newText,
+                  selection: TextSelection.collapsed(
+                    offset: selection.start + emoji.emoji.length,
+                  ),
+                );
+              },
+              config: Config(
+                bottomActionBarConfig: BottomActionBarConfig(
+                  backgroundColor: Get.theme.colorScheme.surface,
+                  buttonColor: Get.theme.scaffoldBackgroundColor,
+                ),
+              ),
+            ),
+          )
+        : const SizedBox());
   }
 
   void _showMediaPickerBottomSheet(BuildContext context) {

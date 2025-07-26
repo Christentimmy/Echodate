@@ -53,6 +53,7 @@ Future<dynamic> displayMediaOptionWidget(
             controller.selectImage();
           },
         ),
+        const SizedBox(height: 45),
       ],
     ),
   );

@@ -409,6 +409,7 @@ class WithdrawScreenController extends GetxController
                 Get.to(() => const WithdrawHistoryScreen());
               },
             ),
+            const SizedBox(height: 30),
           ],
         ),
       ),

@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:echodate/app/models/message_model.dart';
 import 'package:echodate/app/modules/chat/controller/chat_controller.dart';
 import 'package:echodate/app/modules/chat/widgets/shimmer/chat_loader_shimmer.dart';
